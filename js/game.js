@@ -12,8 +12,6 @@ class DogeMinerGame {
         this.pickaxes = [];
         this.currentPickaxe = 'standard';
         
-        // Rock health system removed - simplified mining
-        
         // Game state
         this.isPlaying = false;
         this.lastSave = Date.now();
@@ -44,10 +42,10 @@ class DogeMinerGame {
         this.currentBackgroundIndex = 0;
         this.backgroundRotationInterval = null;
         
-        // Blinking animation
+        // Blink animation
         this.blinkInterval = null;
         
-        // Rick Doge system
+        // rkn spawn
         this.rickInterval = null;
         this.rickVisible = false;
         this.rickSprites = [
@@ -308,8 +306,6 @@ class DogeMinerGame {
         }
     }
     
-    // Rock health system removed - simplified mining
-    
     createParticleEffect(event) {
         const container = document.getElementById('particle-container');
         if (!container) return;
@@ -419,7 +415,7 @@ class DogeMinerGame {
         const startX = rockRect.left + rockRect.width / 2 - containerRect.left;
         const startY = rockRect.top + rockRect.height / 2 - containerRect.top;
         
-        // Create DogeCoin image
+        // Create DogeCoin
         const coin = document.createElement('img');
         coin.src = 'assets/general/dogecoin_70x70.png';
         coin.className = 'dogecoin-effect';

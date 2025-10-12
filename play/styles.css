@@ -15,6 +15,10 @@ body {
     width: 100vw; /* Fixed width to viewport */
     margin: 0;
     padding: 0;
+    /* Force consistent scaling - disable browser zoom */
+    zoom: 1;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
 }
 
 /* Page Background - Full Screen for Ads */
@@ -52,23 +56,23 @@ body {
     opacity: 1;
 }
 
-/* Game Container - Centered with Margins for Ads */
+/* Game Container - Fixed Size for Consistent Display */
 #game-container {
-    position: relative;
+    position: absolute;
     z-index: 10;
-    width: calc(100vw - 320px); /* Full width minus left and right ad spaces */
-    margin: 20px auto; /* Centered horizontally */
-    margin-left: 160px; /* Left margin for left ad */
-    margin-right: 160px; /* Right margin for right ad */
-    margin-bottom: 10px; /* Reduced bottom margin to extend panels down */
+    /* Fixed dimensions for 1920x1080 reference */
+    width: 1200px; /* Fixed width - equivalent to 1920px minus ad spaces */
+    height: 590px; /* Perfect size for bottom ad space */
+    margin: 0;
     padding: 0;
     display: flex;
     gap: 4px;
     justify-content: center; /* Center the panels within the container */
-    /* Extended height for both panels */
-    height: calc(100vh - 150px); /* Extended height */
-    max-height: calc(100vh - 40px); /* Ensure it doesn't exceed viewport */
     overflow: hidden; /* Prevent internal scrolling */
+    /* Position at top with 20px gap */
+    top: 20px; /* 20px from top of page */
+    left: 50%;
+    transform: translateX(-50%); /* Only translate horizontally */
 }
 
 /* Game Panels - Opaque Rounded Rectangles */
@@ -81,7 +85,8 @@ body {
 }
 
 #left-panel {
-    width: 630px;
+    width: 630px; /* Fixed width */
+    height: 100%; /* Use full container height */
     flex: none;
     background: rgba(245, 245, 220, 0.95); /* Light beige with transparency */
     border: 1px solid #d4af37;
@@ -89,6 +94,7 @@ body {
 
 #right-panel {
     width: 510px; /* Fixed width */
+    height: 100%; /* Use full container height */
     flex: none;
     background: rgba(255, 250, 205, 0.95); /* Light yellow with transparency */
     border: 1px solid #d4af37;
@@ -109,6 +115,57 @@ body {
     align-items: center;
     gap: 5px; /* Even closer together */
     flex-direction: row-reverse; /* This puts Doge on the right */
+}
+
+/* Platform - Behind everything */
+#platform-container {
+    position: absolute;
+    top: calc(50% + 125px); /* 25px up from previous position (150px - 25px) */
+    left: calc(50% - 20px); /* 50px left from previous position (30px - 50px) */
+    transform: translate(-50%, -50%);
+    z-index: 0; /* Behind everything else */
+    pointer-events: none; /* Don't interfere with clicks */
+}
+
+#platform {
+    width: 350px; /* 50px bigger (300px + 50px) */
+    height: auto;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Helper Container */
+#helper-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Allow clicks to pass through to mining area */
+    z-index: 5; /* Above platform, below mining area */
+}
+
+/* Helper Sprites */
+.helper-sprite {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    z-index: 5;
+    transition: transform 0.1s ease;
+}
+
+.helper-sprite.attached-to-mouse {
+    pointer-events: none;
+    z-index: 1000; /* Above everything when attached to mouse */
+}
+
+.helper-sprite.mining {
+    animation: helperMining 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes helperMining {
+    0% { transform: scale(1) rotate(0deg); }
+    100% { transform: scale(1.1) rotate(2deg); }
 }
 
 /* Rock Setup */
@@ -386,7 +443,7 @@ body {
     grid-template-rows: auto auto auto;
     row-gap: 4px;
     column-gap: 4px;
-    padding: 4px;
+    padding: 4px 4px 4px 4px; /* 4px padding on all sides including bottom */
 }
 
 .shop-grid-item {
@@ -1035,87 +1092,39 @@ body {
     animation: glow 1s ease-in-out infinite;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
+/* Fixed Size Design - Consistent Display Across All Resolutions */
+/* The game maintains consistent 1920x1080 appearance on all displays */
+
+/* Ensure the game container scales appropriately on smaller screens */
+@media (max-width: 1200px) {
     #game-container {
-        width: calc(100% - 20px);
-        margin: 10px auto;
-        padding: 0 10px;
-        flex-direction: column;
-        gap: 10px;
-        height: calc(100vh - 140px); /* Adjust for mobile */
-    }
-    
-    .game-panel {
-        height: auto;
-        min-height: 300px;
-    }
-    
-    #left-panel {
-        min-width: unset;
-        flex: 1;
-        height: 50vh;
-    }
-    
-    #right-panel {
-        min-width: unset;
-        flex: 1;
-        height: 40vh;
-    }
-    
-    #mining-area {
-        flex-direction: column;
-        gap: 20px;
-    }
-    
-    #main-rock {
-        width: 120px;
-        height: 120px;
-    }
-    
-    #main-character {
-        width: 80px;
-        height: 80px;
-    }
-    
-    #panel-content {
-        height: calc(40vh - 60px);
-    }
-    
-    .tab-btn {
-        font-size: 12px;
-        padding: 10px 6px;
+        transform: translateX(-50%) scale(0.8);
+        top: 20px;
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 960px) {
     #game-container {
-        width: calc(100% - 10px);
-        margin: 5px auto;
-        padding: 0 5px;
-        height: calc(100vh - 120px);
-    }
-    
-    #left-panel {
-        height: 45vh;
-    }
-    
-    #right-panel {
-        height: 45vh;
-    }
-    
-    #panel-content {
-        height: calc(45vh - 60px);
-    }
-    
-    .stat-item {
-        padding: 8px 12px;
-    }
-    
-    .stat-item span {
-        font-size: 16px;
+        transform: translateX(-50%) scale(0.6);
+        top: 20px;
     }
 }
+
+@media (max-width: 720px) {
+    #game-container {
+        transform: translateX(-50%) scale(0.4);
+        top: 20px;
+    }
+}
+
+/* Prevent any scaling on very large screens */
+@media (min-width: 1920px) {
+    #game-container {
+        transform: translateX(-50%) scale(1);
+        top: 20px;
+    }
+}
+
 
 /* Scrollbar Styling */
 #panel-content::-webkit-scrollbar {

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1920, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DogeMiner: Community Edition</title>
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -46,6 +46,11 @@
     <div id="game-container">
         <!-- Left Panel - Mining Area -->
         <div id="left-panel" class="game-panel">
+                <!-- Platform (behind everything) -->
+                <div id="platform-container">
+                    <img src="../assets/quickUI/dogeplatform.png" alt="Platform" id="platform">
+                </div>
+                
                 <!-- Mining Area -->
                 <div id="mining-area">
                     <!-- Character with Shadow Circle -->
@@ -67,6 +72,9 @@
                     <!-- Floating Coins -->
                     <div id="floating-coins"></div>
                 </div>
+
+                <!-- Helper Container -->
+                <div id="helper-container"></div>
 
             <!-- Stats Display -->
             <div id="stats-display">

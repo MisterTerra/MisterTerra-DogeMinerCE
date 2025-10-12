@@ -8,8 +8,6 @@ class DogeMinerGame {
         this.highestDps = 0;
         this.currentLevel = 'earth';
         this.helpers = [];
-        this.pickaxes = [];
-        this.currentPickaxe = 'standard';
         
      
         
@@ -26,9 +24,21 @@ class DogeMinerGame {
         this.isSpaceDown = false;
         this.swingTimeout = null;
         
-        // Animation and effects
+        // Click rate limiting (max 15 CPS like original DogeMiner 2)
+        this.maxCPS = 15;
+        this.clickTimes = [];
+        this.lastClickTime = 0;
+        
+        // Animation and effects with limits
         this.clickEffects = [];
         this.particles = [];
+        this.maxEffects = 20; // Limit concurrent effects
+        this.maxParticles = 50; // Limit concurrent particles
+        
+        // Helper placement system
+        this.helperBeingPlaced = null;
+        this.helperSpriteBeingPlaced = null;
+        this.placedHelpers = []; // Array of placed helper objects with positions
         
         // Background rotation
         this.backgrounds = [
@@ -73,115 +83,10 @@ class DogeMinerGame {
     }
     
     initializeGameData() {
-        // Helper definitions
-        this.helperTypes = {
-            miningShibe: {
-                name: 'Mining Shibe',
-                baseCost: 20,
-                baseDps: 0.2,
-                icon: 'assets/helpers/shibes/shibes-idle-0.png',
-                description: 'Very kind shibe to mine much dogecoin.'
-            },
-            dogeKennels: {
-                name: 'Doge Kennels',
-                baseCost: 400,
-                baseDps: 2,
-                icon: 'assets/helpers/kennels/kennels-idle-0.png',
-                description: 'Wow very efficiency, entire kennels to mine dogecoin.'
-            },
-            streamerKittens: {
-                name: 'Streamer Kittens',
-                baseCost: 1800,
-                baseDps: 4,
-                icon: 'assets/helpers/kittens/kittens-idle-0.png',
-                description: 'Kittens to stream cute videos to the internet for dogecoin.'
-            },
-            spaceRocket: {
-                name: 'Space Rocket',
-                baseCost: 50000,
-                baseDps: 9,
-                icon: 'assets/helpers/rockets/rockets-idle-0.png',
-                description: 'A rocket to fly to the moon.'
-            },
-            timeMachineRig: {
-                name: 'Time Machine Mining Rig',
-                baseCost: 9999999,
-                baseDps: 66,
-                icon: 'assets/helpers/rigs/rigs-idle-0.png',
-                description: 'Mines into the future where infinite dogecoins exist.'
-            },
-            infiniteDogebility: {
-                name: 'Infinite Dogebility Drive',
-                baseCost: 9999999999,
-                baseDps: 999,
-                icon: 'assets/helpers/dogebility/dogebility-idle-0.png',
-                description: 'A ship that instantaneously travels to any place in the Universe. Result? Many Dogecoins.'
-            }
-        };
+        // Helper definitions will be loaded from shop.js
+        this.helperTypes = {};
         
-        // Pickaxe definitions
-        this.pickaxeTypes = {
-            standard: {
-                name: 'Standard Pickaxe',
-                cost: 0,
-                multiplier: 1,
-                icon: 'assets/items/items/pickaxes/standard.png',
-                description: 'Basic mining tool'
-            },
-            stronger: {
-                name: 'Stronger Pickaxe',
-                cost: 100,
-                multiplier: 2,
-                icon: 'assets/items/items/pickaxes/stronger.png',
-                description: 'More powerful mining'
-            },
-            golden: {
-                name: 'Golden Pickaxe',
-                cost: 500,
-                multiplier: 5,
-                icon: 'assets/items/items/pickaxes/golden.png',
-                description: 'Luxury mining equipment'
-            },
-            rocketaxe: {
-                name: 'Rocket Pickaxe',
-                cost: 2000,
-                multiplier: 10,
-                icon: 'assets/items/items/pickaxes/rocketaxe.png',
-                description: 'Space-age mining technology'
-            }
-        };
-        
-        // Level definitions
-        this.levels = {
-            earth: {
-                name: 'Earth',
-                background: 'assets/backgrounds/bg/bg1.jpg',
-                rock: 'assets/general/rocks/earth.png',
-                unlockCost: 0,
-                description: 'Start your mining journey on Earth'
-            },
-            moon: {
-                name: 'Moon',
-                background: 'assets/backgrounds/bg/bgmoon01.jpg',
-                rock: 'assets/general/rocks/moon.png',
-                unlockCost: 10000,
-                description: 'Mine in low gravity'
-            },
-            mars: {
-                name: 'Mars',
-                background: 'assets/backgrounds/bg/bg4.jpg',
-                rock: 'assets/general/rocks/mars.png',
-                unlockCost: 100000,
-                description: 'Red planet mining operations'
-            },
-            jupiter: {
-                name: 'Jupiter',
-                background: 'assets/backgrounds/bg/bgjup01.jpg',
-                rock: 'assets/general/rocks/jupiter.png',
-                unlockCost: 1000000,
-                description: 'Gas giant mining'
-            }
-        };
+        // Pickaxe and level systems will be implemented later
     }
     
     setupEventListeners() {
@@ -189,11 +94,10 @@ class DogeMinerGame {
         const rockContainer = document.getElementById('rock-container');
         const clickOverlay = document.getElementById('click-overlay');
         
-        // Mouse events
+        // Mouse events with click rate limiting
         clickOverlay.addEventListener('mousedown', (e) => {
             this.isMouseDown = true;
-            this.handleRockClick(e);
-            this.startSwing();
+            this.processClick(e);
         });
         
         document.addEventListener('mouseup', () => {
@@ -201,13 +105,12 @@ class DogeMinerGame {
             this.endSwing();
         });
         
-        // Keyboard events
+        // Keyboard events with click rate limiting
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && !e.repeat) {
                 e.preventDefault();
                 this.isSpaceDown = true;
-                this.handleRockClick();
-                this.startSwing();
+                this.processClick();
             }
         });
         
@@ -238,12 +141,18 @@ class DogeMinerGame {
         this.dogecoins += coinsPerHit;
         this.totalMined += coinsPerHit;
         
-        // Create floating coin effect
-        this.createFloatingCoin(coinsPerHit, event);
+        // Create floating coin effect (limited)
+        if (this.clickEffects.length < this.maxEffects) {
+            this.createFloatingCoin(coinsPerHit, event);
+        }
         
-        // Visual effects for hitting rock
-        this.createClickEffect(event);
-        this.createParticleEffect(event);
+        // Visual effects for hitting rock (limited)
+        if (this.clickEffects.length < this.maxEffects) {
+            this.createClickEffect(event);
+        }
+        if (this.particles.length < this.maxParticles) {
+            this.createParticleEffect(event);
+        }
         
         this.updateUI();
         
@@ -252,10 +161,35 @@ class DogeMinerGame {
         
     }
     
+    processClick(event = null) {
+        const now = Date.now();
+        
+        // Remove clicks older than 1 second from tracking
+        this.clickTimes = this.clickTimes.filter(time => now - time < 1000);
+        
+        // Check if we're at the 15 CPS limit
+        if (this.clickTimes.length >= this.maxCPS) {
+            // Discard this click - we've already hit the limit
+            return;
+        }
+        
+        // Check minimum interval between clicks (66ms = ~15 CPS)
+        if (now - this.lastClickTime < 66) {
+            // Too soon since last click, discard this one
+            return;
+        }
+        
+        // Process this click
+        this.clickTimes.push(now);
+        this.lastClickTime = now;
+        
+        this.handleRockClick(event);
+        this.startSwing();
+    }
+    
     getClickPower() {
         const basePower = 1; // 1% per hit like DogeMiner 2
-        const pickaxeMultiplier = this.pickaxeTypes[this.currentPickaxe].multiplier;
-        return basePower * pickaxeMultiplier;
+        return basePower;
     }
     
     swingPickaxe() {
@@ -452,26 +386,24 @@ class DogeMinerGame {
     
     buyHelper(helperType) {
         console.log('buyHelper called for:', helperType);
-        const helper = this.helperTypes[helperType];
+        // Get helper data from shop system
+        const helper = this.shopManager.shopData.helpers[helperType];
+        if (!helper) {
+            console.error('Helper type not found:', helperType);
+            return false;
+        }
+        
         const owned = this.helpers.filter(h => h.type === helperType).length;
         const cost = Math.floor(helper.baseCost * Math.pow(1.2, owned));
         
         if (this.dogecoins >= cost) {
             this.dogecoins -= cost;
-            this.helpers.push({
-                type: helperType,
-                dps: helper.baseDps,
-                owned: owned + 1
-            });
             
-            console.log('Helper bought, calling updateDPS and updateUI');
-            this.updateDPS();
+            // Start helper placement process
+            this.startHelperPlacement(helperType, helper);
+            
             this.updateUI();
-            
-            // Update shop prices after purchase
             this.updateShopPrices();
-            
-            this.showNotification(`Bought ${helper.name} for ${this.formatNumber(cost)} Dogecoins!`);
             this.playSound('check.wav');
             
             return true;
@@ -479,22 +411,203 @@ class DogeMinerGame {
         return false;
     }
     
-    buyPickaxe(pickaxeType) {
-        const pickaxe = this.pickaxeTypes[pickaxeType];
+    startHelperPlacement(helperType, helper) {
+        // Create helper sprite that follows mouse
+        const helperSprite = document.createElement('img');
+        helperSprite.src = helper.icon; // Use icon as idle sprite
+        helperSprite.className = 'helper-sprite attached-to-mouse';
+        helperSprite.style.opacity = '0.7';
         
-        if (this.dogecoins >= pickaxe.cost && !this.pickaxes.includes(pickaxeType)) {
-            this.dogecoins -= pickaxe.cost;
-            this.pickaxes.push(pickaxeType);
-            this.currentPickaxe = pickaxeType;
-            
-            this.updateUI();
-            this.showNotification(`Bought ${pickaxe.name}!`);
-            this.playSound('check.wav');
-            
-            return true;
-        }
-        return false;
+        document.getElementById('helper-container').appendChild(helperSprite);
+        
+        this.helperBeingPlaced = {
+            type: helperType,
+            helper: helper,
+            dps: helper.baseDps
+        };
+        this.helperSpriteBeingPlaced = helperSprite;
+        
+        // Add mouse move and click listeners for placement
+        this.addHelperPlacementListeners();
     }
+    
+    addHelperPlacementListeners() {
+        const handleMouseMove = (e) => {
+            if (this.helperSpriteBeingPlaced) {
+                const leftPanel = document.getElementById('left-panel');
+                const rect = leftPanel.getBoundingClientRect();
+                
+                // Position relative to left panel
+                const x = e.clientX - rect.left - 30; // Center the sprite
+                const y = e.clientY - rect.top - 30;
+                
+                this.helperSpriteBeingPlaced.style.left = x + 'px';
+                this.helperSpriteBeingPlaced.style.top = y + 'px';
+            }
+        };
+        
+        const handleClick = (e) => {
+            if (this.helperSpriteBeingPlaced) {
+                const leftPanel = document.getElementById('left-panel');
+                const rect = leftPanel.getBoundingClientRect();
+                
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Check if position is valid (not overlapping with existing helpers or mining area)
+                if (this.isValidHelperPosition(x, y)) {
+                    this.placeHelper(x, y);
+                }
+            }
+        };
+        
+        const handleRightClick = (e) => {
+            e.preventDefault();
+            this.cancelHelperPlacement();
+        };
+        
+        // Add listeners
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('click', handleClick);
+        document.addEventListener('contextmenu', handleRightClick);
+        
+        // Store references for cleanup
+        this.placementListeners = {
+            mousemove: handleMouseMove,
+            click: handleClick,
+            contextmenu: handleRightClick
+        };
+    }
+    
+    isValidHelperPosition(x, y) {
+        const helperSize = 60;
+        const margin = 10;
+        
+        // Check bounds of left panel
+        const leftPanel = document.getElementById('left-panel');
+        if (x < margin || y < margin || 
+            x + helperSize > leftPanel.offsetWidth - margin || 
+            y + helperSize > leftPanel.offsetHeight - margin) {
+            return false;
+        }
+        
+        // Check if overlapping with mining area (character and rock)
+        const miningArea = document.getElementById('mining-area');
+        const miningRect = miningArea.getBoundingClientRect();
+        const leftPanelRect = leftPanel.getBoundingClientRect();
+        
+        const miningX = miningRect.left - leftPanelRect.left;
+        const miningY = miningRect.top - leftPanelRect.top;
+        
+        if (x + helperSize > miningX && x < miningX + miningRect.width &&
+            y + helperSize > miningY && y < miningY + miningRect.height) {
+            return false;
+        }
+        
+        // Check if overlapping with existing helpers
+        for (const placedHelper of this.placedHelpers) {
+            const distance = Math.sqrt(
+                Math.pow(x - placedHelper.x, 2) + Math.pow(y - placedHelper.y, 2)
+            );
+            if (distance < helperSize + margin) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    placeHelper(x, y) {
+        // Create the placed helper object
+        const placedHelper = {
+            ...this.helperBeingPlaced,
+            x: x,
+            y: y,
+            id: Date.now() + Math.random(), // Unique ID
+            isMining: false
+        };
+        
+        // Add to placed helpers array
+        this.placedHelpers.push(placedHelper);
+        
+        // Add to helpers array for DPS calculation
+        this.helpers.push({
+            type: this.helperBeingPlaced.type,
+            dps: this.helperBeingPlaced.dps,
+            owned: this.helpers.filter(h => h.type === this.helperBeingPlaced.type).length
+        });
+        
+        // Create the actual helper sprite
+        this.createHelperSprite(placedHelper);
+        
+        // Clean up placement
+        this.finishHelperPlacement();
+        
+        // Update DPS and UI
+        this.updateDPS();
+        this.updateUI();
+    }
+    
+    createHelperSprite(placedHelper) {
+        const helperSprite = document.createElement('img');
+        helperSprite.src = placedHelper.helper.icon; // Use icon as idle sprite
+        helperSprite.className = 'helper-sprite';
+        helperSprite.style.left = placedHelper.x + 'px';
+        helperSprite.style.top = placedHelper.y + 'px';
+        helperSprite.dataset.helperId = placedHelper.id;
+        
+        document.getElementById('helper-container').appendChild(helperSprite);
+        
+        // Start mining animation after a short delay
+        setTimeout(() => {
+            this.startHelperMining(placedHelper);
+        }, 1000);
+    }
+    
+    startHelperMining(placedHelper) {
+        const helperSprite = document.querySelector(`[data-helper-id="${placedHelper.id}"]`);
+        if (helperSprite) {
+            // For now, keep using the same sprite but add mining animation
+            // TODO: Add mining sprite support to shop data
+            helperSprite.classList.add('mining');
+            placedHelper.isMining = true;
+        }
+    }
+    
+    finishHelperPlacement() {
+        // Remove placement sprite
+        if (this.helperSpriteBeingPlaced) {
+            this.helperSpriteBeingPlaced.remove();
+            this.helperSpriteBeingPlaced = null;
+        }
+        
+        // Remove event listeners
+        if (this.placementListeners) {
+            document.removeEventListener('mousemove', this.placementListeners.mousemove);
+            document.removeEventListener('click', this.placementListeners.click);
+            document.removeEventListener('contextmenu', this.placementListeners.contextmenu);
+            this.placementListeners = null;
+        }
+        
+        // Clear placement state
+        this.helperBeingPlaced = null;
+    }
+    
+    cancelHelperPlacement() {
+        // Refund the cost
+        if (this.helperBeingPlaced) {
+            const helper = this.shopManager.shopData.helpers[this.helperBeingPlaced.type];
+            const owned = this.helpers.filter(h => h.type === this.helperBeingPlaced.type).length;
+            const cost = Math.floor(helper.baseCost * Math.pow(1.2, owned - 1));
+            this.dogecoins += cost;
+        }
+        
+        this.finishHelperPlacement();
+        this.updateUI();
+        this.updateShopPrices();
+    }
+    
+    // Pickaxe system will be implemented later
     
     updateDPS() {
         this.dps = this.helpers.reduce((total, helper) => {
@@ -886,8 +999,6 @@ class DogeMinerGame {
             dps: this.dps,
             currentLevel: this.currentLevel,
             helpers: this.helpers,
-            pickaxes: this.pickaxes,
-            currentPickaxe: this.currentPickaxe,
             timestamp: Date.now()
         };
         
@@ -906,8 +1017,6 @@ class DogeMinerGame {
                 this.dps = data.dps || 0;
                 this.currentLevel = data.currentLevel || 'earth';
                 this.helpers = data.helpers || [];
-                this.pickaxes = data.pickaxes || ['standard'];
-                this.currentPickaxe = data.currentPickaxe || 'standard';
                 
                 this.updateDPS();
                 this.updateUI();
