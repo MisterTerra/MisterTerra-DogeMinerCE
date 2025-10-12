@@ -12,11 +12,13 @@ async function initializeGame() {
         game = new DogeMinerGame();
         updateLoadingProgress(30);
         
-        // Initialize managers
-        uiManager = new UIManager(game);
+        // Initialize shop manager first (needed by UI manager)
+        shopManager = new ShopManager(game);
+        window.shopManager = shopManager; // Make available immediately
         updateLoadingProgress(50);
         
-        shopManager = new ShopManager(game);
+        // Initialize UI manager (depends on shop manager)
+        uiManager = new UIManager(game);
         updateLoadingProgress(70);
         
         saveManager = new SaveManager(game);
@@ -43,7 +45,7 @@ async function initializeGame() {
             // Make game and managers globally available
             window.game = game;
             window.uiManager = uiManager;
-            window.shopManager = shopManager;
+            // window.shopManager already assigned above
             window.saveManager = saveManager;
             window.notificationManager = notificationManager;
             

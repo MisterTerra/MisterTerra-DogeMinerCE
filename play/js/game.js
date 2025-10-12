@@ -84,8 +84,6 @@ class DogeMinerGame {
     
     initializeGameData() {
         // Helper definitions will be loaded from shop.js
-        this.helperTypes = {};
-        
         // Pickaxe and level systems will be implemented later
     }
     
@@ -387,7 +385,7 @@ class DogeMinerGame {
     buyHelper(helperType) {
         console.log('buyHelper called for:', helperType);
         // Get helper data from shop system
-        const helper = this.shopManager.shopData.helpers[helperType];
+        const helper = window.shopManager.shopData.helpers[helperType];
         if (!helper) {
             console.error('Helper type not found:', helperType);
             return false;
@@ -596,7 +594,7 @@ class DogeMinerGame {
     cancelHelperPlacement() {
         // Refund the cost
         if (this.helperBeingPlaced) {
-            const helper = this.shopManager.shopData.helpers[this.helperBeingPlaced.type];
+            const helper = window.shopManager.shopData.helpers[this.helperBeingPlaced.type];
             const owned = this.helpers.filter(h => h.type === this.helperBeingPlaced.type).length;
             const cost = Math.floor(helper.baseCost * Math.pow(1.2, owned - 1));
             this.dogecoins += cost;
@@ -632,7 +630,7 @@ class DogeMinerGame {
                 // Get helper type from the button's data attribute
                 const helperType = buyButton.getAttribute('data-helper-type');
                 if (helperType) {
-                    const helper = this.helperTypes[helperType];
+                    const helper = window.shopManager.shopData.helpers[helperType];
                     if (helper) {
                         const owned = this.helpers.filter(h => h.type === helperType).length;
                         const cost = Math.floor(helper.baseCost * Math.pow(1.2, owned));
@@ -936,7 +934,7 @@ class DogeMinerGame {
         document.getElementById('total-mined').textContent = this.formatNumber(Math.floor(this.totalMined));
         document.getElementById('total-clicks').textContent = this.formatNumber(this.totalClicks);
         document.getElementById('helpers-owned').textContent = this.helpers.length;
-        document.getElementById('current-level').textContent = this.levels[this.currentLevel].name;
+        document.getElementById('current-level').textContent = 'Earth'; // Default level name
         
         // Update play time
         const currentPlayTime = Math.floor((Date.now() - this.startTime) / 1000) + this.totalPlayTime;

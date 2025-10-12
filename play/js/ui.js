@@ -92,7 +92,7 @@ class UIManager {
     renderHelperShop(container) {
         container.innerHTML = ''; // Clear container completely
         
-        const helperEntries = Object.entries(this.game.helperTypes);
+        const helperEntries = Object.entries(window.shopManager.shopData.helpers);
         
         // Create 6 helper items (2x3 grid)
         for (let i = 0; i < 6; i++) {
