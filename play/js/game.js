@@ -141,15 +141,15 @@ class DogeMinerGame {
         
         // Create floating coin effect (limited)
         if (this.clickEffects.length < this.maxEffects) {
-            this.createFloatingCoin(coinsPerHit, event);
+        this.createFloatingCoin(coinsPerHit, event);
         }
         
         // Visual effects for hitting rock (limited)
         if (this.clickEffects.length < this.maxEffects) {
-            this.createClickEffect(event);
+        this.createClickEffect(event);
         }
         if (this.particles.length < this.maxParticles) {
-            this.createParticleEffect(event);
+        this.createParticleEffect(event);
         }
         
         this.updateUI();
@@ -397,11 +397,13 @@ class DogeMinerGame {
         if (this.dogecoins >= cost) {
             this.dogecoins -= cost;
             
+            // Update shop prices immediately after deducting dogecoins
+            this.updateShopPrices();
+            
             // Start helper placement process
             this.startHelperPlacement(helperType, helper);
             
             this.updateUI();
-            this.updateShopPrices();
             this.playSound('check.wav');
             
             return true;
@@ -501,8 +503,8 @@ class DogeMinerGame {
         if (x < margin || y < margin || 
             x + helperSize > leftPanel.offsetWidth - margin || 
             y + helperSize > leftPanel.offsetHeight - margin) {
-            return false;
-        }
+        return false;
+    }
         
         // Check if overlapping with mining area (character and rock)
         const miningArea = document.getElementById('mining-area');
@@ -692,7 +694,30 @@ class DogeMinerGame {
                         quantityElement.textContent = `#${owned}`;
                         
                         // Update price
-                        priceElement.textContent = this.formatNumber(cost);
+                        const priceText = this.formatNumber(cost);
+                        priceElement.textContent = priceText;
+                        
+                        // Recalculate button width based on new price length
+                        const priceLength = priceText.length;
+                        let buttonWidth = '45%'; // Default width
+                        
+                        // Scale button width based on price length
+                        if (priceLength >= 12) {
+                            buttonWidth = '90%'; // Extremely long prices (trillions+)
+                        } else if (priceLength >= 10) {
+                            buttonWidth = '85%'; // Very long prices (billions)
+                        } else if (priceLength >= 8) {
+                            buttonWidth = '75%'; // Long prices (millions)
+                        } else if (priceLength >= 6) {
+                            buttonWidth = '65%'; // Medium-long prices (hundreds of thousands)
+                        } else if (priceLength >= 4) {
+                            buttonWidth = '55%'; // Medium prices (thousands)
+                        } else {
+                            buttonWidth = '45%'; // Short prices (hundreds)
+                        }
+                        
+                        // Update button width
+                        buyButton.style.width = buttonWidth;
                         
                         // Update button state
                         if (canAfford) {

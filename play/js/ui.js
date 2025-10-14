@@ -112,15 +112,19 @@ class UIManager {
                 // Calculate button width based on price length
                 const priceText = this.game.formatNumber(cost);
                 const priceLength = priceText.length;
-                let buttonWidth = '45%'; // Even smaller default width
+                let buttonWidth = '45%'; // Default width
                 
                 // Scale button width based on price length
-                if (priceLength >= 8) {
-                    buttonWidth = '70%'; // Very long prices (millions/billions)
+                if (priceLength >= 12) {
+                    buttonWidth = '90%'; // Extremely long prices (trillions+)
+                } else if (priceLength >= 10) {
+                    buttonWidth = '85%'; // Very long prices (billions)
+                } else if (priceLength >= 8) {
+                    buttonWidth = '75%'; // Long prices (millions)
                 } else if (priceLength >= 6) {
-                    buttonWidth = '60%'; // Long prices (hundreds of thousands)
+                    buttonWidth = '65%'; // Medium-long prices (hundreds of thousands)
                 } else if (priceLength >= 4) {
-                    buttonWidth = '50%'; // Medium prices (thousands)
+                    buttonWidth = '55%'; // Medium prices (thousands)
                 } else {
                     buttonWidth = '45%'; // Short prices (hundreds)
                 }
@@ -134,7 +138,7 @@ class UIManager {
                     </div>
                     <div class="shop-item-description">${helper.description}</div>
                     <button class="shop-buy-btn" data-helper-type="${type}" 
-                            ${!canAfford ? 'disabled' : ''} style="width: ${buttonWidth} !important;">
+                            ${!canAfford ? 'disabled' : ''} style="width: ${buttonWidth};">
                         <img src="assets/general/dogecoin_70x70.png" alt="DogeCoin" class="buy-btn-icon">
                         <span class="buy-btn-price">${priceText}</span>
                     </button>
