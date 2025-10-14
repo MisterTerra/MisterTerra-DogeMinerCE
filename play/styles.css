@@ -87,7 +87,7 @@ body {
     width: 630px; /* Fixed width */
     height: 100%; /* Use full container height */
     flex: none;
-    background: linear-gradient(to bottom, rgba(240, 235, 220, 0.95), rgba(255, 240, 180, 0.95)); /* Gradient from light beige to darker beige */
+    background: linear-gradient(to bottom, rgba(240, 235, 220, 0.95) 20%, rgba(255, 240, 180, 0.95) 80%); /* Gradient with bottom color taking up more space */
     border: 1px solid #d4af37;
 }
 
@@ -95,7 +95,7 @@ body {
     width: 510px; /* Fixed width */
     height: 100%; /* Use full container height */
     flex: none;
-    background: linear-gradient(to bottom, rgba(240, 235, 220, 0.95), rgba(255, 240, 180, 0.95)); /* Same gradient as left panel */
+    background: linear-gradient(to bottom, rgba(240, 235, 220, 0.95) 20%, rgba(255, 240, 180, 0.95) 80%); /* Same gradient as left panel */
     border: 1px solid #d4af37;
     margin-top: 60px; /* Crop the top by 60px */
     height: calc(100% - 60px); /* Adjust height to account for top margin */
@@ -512,7 +512,7 @@ body {
 }
 
 .shop-grid-item {
-    background: rgba(255, 255, 255, 0.95);
+    background: linear-gradient(to bottom, rgba(240, 235, 220, 0.95) 20%, rgba(255, 240, 180, 0.95) 80%); /* Same gradient as panels */
     border: 1px solid #d4af37;
     border-radius: 6px;
     padding: 6px;
@@ -769,7 +769,7 @@ body {
     flex-direction: column;
     padding: 15px;
     margin-bottom: 10px;
-    background: rgba(255, 255, 255, 0.95);
+    background: linear-gradient(to bottom, rgba(240, 235, 220, 0.95) 20%, rgba(255, 240, 180, 0.95) 80%); /* Same gradient as panels */
     border-radius: 15px;
     border: 2px solid #d4af37;
     transition: all 0.2s ease;
