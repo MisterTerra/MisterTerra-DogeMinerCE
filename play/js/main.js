@@ -284,6 +284,7 @@ function addDebugConsole() {
         <div>Debug Console</div>
         <button onclick="game.dogecoins += 1000">+1000 Coins</button>
         <button onclick="game.dogecoins += 10000">+10000 Coins</button>
+        <button onclick="game.dogecoins = 40000000000000000; game.updateUI();" style="background: #ff6b6b; color: white;">+40 Quadrillion Coins</button>
         <button onclick="game.dps += 100">+100 DPS</button>
         <button onclick="game.rotateBackground()">Rotate Background</button>
         <button onclick="game.forceRickSpawn()">Spawn Rick</button>

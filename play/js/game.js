@@ -38,7 +38,8 @@ class DogeMinerGame {
         // Helper placement system
         this.helperBeingPlaced = null;
         this.helperSpriteBeingPlaced = null;
-        this.placedHelpers = []; // Array of placed helper objects with positions
+        this.placedHelpers = [];
+        this.helpersOnCursor = []; // Array to hold multiple helpers being placed // Array of placed helper objects with positions
         
         // Background rotation
         this.backgrounds = [
@@ -383,7 +384,6 @@ class DogeMinerGame {
     }
     
     buyHelper(helperType) {
-        console.log('buyHelper called for:', helperType);
         // Get helper data from shop system
         const helper = window.shopManager.shopData.helpers[helperType];
         if (!helper) {
@@ -397,13 +397,21 @@ class DogeMinerGame {
         if (this.dogecoins >= cost) {
             this.dogecoins -= cost;
             
-            // Update shop prices immediately after deducting dogecoins
+            // Add helper to the array immediately so price updates correctly
+            this.helpers.push({
+                type: helperType,
+                helper: helper,
+                dps: helper.baseDps
+            });
+            
+            // Update shop prices immediately after deducting dogecoins and adding helper
             this.updateShopPrices();
             
-            // Start helper placement process
-            this.startHelperPlacement(helperType, helper);
+            // Add helper to cursor stack instead of starting placement immediately
+            this.addHelperToCursor(helperType, helper);
             
-            this.updateUI();
+            // Update UI but skip shop prices since we already updated them
+            this.updateUI(true); // Pass true to skip shop price updates
             this.playSound('check.wav');
             
             return true;
@@ -411,60 +419,99 @@ class DogeMinerGame {
         return false;
     }
     
-    startHelperPlacement(helperType, helper) {
-        // Create helper sprite that follows mouse
-        const helperSprite = document.createElement('img');
-        helperSprite.src = helper.icon; // Use icon as idle sprite
-        helperSprite.className = 'helper-sprite attached-to-mouse';
-        helperSprite.style.opacity = '0.7';
-        
-        // Add special classes for different helper types (same as in createHelperSprite)
-        if (helperType === 'spaceRocket') {
-            helperSprite.classList.add('rocket');
-        } else if (helperType === 'miningShibe') {
-            helperSprite.classList.add('shibe');
-        }
-        
-        document.getElementById('helper-container').appendChild(helperSprite);
-        
-        this.helperBeingPlaced = {
+    addHelperToCursor(helperType, helper) {
+        // Add helper to the cursor stack
+        this.helpersOnCursor.push({
             type: helperType,
             helper: helper,
             dps: helper.baseDps
-        };
-        this.helperSpriteBeingPlaced = helperSprite;
+        });
+        
+        // If this is the first helper, start the placement system
+        if (this.helpersOnCursor.length === 1) {
+            this.startHelperPlacement();
+        } else {
+            // Update the existing cursor sprites to show the new stack
+            this.updateCursorSprites();
+        }
+    }
+    
+    startHelperPlacement() {
+        // Create sprites for all helpers on cursor
+        this.createCursorSprites();
         
         // Add mouse move and click listeners for placement
         this.addHelperPlacementListeners();
     }
     
+    createCursorSprites() {
+        // Clear any existing cursor sprites
+        this.clearCursorSprites();
+        
+        // Create sprites for each helper on cursor with stacking offset
+        this.helpersOnCursor.forEach((helperData, index) => {
+            const helperSprite = document.createElement('img');
+            helperSprite.src = helperData.helper.icon;
+            helperSprite.className = 'helper-sprite attached-to-mouse';
+            helperSprite.style.opacity = '0.7';
+            helperSprite.dataset.stackIndex = index;
+            
+            // Add special classes for different helper types
+            if (helperData.type === 'spaceRocket') {
+                helperSprite.classList.add('rocket');
+            } else if (helperData.type === 'miningShibe') {
+                helperSprite.classList.add('shibe');
+            }
+            
+            document.getElementById('helper-container').appendChild(helperSprite);
+        });
+    }
+    
+    updateCursorSprites() {
+        // Recreate all cursor sprites to show the updated stack
+        this.createCursorSprites();
+    }
+    
+    clearCursorSprites() {
+        // Remove all existing cursor sprites
+        const existingSprites = document.querySelectorAll('.helper-sprite.attached-to-mouse');
+        existingSprites.forEach(sprite => sprite.remove());
+    }
+    
     addHelperPlacementListeners() {
         const handleMouseMove = (e) => {
-            if (this.helperSpriteBeingPlaced) {
+            if (this.helpersOnCursor.length > 0) {
                 const leftPanel = document.getElementById('left-panel');
                 const rect = leftPanel.getBoundingClientRect();
                 
-                // Get helper size based on type
-                const helperSize = this.helperSpriteBeingPlaced.classList.contains('shibe') ? 30 : 60;
-                const offset = helperSize / 2; // Center the sprite
-                
-                // Position relative to left panel, centered on cursor
-                const x = e.clientX - rect.left - offset;
-                const y = e.clientY - rect.top - offset;
-                
-                this.helperSpriteBeingPlaced.style.left = x + 'px';
-                this.helperSpriteBeingPlaced.style.top = y + 'px';
+                // Update position of all cursor sprites with stacking offset
+                const cursorSprites = document.querySelectorAll('.helper-sprite.attached-to-mouse');
+                cursorSprites.forEach((sprite, index) => {
+                    const helperSize = sprite.classList.contains('shibe') ? 30 : 60;
+                    const offset = helperSize / 2; // Center the sprite
+                    
+                    // Add stacking offset - each sprite is offset by 8px
+                    const stackOffset = index * 8;
+                    
+                    // Position relative to left panel, centered on cursor with stack offset
+                    const x = e.clientX - rect.left - offset + stackOffset;
+                    const y = e.clientY - rect.top - offset + stackOffset;
+                    
+                    sprite.style.left = x + 'px';
+                    sprite.style.top = y + 'px';
+                });
             }
         };
         
         const handleClick = (e) => {
-            if (this.helperSpriteBeingPlaced) {
+            if (this.helpersOnCursor.length > 0) {
                 const leftPanel = document.getElementById('left-panel');
                 const rect = leftPanel.getBoundingClientRect();
                 
-                // Get helper size based on type
-                const helperSize = this.helperSpriteBeingPlaced.classList.contains('shibe') ? 30 : 60;
-                const offset = helperSize / 2; // Center the sprite
+                // Use the first helper's size for collision detection
+                const firstHelper = this.helpersOnCursor[0];
+                const helperSize = firstHelper.type === 'miningShibe' ? 30 : 60;
+                const offset = helperSize / 2;
                 
                 // Use the same positioning logic as mouse move
                 const x = e.clientX - rect.left - offset;
@@ -472,7 +519,7 @@ class DogeMinerGame {
                 
                 // Check if position is valid (not overlapping with existing helpers or mining area)
                 if (this.isValidHelperPosition(x, y, helperSize)) {
-                    this.placeHelper(x, y);
+                    this.placeAllHelpersOnCursor(x, y);
                 }
             }
         };
@@ -493,6 +540,43 @@ class DogeMinerGame {
             click: handleClick,
             contextmenu: handleRightClick
         };
+    }
+    
+    placeAllHelpersOnCursor(x, y) {
+        // Place all helpers on cursor at the specified position with stacking offset
+        this.helpersOnCursor.forEach((helperData, index) => {
+            // Add stacking offset for each helper
+            const stackOffset = index * 8;
+            const placeX = x + stackOffset;
+            const placeY = y + stackOffset;
+            
+            // Create the placed helper object
+            const placedHelper = {
+                ...helperData,
+                x: placeX,
+                y: placeY,
+                id: Date.now() + Math.random() + index, // Unique ID
+                isMining: false
+            };
+            
+            // Add to placed helpers array
+            this.placedHelpers.push(placedHelper);
+            
+            // Create the actual helper sprite
+            this.createHelperSprite(placedHelper);
+        });
+        
+        // Clear the cursor stack
+        this.helpersOnCursor = [];
+        this.clearCursorSprites();
+        
+        // Clean up placement listeners
+        this.finishHelperPlacement();
+        
+        // Update UI and DPS
+        this.updateDPS();
+        this.updateUI();
+        this.updateShopPrices();
     }
     
     isValidHelperPosition(x, y, helperSize = 60) {
@@ -545,12 +629,7 @@ class DogeMinerGame {
         // Add to placed helpers array
         this.placedHelpers.push(placedHelper);
         
-        // Add to helpers array for DPS calculation
-        this.helpers.push({
-            type: this.helperBeingPlaced.type,
-            dps: this.helperBeingPlaced.dps,
-            owned: this.helpers.filter(h => h.type === this.helperBeingPlaced.type).length
-        });
+        // Helper is already added to this.helpers array in buyHelper(), no need to add again
         
         // Create the actual helper sprite
         this.createHelperSprite(placedHelper);
@@ -646,13 +725,23 @@ class DogeMinerGame {
     }
     
     cancelHelperPlacement() {
-        // Refund the cost
-        if (this.helperBeingPlaced) {
-            const helper = window.shopManager.shopData.helpers[this.helperBeingPlaced.type];
-            const owned = this.helpers.filter(h => h.type === this.helperBeingPlaced.type).length;
+        // Refund the cost for all helpers on cursor
+        this.helpersOnCursor.forEach(helperData => {
+            const helper = window.shopManager.shopData.helpers[helperData.type];
+            const owned = this.helpers.filter(h => h.type === helperData.type).length;
             const cost = Math.floor(helper.baseCost * Math.pow(1.2, owned - 1));
             this.dogecoins += cost;
-        }
+            
+            // Remove the helper from the helpers array
+            const helperIndex = this.helpers.findIndex(h => h.type === helperData.type);
+            if (helperIndex !== -1) {
+                this.helpers.splice(helperIndex, 1);
+            }
+        });
+        
+        // Clear the cursor stack
+        this.helpersOnCursor = [];
+        this.clearCursorSprites();
         
         this.finishHelperPlacement();
         this.updateUI();
@@ -984,8 +1073,7 @@ class DogeMinerGame {
         });
     }
     
-    updateUI() {
-        console.log('updateUI called');
+    updateUI(skipShopPrices = false) {
         // Update dogecoin display
         document.getElementById('dogecoin-amount').textContent = this.formatNumber(Math.floor(this.dogecoins));
         document.getElementById('dps-amount').textContent = this.formatNumber(this.dps);
@@ -1005,8 +1093,10 @@ class DogeMinerGame {
             }
         }
         
-        // Update shop prices and quantities without rebuilding the entire shop
-        this.updateShopPrices();
+        // Update shop prices and quantities without rebuilding the entire shop (unless skipped)
+        if (!skipShopPrices) {
+            this.updateShopPrices();
+        }
         
         document.getElementById('total-mined').textContent = this.formatNumber(Math.floor(this.totalMined));
         document.getElementById('total-clicks').textContent = this.formatNumber(this.totalClicks);
