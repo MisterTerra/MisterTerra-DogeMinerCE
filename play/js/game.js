@@ -576,7 +576,15 @@ class DogeMinerGame {
             helperSprite.classList.add('shibe');
         }
         
+        // Add bounce animation class
+        helperSprite.classList.add('place-bounce');
+        
         document.getElementById('helper-container').appendChild(helperSprite);
+        
+        // Remove bounce animation class after animation completes
+        setTimeout(() => {
+            helperSprite.classList.remove('place-bounce');
+        }, 600); // Match animation duration
         
         // Start mining animation after a short delay
         setTimeout(() => {

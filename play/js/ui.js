@@ -39,6 +39,9 @@ class UIManager {
             }
         };
         
+        // Scroll wheel functionality for tab switching (shop and upgrade only)
+        this.setupScrollWheelTabs();
+        
         // Shop sub-tab switching
         window.switchShopTab = (tabName) => {
             this.currentShopTab = tabName;
@@ -131,7 +134,7 @@ class UIManager {
                     </div>
                     <div class="shop-item-description">${helper.description}</div>
                     <button class="shop-buy-btn" data-helper-type="${type}" 
-                            ${!canAfford ? 'disabled' : ''} style="width: ${buttonWidth};">
+                            ${!canAfford ? 'disabled' : ''} style="width: ${buttonWidth} !important;">
                         <img src="assets/general/dogecoin_70x70.png" alt="DogeCoin" class="buy-btn-icon">
                         <span class="buy-btn-price">${priceText}</span>
                     </button>
@@ -399,6 +402,71 @@ class UIManager {
         setTimeout(() => {
             comboElement.remove();
         }, 2000);
+    }
+    
+    setupScrollWheelTabs() {
+        // Define the scrollable tabs (shop and upgrade only)
+        this.scrollableTabs = ['shop', 'upgrade'];
+        
+        // Add wheel event listener to the right panel
+        const rightPanel = document.getElementById('right-panel');
+        if (rightPanel) {
+            rightPanel.addEventListener('wheel', (e) => {
+                // Only handle scroll if we're on a scrollable tab
+                const currentTab = this.activePanel.replace('-tab', '');
+                if (this.scrollableTabs.includes(currentTab)) {
+                    e.preventDefault(); // Prevent default scrolling
+                    
+                    // Get current tab index
+                    const currentTabIndex = this.scrollableTabs.indexOf(currentTab);
+                    
+                    // Determine scroll direction
+                    const scrollUp = e.deltaY < 0;
+                    
+                    let newTabIndex;
+                    if (scrollUp) {
+                        // Scroll up - go to previous tab
+                        newTabIndex = Math.max(0, currentTabIndex - 1);
+                    } else {
+                        // Scroll down - go to next tab
+                        newTabIndex = Math.min(this.scrollableTabs.length - 1, currentTabIndex + 1);
+                    }
+                    
+                    // Switch to the new tab
+                    const newTab = this.scrollableTabs[newTabIndex];
+                    this.switchToTab(newTab);
+                }
+            });
+        }
+    }
+    
+    switchToTab(tabName) {
+        // Update tab buttons - find the correct button by data attribute or onclick
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            // Check if this button corresponds to the tab we want
+            if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabName)) {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Update tab content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        const targetTab = document.getElementById(tabName + '-tab');
+        if (targetTab) {
+            targetTab.classList.add('active');
+        }
+        
+        // Set active panel
+        this.activePanel = tabName + '-tab';
+        
+        // Update shop content if switching to shop
+        if (tabName === 'shop') {
+            this.updateShopContent();
+        }
     }
 }
 
