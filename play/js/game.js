@@ -9,7 +9,26 @@ class DogeMinerGame {
         this.currentLevel = 'earth';
         this.helpers = [];
         
-     
+        // Name lists for helpers
+        this.miningShibeNames = [
+            'Jerry', 'Terry', 'Larry', 'Barry', 'Carrie', 'Perry', 'Gary', 'Harry', 'Marie', 'Sporklin',
+            'Lafite', 'Dimi', 'RKN little helper', 'Ed', 'Jared', 'Dennis', 'Betty', 'Leonard', 'James', 'Jimmy',
+            'Timmy', 'Mary', 'Martha', 'Linda', 'Jimothy', 'Scout', 'Barley', 'Cherry', 'Vader', 'Mochatitan',
+            'Babylion122', 'rkn', 'Raspy', 'Melon', 'News', 'Rick', 'Sam', 'Josiah', 'Miya', 'Creedoo',
+            'Cottage', 'Cheese', 'Bikini', 'Silver', 'Sorrel', 'Kyle', 'DwellingStars'
+        ];
+        
+        this.helperNames = {
+            'miningShibe': 'Mining Shibe',
+            'kennel': 'Kennel',
+            'dogeKennels': 'Kennel',
+            'spaceRocket': 'Moon Rocket',
+            'kitten': 'Streamer Kittens',
+            'dogeKittens': 'Streamer Kittens',
+            'rig': 'Mining Rig',
+            'dogeRigs': 'Mining Rig',
+            'infiniteDogebility': 'Infinite Dogebility Drive'
+        };
         
         // Game state
         this.isPlaying = false;
@@ -664,6 +683,17 @@ class DogeMinerGame {
         this.updateUI();
     }
     
+    getRandomMiningShibeName() {
+        return this.miningShibeNames[Math.floor(Math.random() * this.miningShibeNames.length)];
+    }
+    
+    getHelperName(helperType) {
+        if (helperType === 'miningShibe') {
+            return this.getRandomMiningShibeName();
+        }
+        return this.helperNames[helperType] || helperType;
+    }
+    
     createHelperSprite(placedHelper) {
         const helperSprite = document.createElement('img');
         helperSprite.src = placedHelper.helper.icon; // Use icon as idle sprite
@@ -684,7 +714,35 @@ class DogeMinerGame {
         // Add bounce animation class
         helperSprite.classList.add('place-bounce');
         
+        // Add placed-helper class to enable hover effects
+        helperSprite.classList.add('placed-helper');
+        
+        // Add name tooltip as a separate element
+        const nameTooltip = document.createElement('div');
+        nameTooltip.className = 'helper-name-tooltip';
+        const helperName = this.getHelperName(placedHelper.type);
+        nameTooltip.textContent = helperName;
+        nameTooltip.dataset.helperId = placedHelper.id;
+        
+        // Position tooltip relative to helper
+        nameTooltip.style.left = (placedHelper.x + 20) + 'px'; // Center horizontally (moved left)
+        nameTooltip.style.top = (placedHelper.y - 25) + 'px'; // Above the helper
+        nameTooltip.style.transform = 'translateX(-50%)'; // Center the tooltip text
+        
+        console.log('Created tooltip for', placedHelper.type, 'with name:', helperName, 'at position:', nameTooltip.style.left, nameTooltip.style.top);
+        
+        document.getElementById('helper-container').appendChild(nameTooltip);
+        
         document.getElementById('helper-container').appendChild(helperSprite);
+        
+        // Add hover events for tooltip visibility
+        helperSprite.addEventListener('mouseenter', () => {
+            nameTooltip.style.opacity = '1';
+        });
+        
+        helperSprite.addEventListener('mouseleave', () => {
+            nameTooltip.style.opacity = '0';
+        });
         
         // Remove bounce animation class after animation completes
         setTimeout(() => {
@@ -693,6 +751,7 @@ class DogeMinerGame {
         
         // Start mining animation after a short delay
         setTimeout(() => {
+            console.log('Starting helper mining for:', placedHelper.type, 'at position:', placedHelper.x, placedHelper.y);
             this.startHelperMining(placedHelper);
         }, 1000);
     }
@@ -713,6 +772,8 @@ class DogeMinerGame {
         // Use 3fps for all other helpers
         const isSlowAnimation = placedHelper.type === 'timeMachineRig' || placedHelper.type === 'infiniteDogebility';
         const animationInterval = isSlowAnimation ? 1000 : 333; // 1fps = 1000ms, 3fps = 333ms
+        
+        console.log('Starting animation for', placedHelper.type, 'with interval:', animationInterval, 'isSlowAnimation:', isSlowAnimation);
         
         const intervalId = setInterval(() => {
             if (isIdle) {
