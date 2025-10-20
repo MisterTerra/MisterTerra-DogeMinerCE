@@ -105,7 +105,7 @@ class UIManager {
             if (i < helperEntries.length) {
                 const [type, helper] = helperEntries[i];
                 const owned = this.game.helpers.filter(h => h.type === type).length;
-                const cost = Math.floor(helper.baseCost * Math.pow(1.2, owned));
+                const cost = Math.floor(helper.baseCost * Math.pow(1.15, owned));
                 const canAfford = this.game.dogecoins >= cost;
                 
                 
@@ -179,11 +179,39 @@ class UIManager {
             if (success) {
                 // Trigger chromatic aberration effect on successful purchase
                 window.game.createChromaticAberrationEffect(button);
+                
+                // Update shop display immediately
+                this.updateShopDisplay();
             } else {
                 console.log('Failed to buy helper - insufficient funds');
             }
         } else {
             console.error('Helper type or game not found:', helperType, !!window.game);
+        }
+    }
+    
+    updateShopDisplay() {
+        // Update shop prices and refresh display with fade-in effect
+        const shopContainer = document.getElementById('shop-container');
+        if (shopContainer) {
+            // Add fade-out effect
+            gsap.to(shopContainer, {
+                opacity: 0,
+                duration: 0.15,
+                ease: "power2.out"
+            });
+            
+            // Update shop content
+            setTimeout(() => {
+                this.renderShop();
+                
+                // Add smooth fade-in effect
+                gsap.to(shopContainer, {
+                    opacity: 1,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
+            }, 150);
         }
     }
     

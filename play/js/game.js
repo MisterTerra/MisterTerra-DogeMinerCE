@@ -40,6 +40,11 @@ class DogeMinerGame {
         this.isSpaceDown = false;
         this.swingTimeout = null;
         
+        // Mouse position tracking
+        this.mouseX = window.innerWidth / 2;
+        this.mouseY = window.innerHeight / 2;
+        
+        
         // Click rate limiting (max 15 CPS like original DogeMiner 2)
         this.maxCPS = 15;
         this.clickTimes = [];
@@ -408,7 +413,7 @@ class DogeMinerGame {
         }
         
         const owned = this.helpers.filter(h => h.type === helperType).length;
-        const cost = Math.floor(helper.baseCost * Math.pow(1.2, owned));
+        const cost = Math.floor(helper.baseCost * Math.pow(1.15, owned));
         
         if (this.dogecoins >= cost) {
             this.dogecoins -= cost;
@@ -678,84 +683,45 @@ class DogeMinerGame {
         // Update DPS and UI
         this.updateDPS();
         this.updateUI();
+        
+        // Add mouse tracking for fly effect
+        document.addEventListener('mousemove', (e) => {
+            this.mouseX = e.clientX;
+            this.mouseY = e.clientY;
+        });
     }
     
     // Chromatic aberration effect for buy helper buttons
     createChromaticAberrationEffect(button) {
-        // Create a timeline for the chromatic aberration effect
+        // Simple and compatible chromatic aberration effect
         const tl = gsap.timeline();
         
-        // Create multiple colored layers for the effect
-        const originalButton = button;
-        const buttonRect = button.getBoundingClientRect();
+        // Get all elements within the button (including dogecoin logo and price text)
+        const buttonElements = [button, ...button.querySelectorAll('*')];
         
-        // Create red, green, and blue offset layers
-        const layers = ['red', 'green', 'blue'];
-        const offsets = [
-            { x: 3, y: -1 },   // Red layer offset
-            { x: 0, y: 0 },    // Green layer (center)
-            { x: -3, y: 1 }    // Blue layer offset
-        ];
-        
-        const layerElements = [];
-        
-        layers.forEach((color, index) => {
-            const layer = originalButton.cloneNode(true);
-            layer.style.position = 'absolute';
-            layer.style.top = '0';
-            layer.style.left = '0';
-            layer.style.pointerEvents = 'none';
-            layer.style.zIndex = '1000';
-            layer.style.mixBlendMode = 'screen';
-            
-            // Apply color filter
-            if (color === 'red') {
-                layer.style.filter = 'hue-rotate(0deg) saturate(2) brightness(0.5)';
-            } else if (color === 'green') {
-                layer.style.filter = 'hue-rotate(120deg) saturate(2) brightness(0.5)';
-            } else if (color === 'blue') {
-                layer.style.filter = 'hue-rotate(240deg) saturate(2) brightness(0.5)';
-            }
-            
-            originalButton.parentNode.appendChild(layer);
-            layerElements.push(layer);
-            
-            // Set initial position with offset
-            gsap.set(layer, {
-                x: offsets[index].x,
-                y: offsets[index].y,
-                opacity: 0
-            });
-        });
-        
-        // Animate the chromatic aberration effect
-        tl.to(layerElements, {
-            opacity: 0.8,
-            duration: 0.05,
+        // Create the chromatic aberration effect using CSS filters and transforms
+        tl.to(buttonElements, {
+            filter: "hue-rotate(20deg) saturate(2) brightness(1.3) contrast(1.2)",
+            transform: "scale(1.02)",
+            duration: 0.08,
             ease: "power2.out"
         })
-        .to(layerElements, {
-            opacity: 0,
-            duration: 0.15,
-            ease: "power2.in"
-        }, 0.05)
-        .to(layerElements, {
-            x: 0,
-            y: 0,
-            duration: 0.2,
+        .to(buttonElements, {
+            filter: "hue-rotate(-20deg) saturate(1.5) brightness(1.1)",
+            transform: "scale(0.98) translateX(2px)",
+            duration: 0.06,
+            ease: "power2.inOut"
+        })
+        .to(buttonElements, {
+            filter: "hue-rotate(0deg) saturate(1) brightness(1)",
+            transform: "scale(1) translateX(0px)",
+            duration: 0.1,
             ease: "power2.out"
-        }, 0)
-        .call(() => {
-            // Clean up the layer elements
-            layerElements.forEach(layer => {
-                if (layer.parentNode) {
-                    layer.parentNode.removeChild(layer);
-                }
-            });
         });
         
         return tl;
     }
+    
     
     getRandomMiningShibeName() {
         return this.miningShibeNames[Math.floor(Math.random() * this.miningShibeNames.length)];
@@ -915,7 +881,7 @@ class DogeMinerGame {
         this.helpersOnCursor.forEach(helperData => {
             const helper = window.shopManager.shopData.helpers[helperData.type];
             const owned = this.helpers.filter(h => h.type === helperData.type).length;
-            const cost = Math.floor(helper.baseCost * Math.pow(1.2, owned - 1));
+            const cost = Math.floor(helper.baseCost * Math.pow(1.15, owned - 1));
             this.dogecoins += cost;
             
             // Remove the helper from the helpers array
@@ -962,7 +928,7 @@ class DogeMinerGame {
                     const helper = window.shopManager.shopData.helpers[helperType];
                     if (helper) {
                         const owned = this.helpers.filter(h => h.type === helperType).length;
-                        const cost = Math.floor(helper.baseCost * Math.pow(1.2, owned));
+                        const cost = Math.floor(helper.baseCost * Math.pow(1.15, owned));
                         const canAfford = this.dogecoins >= cost;
                         
                         // Update quantity
