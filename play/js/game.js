@@ -442,11 +442,24 @@ class DogeMinerGame {
     }
     
     addHelperToCursor(helperType, helper) {
-        // Add helper to the cursor stack
+        // Calculate random offsets for this helper's position in the stack
+        const index = this.helpersOnCursor.length;
+        let randomOffsetX = 0;
+        let randomOffsetY = 0;
+        
+        // Only add random offsets for helpers beyond the first one
+        if (index > 0) {
+            randomOffsetX = (Math.random() - 0.5) * 8;
+            randomOffsetY = (Math.random() - 0.5) * 6;
+        }
+        
+        // Add helper to the cursor stack with pre-calculated random offsets
         this.helpersOnCursor.push({
             type: helperType,
             helper: helper,
-            dps: helper.baseDps
+            dps: helper.baseDps,
+            randomOffsetX: randomOffsetX,
+            randomOffsetY: randomOffsetY
         });
         
         // If this is the first helper, start the placement system
@@ -518,14 +531,20 @@ class DogeMinerGame {
                     let stackOffsetY = 0;
                     
                     // Only add stacking offset for helpers beyond the first one
-                    if (index > 0) {
-                        // Create bunch formation for cursor sprites to match placement
-                        const angle = (index / cursorSprites.length) * Math.PI * 2; // Distribute in a circle
-                        const radius = Math.min(15 + (index * 3), 30); // Start small, grow outward
-                        const randomOffset = (Math.random() - 0.5) * 8; // Add some randomness
+                    if (index > 0 && this.helpersOnCursor[index]) {
+                        // Create loose horizontal formation with max 2 rows
+                        const helpersPerRow = 8; // More helpers per row for looser feel
+                        const row = Math.floor(index / helpersPerRow);
+                        const col = index % helpersPerRow;
+                        const spacing = 15; // Closer horizontal spacing
+                        const rowSpacing = 20; // Closer vertical spacing
                         
-                        stackOffsetX = Math.cos(angle) * radius + randomOffset;
-                        stackOffsetY = Math.sin(angle) * radius + randomOffset;
+                        // Use pre-calculated random offsets to prevent jiggling
+                        const randomOffsetX = this.helpersOnCursor[index].randomOffsetX;
+                        const randomOffsetY = this.helpersOnCursor[index].randomOffsetY;
+                        
+                        stackOffsetX = (col - (helpersPerRow - 1) / 2) * spacing + randomOffsetX;
+                        stackOffsetY = row * rowSpacing + randomOffsetY;
                     }
                     
                     // Position relative to left panel, centered on cursor with bunch offset
@@ -585,13 +604,19 @@ class DogeMinerGame {
             
             // Only add stacking offset for helpers beyond the first one
             if (index > 0) {
-                // Create a more natural "bunch" formation
-                const angle = (index / this.helpersOnCursor.length) * Math.PI * 2; // Distribute in a circle
-                const radius = Math.min(15 + (index * 3), 30); // Start small, grow outward
-                const randomOffset = (Math.random() - 0.5) * 8; // Add some randomness
+                // Create loose horizontal formation to match cursor stacking
+                const helpersPerRow = 8; // More helpers per row for looser feel
+                const row = Math.floor(index / helpersPerRow);
+                const col = index % helpersPerRow;
+                const spacing = 15; // Closer horizontal spacing
+                const rowSpacing = 20; // Closer vertical spacing
                 
-                placeX = x + Math.cos(angle) * radius + randomOffset;
-                placeY = y + Math.sin(angle) * radius + randomOffset;
+                // Use pre-calculated random offsets to match cursor positioning
+                const randomOffsetX = helperData.randomOffsetX || 0;
+                const randomOffsetY = helperData.randomOffsetY || 0;
+                
+                placeX = x + (col - (helpersPerRow - 1) / 2) * spacing + randomOffsetX;
+                placeY = y + row * rowSpacing + randomOffsetY;
             }
             
             // Create the placed helper object
