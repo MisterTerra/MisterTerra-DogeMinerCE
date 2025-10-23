@@ -103,6 +103,17 @@ class DogeMinerGame {
         this.startBackgroundRotation();
         this.startBlinking();
         this.startRickSpawn();
+        
+        // Track global mouse position
+        this.addGlobalMouseTracking();
+    }
+    
+    addGlobalMouseTracking() {
+        // Track mouse position globally for cursor sprite positioning
+        document.addEventListener('mousemove', (e) => {
+            this.mouseX = e.clientX;
+            this.mouseY = e.clientY;
+        });
     }
     
     initializeGameData() {
@@ -483,6 +494,10 @@ class DogeMinerGame {
         // Clear any existing cursor sprites
         this.clearCursorSprites();
         
+        // Get current mouse position for initial positioning
+        const leftPanel = document.getElementById('left-panel');
+        const rect = leftPanel.getBoundingClientRect();
+        
         // Create sprites for each helper on cursor with stacking offset
         this.helpersOnCursor.forEach((helperData, index) => {
             const helperSprite = document.createElement('img');
@@ -499,6 +514,37 @@ class DogeMinerGame {
             } else if (helperData.type === 'infiniteDogebility') {
                 helperSprite.classList.add('dogebility');
             }
+            
+            // Position the sprite immediately at current cursor position
+            const helperSize = helperSprite.classList.contains('shibe') ? 30 : 60;
+            const offset = helperSize / 2;
+            
+            let stackOffsetX = 0;
+            let stackOffsetY = 0;
+            
+            // Only add stacking offset for helpers beyond the first one
+            if (index > 0) {
+                // Create loose horizontal formation with max 2 rows
+                const helpersPerRow = 8; // More helpers per row for looser feel
+                const row = Math.floor(index / helpersPerRow);
+                const col = index % helpersPerRow;
+                const spacing = 15; // Closer horizontal spacing
+                const rowSpacing = 20; // Closer vertical spacing
+                
+                // Use pre-calculated random offsets to prevent jiggling
+                const randomOffsetX = helperData.randomOffsetX;
+                const randomOffsetY = helperData.randomOffsetY;
+                
+                stackOffsetX = (col - (helpersPerRow - 1) / 2) * spacing + randomOffsetX;
+                stackOffsetY = row * rowSpacing + randomOffsetY;
+            }
+            
+            // Position relative to left panel, centered on current cursor position
+            const x = this.mouseX - rect.left - offset + stackOffsetX;
+            const y = this.mouseY - rect.top - offset + stackOffsetY;
+            
+            helperSprite.style.left = x + 'px';
+            helperSprite.style.top = y + 'px';
             
             document.getElementById('helper-container').appendChild(helperSprite);
         });
