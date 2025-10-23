@@ -722,36 +722,41 @@ class DogeMinerGame {
         const dogeWidth = 120; // Doge width from CSS
         const dogeHeight = 120; // Approximate height (assuming square-ish)
         
-        const dogeLeft = dogeX - dogeWidth / 2;
-        const dogeRight = dogeX + dogeWidth / 2;
-        const dogeTop = dogeY - dogeHeight / 2;
-        const dogeBottom = dogeY + dogeHeight / 2;
+        // Expand Doge's collision area to prevent helpers from being placed too close
+        // Use different buffer sizes for different directions
+        const leftRightBuffer = 40; // Larger buffer for left/right to prevent placement behind Doge
+        const upDownBuffer = 20; // Smaller buffer for up/down to prevent excessive movement
         
-        // Check if any individual helper collides with Doge
+        const dogeLeft = dogeX - dogeWidth / 2 - leftRightBuffer;
+        const dogeRight = dogeX + dogeWidth / 2 + leftRightBuffer;
+        const dogeTop = dogeY - dogeHeight / 2 - upDownBuffer;
+        const dogeBottom = dogeY + dogeHeight / 2 + upDownBuffer;
+        
+        // Check if any individual helper collides with Doge's expanded area (including buffer zone)
         let hasCollision = false;
         let minMoveLeft = 0;
         let minMoveRight = 0;
         let minMoveUp = 0;
         let minMoveDown = 0;
         
-        helperPositions.forEach(pos => {
+        helperPositions.forEach((pos, index) => {
             const helperSize = pos.type === 'miningShibe' ? 30 : 60;
             const helperLeft = pos.x;
             const helperRight = pos.x + helperSize;
             const helperTop = pos.y;
             const helperBottom = pos.y + helperSize;
             
-            // Check if this helper collides with Doge
+            // Check if this helper collides with Doge's expanded area (including buffer zone)
             if (helperRight > dogeLeft && helperLeft < dogeRight && 
                 helperBottom > dogeTop && helperTop < dogeBottom) {
                 
                 hasCollision = true;
                 
                 // Calculate how much this helper needs to move in each direction
-                const moveLeft = Math.abs(helperRight - dogeLeft) + 10; // 10px buffer
-                const moveRight = Math.abs(helperLeft - dogeRight) + 10;
-                const moveUp = Math.abs(helperBottom - dogeTop) + 10;
-                const moveDown = Math.abs(helperTop - dogeBottom) + 10;
+                const moveLeft = Math.abs(helperRight - dogeLeft) + 30; // 30px buffer for more distance
+                const moveRight = Math.abs(helperLeft - dogeRight) + 30; // 30px buffer for more distance
+                const moveUp = Math.abs(helperBottom - dogeTop) + 10; // 10px buffer (reverted to original)
+                const moveDown = Math.abs(helperTop - dogeBottom) + 10; // 10px buffer (reverted to original)
                 
                 // Track the maximum movement needed in each direction
                 minMoveLeft = Math.max(minMoveLeft, moveLeft);
@@ -780,7 +785,6 @@ class DogeMinerGame {
                 return { x: 0, y: minMoveDown };
             }
         }
-        
         // No collision, no adjustment needed
         return { x: 0, y: 0 };
     }
