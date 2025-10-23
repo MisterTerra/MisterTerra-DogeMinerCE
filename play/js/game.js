@@ -643,7 +643,8 @@ class DogeMinerGame {
     }
     
     placeAllHelpersOnCursor(x, y) {
-        // Place all helpers on cursor at the specified position with stacking offset
+        // First, calculate all helper positions in the stack
+        const helperPositions = [];
         this.helpersOnCursor.forEach((helperData, index) => {
             let placeX = x;
             let placeY = y;
@@ -664,6 +665,21 @@ class DogeMinerGame {
                 placeX = x + (col - (helpersPerRow - 1) / 2) * spacing + randomOffsetX;
                 placeY = y + row * rowSpacing + randomOffsetY;
             }
+            
+            helperPositions.push({
+                x: placeX,
+                y: placeY,
+                type: helperData.type
+            });
+        });
+        
+        // Check if the entire stack collides with Doge and find the best direction to move
+        const stackAdjustment = this.adjustStackForDogeCollision(helperPositions);
+        
+        // Place all helpers with the stack adjustment applied
+        this.helpersOnCursor.forEach((helperData, index) => {
+            let placeX = helperPositions[index].x + stackAdjustment.x;
+            let placeY = helperPositions[index].y + stackAdjustment.y;
             
             // Create the placed helper object
             const placedHelper = {
@@ -692,6 +708,138 @@ class DogeMinerGame {
         this.updateDPS();
             this.updateUI();
         this.updateShopPrices();
+    }
+    
+    adjustStackForDogeCollision(helperPositions) {
+        // Get Doge's position and size
+        const leftPanel = document.getElementById('left-panel');
+        const panelRect = leftPanel.getBoundingClientRect();
+        
+        // Doge is centered in the mining area
+        // Mining area is positioned at calc(50% + 50px) from top and calc(50% - 20px) from left
+        const dogeX = (panelRect.width / 2) - 20; // Center minus 20px offset
+        const dogeY = (panelRect.height / 2) + 50; // Center plus 50px offset
+        const dogeWidth = 120; // Doge width from CSS
+        const dogeHeight = 120; // Approximate height (assuming square-ish)
+        
+        const dogeLeft = dogeX - dogeWidth / 2;
+        const dogeRight = dogeX + dogeWidth / 2;
+        const dogeTop = dogeY - dogeHeight / 2;
+        const dogeBottom = dogeY + dogeHeight / 2;
+        
+        // Check if any individual helper collides with Doge
+        let hasCollision = false;
+        let minMoveLeft = 0;
+        let minMoveRight = 0;
+        let minMoveUp = 0;
+        let minMoveDown = 0;
+        
+        helperPositions.forEach(pos => {
+            const helperSize = pos.type === 'miningShibe' ? 30 : 60;
+            const helperLeft = pos.x;
+            const helperRight = pos.x + helperSize;
+            const helperTop = pos.y;
+            const helperBottom = pos.y + helperSize;
+            
+            // Check if this helper collides with Doge
+            if (helperRight > dogeLeft && helperLeft < dogeRight && 
+                helperBottom > dogeTop && helperTop < dogeBottom) {
+                
+                hasCollision = true;
+                
+                // Calculate how much this helper needs to move in each direction
+                const moveLeft = Math.abs(helperRight - dogeLeft) + 10; // 10px buffer
+                const moveRight = Math.abs(helperLeft - dogeRight) + 10;
+                const moveUp = Math.abs(helperBottom - dogeTop) + 10;
+                const moveDown = Math.abs(helperTop - dogeBottom) + 10;
+                
+                // Track the maximum movement needed in each direction
+                minMoveLeft = Math.max(minMoveLeft, moveLeft);
+                minMoveRight = Math.max(minMoveRight, moveRight);
+                minMoveUp = Math.max(minMoveUp, moveUp);
+                minMoveDown = Math.max(minMoveDown, moveDown);
+            }
+        });
+        
+        if (hasCollision) {
+            // Find the direction that requires the least movement for the entire stack
+            const minMovement = Math.min(minMoveLeft, minMoveRight, minMoveUp, minMoveDown);
+            
+            // Apply the adjustment to the entire stack
+            if (minMovement === minMoveLeft) {
+                // Move entire stack left
+                return { x: -minMoveLeft, y: 0 };
+            } else if (minMovement === minMoveRight) {
+                // Move entire stack right
+                return { x: minMoveRight, y: 0 };
+            } else if (minMovement === minMoveUp) {
+                // Move entire stack up
+                return { x: 0, y: -minMoveUp };
+            } else {
+                // Move entire stack down
+                return { x: 0, y: minMoveDown };
+            }
+        }
+        
+        // No collision, no adjustment needed
+        return { x: 0, y: 0 };
+    }
+    
+    adjustPositionForDogeCollision(x, y, helperType) {
+        // Get Doge's position and size
+        const leftPanel = document.getElementById('left-panel');
+        const panelRect = leftPanel.getBoundingClientRect();
+        
+        // Doge is centered in the mining area
+        // Mining area is positioned at calc(50% + 50px) from top and calc(50% - 20px) from left
+        const dogeX = (panelRect.width / 2) - 20; // Center minus 20px offset
+        const dogeY = (panelRect.height / 2) + 50; // Center plus 50px offset
+        const dogeWidth = 120; // Doge width from CSS
+        const dogeHeight = 120; // Approximate height (assuming square-ish)
+        
+        // Get helper size
+        const helperSize = helperType === 'miningShibe' ? 30 : 60;
+        
+        // Check if helper overlaps with Doge
+        const helperLeft = x;
+        const helperRight = x + helperSize;
+        const helperTop = y;
+        const helperBottom = y + helperSize;
+        
+        const dogeLeft = dogeX - dogeWidth / 2;
+        const dogeRight = dogeX + dogeWidth / 2;
+        const dogeTop = dogeY - dogeHeight / 2;
+        const dogeBottom = dogeY + dogeHeight / 2;
+        
+        // Check for collision
+        if (helperRight > dogeLeft && helperLeft < dogeRight && 
+            helperBottom > dogeTop && helperTop < dogeBottom) {
+            
+            // Calculate distances to edges to find the best direction to move
+            const distanceLeft = Math.abs(helperRight - dogeLeft);
+            const distanceRight = Math.abs(helperLeft - dogeRight);
+            const distanceTop = Math.abs(helperBottom - dogeTop);
+            const distanceBottom = Math.abs(helperTop - dogeBottom);
+            
+            const minDistance = Math.min(distanceLeft, distanceRight, distanceTop, distanceBottom);
+            
+            // Move helper to the closest non-colliding position
+            if (minDistance === distanceLeft) {
+                // Move left
+                x = dogeLeft - helperSize - 5; // 5px buffer
+            } else if (minDistance === distanceRight) {
+                // Move right
+                x = dogeRight + 5; // 5px buffer
+            } else if (minDistance === distanceTop) {
+                // Move up
+                y = dogeTop - helperSize - 5; // 5px buffer
+            } else {
+                // Move down
+                y = dogeBottom + 5; // 5px buffer
+            }
+        }
+        
+        return { x, y };
     }
     
     isValidHelperPosition(x, y, helperSize = 60) {
