@@ -1145,11 +1145,16 @@ class DogeMinerGame {
         
         document.addEventListener('mouseup', (e) => {
             if (isDragging && pickedUpHelper) {
-                // Drop the helper at current mouse position
+                // Drop the helper at current mouse position, centered on cursor
                 const leftPanel = document.getElementById('left-panel');
                 const panelRect = leftPanel.getBoundingClientRect();
-                const x = e.clientX - panelRect.left;
-                const y = e.clientY - panelRect.top;
+                
+                // Calculate centered position
+                const helperSize = pickedUpHelper.type === 'miningShibe' ? 30 : 60;
+                const offset = helperSize / 2; // Center the helper on cursor
+                
+                const x = e.clientX - panelRect.left - offset;
+                const y = e.clientY - panelRect.top - offset;
                 
                 this.dropPickedUpHelper(pickedUpHelper, x, y);
             }
