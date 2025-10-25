@@ -1119,6 +1119,7 @@ class DogeMinerGame {
     addDragAndDropToHelper(helperSprite, placedHelper, nameTooltip) {
         let isDragging = false;
         let hasMoved = false;
+        let pickedUpHelper = null;
         
         // Make helper draggable
         helperSprite.style.cursor = 'grab';
@@ -1127,6 +1128,7 @@ class DogeMinerGame {
             e.preventDefault();
             isDragging = true;
             hasMoved = false;
+            pickedUpHelper = null;
             helperSprite.style.cursor = 'grabbing';
             
             // Stop mining animation
@@ -1137,20 +1139,32 @@ class DogeMinerGame {
             if (isDragging && !hasMoved) {
                 // First movement - pick up the helper immediately
                 hasMoved = true;
-                this.pickupHelper(placedHelper, helperSprite, nameTooltip);
+                pickedUpHelper = this.pickupHelper(placedHelper, helperSprite, nameTooltip);
             }
         });
         
         document.addEventListener('mouseup', (e) => {
-            if (isDragging) {
-                isDragging = false;
-                hasMoved = false;
-                helperSprite.style.cursor = 'grab';
+            if (isDragging && pickedUpHelper) {
+                // Drop the helper at current mouse position
+                const leftPanel = document.getElementById('left-panel');
+                const panelRect = leftPanel.getBoundingClientRect();
+                const x = e.clientX - panelRect.left;
+                const y = e.clientY - panelRect.top;
+                
+                this.dropPickedUpHelper(pickedUpHelper, x, y);
             }
+            
+            isDragging = false;
+            hasMoved = false;
+            pickedUpHelper = null;
+            helperSprite.style.cursor = 'grab';
         });
     }
     
     pickupHelper(placedHelper, helperSprite, nameTooltip) {
+        // Store the original name for preservation
+        const originalName = placedHelper.name;
+        
         // Remove helper from placed helpers array
         const helperIndex = this.placedHelpers.findIndex(helper => helper.id === placedHelper.id);
         if (helperIndex !== -1) {
@@ -1164,12 +1178,67 @@ class DogeMinerGame {
         // Preserve the helper's name and add it back to cursor stack
         const helperWithPreservedName = {
             ...placedHelper.helper,
-            name: placedHelper.name // Preserve the original name
+            name: originalName // Preserve the original name
         };
         
         this.addHelperToCursor(placedHelper.type, helperWithPreservedName);
         
         // Update UI
+        this.updateDPS();
+        this.updateUI();
+        this.updateShopPrices();
+        
+        // Return helper data for dropping
+        return {
+            type: placedHelper.type,
+            helper: helperWithPreservedName,
+            originalName: originalName
+        };
+    }
+    
+    dropPickedUpHelper(pickedUpHelper, x, y) {
+        // Clear the cursor stack since we're placing the picked up helper
+        this.helpersOnCursor = [];
+        this.clearCursorSprites();
+        
+        // Create helper positions array for collision detection
+        const helperPositions = [{
+            x: x,
+            y: y,
+            type: pickedUpHelper.type
+        }];
+        
+        // Check for Doge collision and adjust position
+        const stackAdjustment = this.adjustStackForDogeCollision(helperPositions);
+        
+        // Apply stack adjustment
+        helperPositions.forEach((pos, index) => {
+            pos.x += stackAdjustment.x;
+            pos.y += stackAdjustment.y;
+        });
+
+        // Check boundaries and adjust positions
+        this.adjustStackForBoundaries(helperPositions);
+        
+        // Create the placed helper object
+        const placedHelper = {
+            type: pickedUpHelper.type,
+            helper: pickedUpHelper.helper,
+            dps: pickedUpHelper.helper.baseDps,
+            x: helperPositions[0].x,
+            y: helperPositions[0].y,
+            id: Date.now() + Math.random(),
+            isMining: false,
+            name: pickedUpHelper.originalName // Reassign the original name
+        };
+
+        // Add to placed helpers array
+        this.placedHelpers.push(placedHelper);
+
+        // Create the actual helper sprite
+        this.createHelperSprite(placedHelper);
+
+        // Update UI and DPS
         this.updateDPS();
         this.updateUI();
         this.updateShopPrices();
