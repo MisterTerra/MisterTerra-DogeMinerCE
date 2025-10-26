@@ -32,6 +32,21 @@ class AudioManager {
             src: ['../assets/SoundsSrc/main/ching.wav'],
             volume: 0.5
         });
+        
+        // Load uhoh sound for locked content
+        this.soundEffects.uhoh = new Howl({
+            src: ['../assets/SoundsSrc/main/uhoh.wav'],
+            volume: 0.5
+        });
+        
+        // Load pick sounds for rock hitting
+        this.soundEffects.pick = [];
+        for (let i = 1; i <= 6; i++) {
+            this.soundEffects.pick.push(new Howl({
+                src: [`../assets/SoundsSrc/main/pick${i}.wav`],
+                volume: 0.375  // 75% of 0.5
+            }));
+        }
     }
 
     setupSettingsListeners() {
@@ -123,7 +138,13 @@ class AudioManager {
 
         const sound = this.soundEffects[soundName];
         if (sound) {
-            sound.play();
+            // If it's an array (like pick sounds), pick a random one
+            if (Array.isArray(sound)) {
+                const randomIndex = Math.floor(Math.random() * sound.length);
+                sound[randomIndex].play();
+            } else {
+                sound.play();
+            }
         }
     }
 }

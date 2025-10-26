@@ -188,8 +188,8 @@ class DogeMinerGame {
         
         this.updateUI();
         
-        // Sound effect (if available)
-        this.playSound('pick1.wav');
+        // Play random pick sound effect
+        this.playSound('pick');
         
     }
     
@@ -814,8 +814,6 @@ class DogeMinerGame {
         const panelTop = 10; // 10px padding from top edge
         const panelBottom = panelRect.height - 10; // 10px padding from bottom edge
         
-        console.log('Panel boundaries:', { panelLeft, panelRight, panelTop, panelBottom, panelWidth: panelRect.width, panelHeight: panelRect.height });
-        
         // Find the minimum adjustment needed to keep all helpers within bounds
         let minAdjustX = 0;
         let minAdjustY = 0;
@@ -838,7 +836,6 @@ class DogeMinerGame {
             if (helperRight > panelRight) {
                 // Helper is too far right, need to move left
                 const adjustLeft = helperRight - panelRight;
-                console.log(`Helper ${index} too far right:`, { helperRight, panelRight, adjustLeft });
                 maxNegativeAdjustX = Math.min(maxNegativeAdjustX, -adjustLeft);
             }
             
@@ -851,7 +848,7 @@ class DogeMinerGame {
             if (helperBottom > panelBottom) {
                 // Helper is too far down, need to move up
                 const adjustUp = helperBottom - panelBottom;
-                minAdjustY = Math.max(minAdjustY, -adjustUp);
+                minAdjustY = Math.min(minAdjustY, -adjustUp); // Negative adjustment to move up
             }
         });
         
@@ -861,8 +858,6 @@ class DogeMinerGame {
             pos.x += finalAdjustX;
             pos.y += minAdjustY;
         });
-        
-        console.log('Final boundary adjustments:', { minAdjustX, maxNegativeAdjustX, finalAdjustX, minAdjustY });
     }
     
     adjustPositionForDogeCollision(x, y, helperType) {
@@ -1744,9 +1739,10 @@ class DogeMinerGame {
     }
     
     playSound(soundFile) {
-        // Sound implementation would go here
-        // For now, we'll just log the sound
-        console.log('Playing sound:', soundFile);
+        // Use audio manager if available
+        if (window.audioManager) {
+            audioManager.playSound(soundFile);
+        }
     }
     
     checkAchievements() {

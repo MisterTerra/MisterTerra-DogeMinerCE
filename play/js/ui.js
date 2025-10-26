@@ -90,6 +90,22 @@ class UIManager {
             const currentPlanet = document.querySelector('.planet-tab.active')?.textContent?.toLowerCase();
             if (currentPlanet === planetName) return;
             
+            // Check if Moon is locked (no Space Rockets owned)
+            if (planetName === 'moon') {
+                const spaceRocketCount = this.game.helpers.filter(h => h.type === 'spaceRocket').length;
+                
+                if (spaceRocketCount === 0) {
+                    // Play locked sound
+                    if (window.audioManager) {
+                        audioManager.playSound('uhoh');
+                    }
+                    
+                    // Show locked overlay
+                    this.showMoonLocked();
+                    return; // Don't switch planets
+                }
+            }
+            
             // Update planet tab buttons
             document.querySelectorAll('.planet-tab').forEach(btn => {
                 btn.classList.remove('active');
@@ -577,6 +593,37 @@ class UIManager {
         // Update shop content if switching to shop
         if (tabName === 'shop') {
             this.updateShopContent();
+        }
+    }
+    
+    showMoonLocked() {
+        // Find the moon tab button
+        const moonTab = document.querySelector('.planet-tab[onclick*="moon"]');
+        if (!moonTab) return;
+        
+        // Check if locked overlay already exists
+        let lockedOverlay = moonTab.querySelector('.planet-tab-locked');
+        if (!lockedOverlay) {
+            // Create locked overlay
+            lockedOverlay = document.createElement('div');
+            lockedOverlay.className = 'planet-tab-locked';
+            lockedOverlay.textContent = 'LOCKED';
+            moonTab.appendChild(lockedOverlay);
+        }
+        
+        // Show the overlay
+        lockedOverlay.style.display = 'block';
+        
+        // Auto-hide after 2 seconds
+        setTimeout(() => {
+            this.hideMoonLocked();
+        }, 2000);
+    }
+    
+    hideMoonLocked() {
+        const lockedOverlay = document.querySelector('.planet-tab-locked');
+        if (lockedOverlay) {
+            lockedOverlay.style.display = 'none';
         }
     }
 }
