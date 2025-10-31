@@ -39,6 +39,12 @@ class AudioManager {
             volume: 0.5
         });
         
+        // Load check sound for settings toggles
+        this.soundEffects.check = new Howl({
+            src: ['../assets/SoundsSrc/main/check.wav'],
+            volume: 0.5
+        });
+        
         // Load pick sounds for rock hitting
         this.soundEffects.pick = [];
         for (let i = 1; i <= 6; i++) {
@@ -64,6 +70,8 @@ class AudioManager {
                 } else {
                     this.playBackgroundMusic();
                 }
+                // Play check sound
+                this.playSound('check');
                 // Trigger auto-save to save settings (don't show notification)
                 if (window.saveManager) {
                     window.saveManager.saveGame(false);
@@ -80,6 +88,8 @@ class AudioManager {
                 if (window.game) {
                     window.game.soundEnabled = e.target.checked;
                 }
+                // Play check sound
+                this.playSound('check');
                 // Trigger auto-save to save settings (don't show notification)
                 if (window.saveManager) {
                     window.saveManager.saveGame(false);

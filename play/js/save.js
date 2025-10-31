@@ -51,6 +51,10 @@ class SaveManager {
         if (notificationsCheckbox) {
             notificationsCheckbox.addEventListener('change', (e) => {
                 this.game.notificationsEnabled = e.target.checked;
+                // Play check sound
+                if (window.audioManager) {
+                    window.audioManager.playSound('check');
+                }
                 // Trigger auto-save to save settings (don't show notification)
                 this.saveGame(false);
             });
@@ -61,6 +65,10 @@ class SaveManager {
         if (autoSaveCheckbox) {
             autoSaveCheckbox.addEventListener('change', (e) => {
                 this.game.autoSaveEnabled = e.target.checked;
+                // Play check sound
+                if (window.audioManager) {
+                    window.audioManager.playSound('check');
+                }
                 // Trigger auto-save to save settings (don't show notification)
                 this.saveGame(false);
             });
