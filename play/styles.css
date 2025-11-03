@@ -458,7 +458,7 @@ body {
 
 @keyframes pickaxeDrop {
     0% {
-        transform: rotate(30deg) translateY(-400px);
+        transform: rotate(30deg) translate(-200px, -346px);
     }
     100% {
         transform: rotate(30deg) translateY(0px);

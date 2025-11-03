@@ -250,6 +250,31 @@ class DogeMinerGame {
         }, 200);
     }
     
+    playDogeIntro() {
+        const characterContainer = document.getElementById('character-container');
+        const pickaxe = document.getElementById('pickaxe');
+        if (!characterContainer) return;
+        
+        const restartAnimation = (element, className) => {
+            element.classList.remove(className);
+            // Force reflow so animation can replay even if class was already present
+            void element.offsetWidth;
+            element.classList.add(className);
+        };
+        
+        restartAnimation(characterContainer, 'doge-intro');
+        setTimeout(() => {
+            characterContainer.classList.remove('doge-intro');
+        }, 2600);
+        
+        if (pickaxe) {
+            restartAnimation(pickaxe, 'pickaxe-intro');
+            setTimeout(() => {
+                pickaxe.classList.remove('pickaxe-intro');
+            }, 2300);
+        }
+    }
+    
     startSwing() {
         const pickaxe = document.getElementById('pickaxe');
         if (!pickaxe) return;
