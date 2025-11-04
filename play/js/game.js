@@ -114,6 +114,9 @@ class DogeMinerGame {
         
         // Track global mouse position
         this.addGlobalMouseTracking();
+
+        // Intro animation state
+        this.isIntroPlaying = false;
     }
     
     addGlobalMouseTracking() {
@@ -166,7 +169,7 @@ class DogeMinerGame {
     }
     
     handleRockClick(event = null) {
-        if (!this.isPlaying) return;
+        if (!this.isPlaying || this.isIntroPlaying) return;
         
         this.totalClicks++;
         
@@ -203,6 +206,9 @@ class DogeMinerGame {
     
     processClick(event = null) {
         const now = Date.now();
+        if (this.isIntroPlaying) {
+            return;
+        }
         
         // Remove clicks older than 1 second from tracking
         this.clickTimes = this.clickTimes.filter(time => now - time < 1000);
@@ -238,6 +244,7 @@ class DogeMinerGame {
     }
     
     bounceDoge() {
+        if (this.isIntroPlaying) return;
         const doge = document.getElementById('main-character');
         if (!doge) return;
         
@@ -254,6 +261,8 @@ class DogeMinerGame {
         const characterContainer = document.getElementById('character-container');
         const pickaxe = document.getElementById('pickaxe');
         if (!characterContainer) return;
+        
+        this.isIntroPlaying = true;
         
         const restartAnimation = (element, className) => {
             element.classList.remove(className);
@@ -273,9 +282,17 @@ class DogeMinerGame {
                 pickaxe.classList.remove('pickaxe-intro');
             }, 2300);
         }
+        
+        const introDuration = 1000;
+        const squashDuration = 350;
+        const startDelay = 500;
+        setTimeout(() => {
+            this.isIntroPlaying = false;
+        }, startDelay + introDuration + squashDuration);
     }
     
     startSwing() {
+        if (this.isIntroPlaying) return;
         const pickaxe = document.getElementById('pickaxe');
         if (!pickaxe) return;
         
