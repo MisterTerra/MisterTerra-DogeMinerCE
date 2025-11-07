@@ -91,6 +91,11 @@
     padding-top: 0;
 }
 
+.moon-theme #local-save-section {
+    border-top: none;
+    padding-top: 0;
+}
+
 .moon-theme .settings-section h3 {
     background: none;
 }

@@ -27,11 +27,8 @@ Visit [https://dogeminerce.com](https://dogeminerce.com) to play instantly in yo
 3. Start mining Dogecoins!
 
 ### Code License
-This projects code is licensed under the MIT License - see the [Code License](Code%20License) file for details.
+This projects code is licensed under the Apache 2.0 License - see the [Code License](LICENSE) file for details.
 
 ### Asset License
 The assets have different licensing terms. Please check the [Asset License](Asset%20License) file for details.
-
-
-
 
