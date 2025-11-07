@@ -1782,26 +1782,29 @@ body {
 
 /* Loading Screen */
 #loading-screen {
+    --loading-fade-duration: 0.6s;
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgb(57, 57, 57);
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, rgb(58, 58, 58), rgb(43, 43, 43));
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
-    transition: opacity 0.8s ease;
+    z-index: 2000;
+    opacity: 1;
+    transition: opacity var(--loading-fade-duration) ease;
 }
 
+#loading-screen.fade-in {
+    opacity: 1;
+}
+
+#loading-screen.fade-out,
 #loading-screen.hidden {
     opacity: 0;
     pointer-events: none;
-}
-
-#loading-screen.fade-out {
-    animation: loadingFadeOut 1.5s ease-out forwards;
 }
 
 @keyframes loadingFadeOut {

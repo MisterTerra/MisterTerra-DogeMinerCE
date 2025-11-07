@@ -411,9 +411,9 @@ class DogeMinerGame {
         }, 200);
     }
     
-    playDogeIntro() {
+    playDogeIntro(force = false) {
         // Don't play intro if transitioning between planets or cutscene is playing
-        if (this.isTransitioning || this.isCutscenePlaying) return;
+        if (!force && (this.isTransitioning || this.isCutscenePlaying)) return;
         const characterContainer = document.getElementById('character-container');
         const pickaxe = document.getElementById('pickaxe');
         if (!characterContainer) return;
@@ -422,7 +422,9 @@ class DogeMinerGame {
         characterContainer.style.visibility = 'hidden';
         characterContainer.style.transform = 'translateY(-520px)';
 
-        this.isIntroPlaying = true;
+        if (!force || !this.isIntroPlaying) {
+            this.isIntroPlaying = true;
+        }
 
         // Ensure character sprite is set correctly before animation
         const doge = document.getElementById('main-character');
@@ -440,15 +442,14 @@ class DogeMinerGame {
         characterContainer.classList.remove('doge-intro');
         if (pickaxe) pickaxe.classList.remove('pickaxe-intro');
         
-        // Short delay to ensure everything is reset
-        setTimeout(() => {
+        const startAnimation = () => {
             characterContainer.style.visibility = 'visible';
             const restartAnimation = (element, className) => {
                 element.classList.remove(className);
-                // Force reflow so animation can replay even if class was already present
                 void element.offsetWidth;
                 element.classList.add(className);
             };
+
             restartAnimation(characterContainer, 'doge-intro');
             setTimeout(() => {
                 characterContainer.classList.remove('doge-intro');
@@ -472,7 +473,13 @@ class DogeMinerGame {
                     idleDoge.classList.add('float');
                 }
             }, startDelay + introDuration + squashDuration);
-        }, 50);
+        };
+
+        if (force) {
+            startAnimation();
+        } else {
+            setTimeout(startAnimation, 50);
+        }
     }
 
     startSwing() {

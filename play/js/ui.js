@@ -121,9 +121,9 @@ class UIManager {
                 loadingInfo.textContent = planetName === 'earth' ? 'Returning to Earth...' : 'Launching to Moon...';
             }
             
-            // Show loading screen
-            window.showLoadingScreen();
-            
+            // Show loading screen with fade
+            window.showLoadingScreen(true);
+
             // Use timeout to ensure loading screen is visible before processing
             setTimeout(() => {
                 // First save the current state
@@ -224,22 +224,23 @@ class UIManager {
                     // Reset transitioning flag
                     this.game.isTransitioning = false;
                     
-                        // For moon transitions, hide character until fall animation
-                    if (planetName === 'moon') {
-                        // Hide character container until we trigger the fall
-                        const characterContainer = document.getElementById('character-container');
-                        if (characterContainer) {
-                            characterContainer.style.visibility = 'hidden';
-                        }
-                        
-                        setTimeout(() => {
-                            // Show character and play fall animation
-                            if (characterContainer) {
-                                characterContainer.style.visibility = 'visible';
-                            }
-                            this.game.playDogeIntro();
-                        }, 300);
+                    // Trigger landing animation depending on destination
+                    const characterContainer = document.getElementById('character-container');
+                    if (characterContainer) {
+                        characterContainer.style.visibility = 'hidden';
                     }
+
+                    setTimeout(() => {
+                        if (characterContainer) {
+                            characterContainer.style.visibility = 'visible';
+                        }
+
+                        const forceIntro = planetName === 'moon' || planetName === 'earth';
+                        if (forceIntro) {
+                            this.game.playDogeIntro(true);
+                        }
+                    }, 300);
+
                 }, 1000); // 1 second delay
             }, 500); // Short delay to ensure loading screen appears
             
@@ -510,20 +511,6 @@ class UIManager {
     
     setupLoading() {
         // Loading screen management
-        window.hideLoadingScreen = () => {
-            const loadingScreen = document.getElementById('loading-screen');
-            loadingScreen.classList.add('hidden');
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 500);
-        };
-        
-        window.showLoadingScreen = () => {
-            const loadingScreen = document.getElementById('loading-screen');
-            loadingScreen.style.display = 'flex';
-            loadingScreen.classList.remove('hidden');
-        };
-        
         window.updateLoadingProgress = (progress) => {
             const progressBar = document.getElementById('loading-progress');
             progressBar.style.width = progress + '%';

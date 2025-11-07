@@ -161,23 +161,47 @@ function resetGame() {
 }
 
 // Loading screen functions
-function showLoadingScreen() {
+function showLoadingScreen(useFade = false) {
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
         loadingScreen.style.display = 'flex';
-        loadingScreen.classList.remove('hidden');
+        loadingScreen.classList.remove('hidden', 'fade-out');
+
+        if (useFade) {
+            loadingScreen.classList.remove('fade-in');
+            loadingScreen.style.opacity = '0';
+            // Force reflow to allow transition to restart
+            void loadingScreen.offsetWidth;
+            loadingScreen.classList.add('fade-in');
+            requestAnimationFrame(() => {
+                loadingScreen.style.removeProperty('opacity');
+            });
+        } else {
+            loadingScreen.classList.remove('fade-in');
+            loadingScreen.style.opacity = '1';
+        }
     }
 }
 
 function hideLoadingScreen() {
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
-        // Trigger fade-out animation
+        loadingScreen.classList.remove('fade-in');
         loadingScreen.classList.add('fade-out');
-        
+
+        // Remove inline opacity on next frame so CSS transition can take over
+        requestAnimationFrame(() => {
+            loadingScreen.style.removeProperty('opacity');
+        });
+
+        const fadeDuration = parseFloat(getComputedStyle(loadingScreen).getPropertyValue('--loading-fade-duration') || '1.5');
+        const timeout = isNaN(fadeDuration) ? 1500 : fadeDuration * 1000;
+
         setTimeout(() => {
             loadingScreen.style.display = 'none';
-        }, 1500);
+            loadingScreen.classList.remove('fade-out');
+            loadingScreen.style.opacity = '';
+        }, timeout);
     }
 }
 
