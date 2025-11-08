@@ -1,7 +1,5 @@
 // DogeMiner: Community Edition - Main Game Logic
 
-const ERR_MESSAGES = import('./exception_messages.js');
-
 class DogeMinerGame {
     static #instance = null;
 
@@ -15,7 +13,7 @@ class DogeMinerGame {
 
     constructor() {
         if(DogeMinerGame.#instance) {
-            throw new Error(ERR_MESSAGES.ERROR_CLASS_SINGLETON);
+            throw new Error(window.ERR_MESSAGES.ERROR_SINGLETON_EXISTS);
         }
 
         this.dogecoins = 0;
