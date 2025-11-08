@@ -1,6 +1,8 @@
 // DogeMiner: Community Edition - Main Game Logic
+/* THIS FILE IS NOT IN USE */
 class DogeMinerGame {
     constructor() {
+        throw new Error('This file is not in use. Game logic has been moved to /play/js/game.js.');
         this.dogecoins = 0;
         this.totalMined = 0;
         this.totalClicks = 0;
@@ -872,4 +874,4 @@ class DogeMinerGame {
 }
 
 // Global game instance
-let game;
+// let game;
