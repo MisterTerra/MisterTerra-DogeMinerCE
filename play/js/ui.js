@@ -333,7 +333,9 @@ class UIManager {
         }
         
         const helperEntries = Object.entries(window.shopManager.shopData[helperCategory]);
-        const moonBaseOwned = this.game.moonHelpers?.some(helper => helper.type === 'moonBase');
+        const moonHelpers = Array.isArray(this.game.moonHelpers) ? this.game.moonHelpers : [];
+        const moonBaseOwned = moonHelpers.some(helper => helper.type === 'moonBase');
+        const landerShibeOwned = moonHelpers.some(helper => helper.type === 'landerShibe');
         
         // Create 6 helper items (2x3 grid)
         for (let i = 0; i < 6; i++) {
@@ -347,7 +349,16 @@ class UIManager {
                 const owned = helperArray.filter(h => h.type === type).length;
                 const cost = Math.floor(helper.baseCost * Math.pow(1.15, owned));
                 const canAfford = this.game.dogecoins >= cost;
-                const isLocked = this.game.currentLevel === 'moon' && type !== 'moonBase' && !moonBaseOwned;
+
+                let lockReason = null;
+                if (this.game.currentLevel === 'moon') {
+                    if (type !== 'moonBase' && !moonBaseOwned) {
+                        lockReason = 'moonBase';
+                    } else if (type === 'marsRocket' && !landerShibeOwned) {
+                        lockReason = 'landerShibe';
+                    }
+                }
+                const isLocked = lockReason !== null;
                 
                 
                 // Calculate button width based on price length
@@ -375,7 +386,7 @@ class UIManager {
                     <div class="helper-lock-overlay">
                         <div class="helper-lock-icon" aria-hidden="true"></div>
                         <div class="helper-lock-text">LOCKED</div>
-                        <div class="helper-lock-subtext">REQUIRES MOON BASE</div>
+                        <div class="helper-lock-subtext">${lockReason === 'landerShibe' ? 'REQUIRES LANDER SHIBE' : 'REQUIRES MOON BASE'}</div>
                     </div>
                 ` : '';
 
