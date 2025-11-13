@@ -172,6 +172,13 @@ class SaveManager {
             this.game.earthPlacedHelpers = [...currentPlaced];
         } else if (this.game.currentLevel === 'moon') {
             this.game.moonPlacedHelpers = [...currentPlaced];
+        } else if (this.game.currentLevel === 'mars') {
+            this.game.marsPlacedHelpers = [...currentPlaced];
+        } else if (this.game.currentLevel === 'jupiter') {
+            this.game.jupiterPlacedHelpers = [...currentPlaced];
+        } else if (this.game.currentLevel === 'titan') {
+            // Save titan placed helpers when creating save data from Titan planet
+            this.game.titanPlacedHelpers = [...currentPlaced];
         }
 
         const earthPlacedHelpers = Array.isArray(this.game.earthPlacedHelpers)
@@ -180,6 +187,18 @@ class SaveManager {
 
         const moonPlacedHelpers = Array.isArray(this.game.moonPlacedHelpers)
             ? this.game.moonPlacedHelpers.map(serializePlacedHelper).filter(Boolean)
+            : [];
+
+        const marsPlacedHelpers = Array.isArray(this.game.marsPlacedHelpers)
+            ? this.game.marsPlacedHelpers.map(serializePlacedHelper).filter(Boolean)
+            : [];
+
+        const jupiterPlacedHelpers = Array.isArray(this.game.jupiterPlacedHelpers)
+            ? this.game.jupiterPlacedHelpers.map(serializePlacedHelper).filter(Boolean)
+            : [];
+
+        const titanPlacedHelpers = Array.isArray(this.game.titanPlacedHelpers)
+            ? this.game.titanPlacedHelpers.map(serializePlacedHelper).filter(Boolean)
             : [];
 
         const helperData = currentPlaced.map(serializePlacedHelper).filter(Boolean);
@@ -195,12 +214,18 @@ class SaveManager {
             currentLevel: this.game.currentLevel,
             helpers: this.game.helpers,
             moonHelpers: this.game.moonHelpers,
+            marsHelpers: this.game.marsHelpers,
+            jupiterHelpers: this.game.jupiterHelpers, // Keep Jupiter helper ownership synced across reloads.
+            titanHelpers: this.game.titanHelpers, // Keep Titan helper ownership synced across reloads.
             pickaxes: this.game.pickaxes,
             currentPickaxe: this.game.currentPickaxe,
             upgrades: this.game.upgrades || {},
             placedHelpers: helperData,
             earthPlacedHelpers,
             moonPlacedHelpers,
+            marsPlacedHelpers,
+            jupiterPlacedHelpers,
+            titanPlacedHelpers,
             statistics: {
                 totalPlayTime: this.game.totalPlayTime || 0,
                 highestDps: this.game.highestDps || 0,
@@ -240,6 +265,15 @@ class SaveManager {
         this.game.moonHelpers = Array.isArray(saveData.moonHelpers)
             ? saveData.moonHelpers.map(helper => ({ ...helper }))
             : [];
+        this.game.marsHelpers = Array.isArray(saveData.marsHelpers)
+            ? saveData.marsHelpers.map(helper => ({ ...helper }))
+            : [];
+        this.game.jupiterHelpers = Array.isArray(saveData.jupiterHelpers)
+            ? saveData.jupiterHelpers.map(helper => ({ ...helper }))
+            : []; // Preserve Jupiter helper ownership for reloads.
+        this.game.titanHelpers = Array.isArray(saveData.titanHelpers)
+            ? saveData.titanHelpers.map(helper => ({ ...helper }))
+            : []; // Preserve Titan helper ownership for reloads.
         this.game.pickaxes = saveData.pickaxes || ['standard'];
         this.game.currentPickaxe = saveData.currentPickaxe || 'standard';
         this.game.upgrades = saveData.upgrades || {};
@@ -247,17 +281,30 @@ class SaveManager {
         const rebuildPlacedHelpers = (helpersArray = [], planet = 'earth') => {
             if (!Array.isArray(helpersArray)) return [];
 
-            const shopCategory = planet === 'moon'
-                ? window.shopManager?.shopData?.moonHelpers
-                : window.shopManager?.shopData?.helpers;
+            let shopCategory;
+            if (planet === 'moon') {
+                shopCategory = window.shopManager?.shopData?.moonHelpers;
+            } else if (planet === 'mars') {
+                shopCategory = window.shopManager?.shopData?.marsHelpers;
+            } else if (planet === 'jupiter') {
+                shopCategory = window.shopManager?.shopData?.jupiterHelpers;
+            } else if (planet === 'titan') {
+                shopCategory = window.shopManager?.shopData?.titanHelpers;
+            } else {
+                shopCategory = window.shopManager?.shopData?.helpers;
+            }
 
             return helpersArray
                 .map(savedHelper => {
                     if (!savedHelper) return null;
 
-                    const fallbackHelperData = this.game.getHelperData(savedHelper.type);
+                    // Only use helpers that exist in the current planet's shop category
                     const shopHelperData = shopCategory?.[savedHelper.type];
-                    const helperData = shopHelperData || fallbackHelperData;
+                    if (!shopHelperData) {
+                        // Helper type doesn't exist on this planet, skip it
+                        console.warn(`Skipping helper type '${savedHelper.type}' on ${planet} - not found in shop category`);
+                        return null;
+                    }
 
                     const helper = {
                         type: savedHelper.type,
@@ -265,12 +312,15 @@ class SaveManager {
                         y: savedHelper.y ?? 0,
                         id: savedHelper.id ?? (Date.now() + Math.random()),
                         isMining: !!savedHelper.isMining,
-                        helper: helperData,
-                        dps: helperData?.baseDps || fallbackHelperData?.baseDps || 0
+                        helper: shopHelperData,
+                        dps: shopHelperData?.baseDps || 0
                     };
 
-                    if (savedHelper.name) {
-                        helper.name = savedHelper.name;
+                    const rawName = savedHelper.name;
+                    if (rawName && rawName !== savedHelper.type) {
+                        helper.name = rawName;
+                    } else if (shopHelperData?.name) {
+                        helper.name = shopHelperData.name;
                     }
 
                     return helper;
@@ -280,10 +330,20 @@ class SaveManager {
 
         let rawEarth = Array.isArray(saveData.earthPlacedHelpers) ? saveData.earthPlacedHelpers : [];
         let rawMoon = Array.isArray(saveData.moonPlacedHelpers) ? saveData.moonPlacedHelpers : [];
+        let rawMars = Array.isArray(saveData.marsPlacedHelpers) ? saveData.marsPlacedHelpers : [];
+        let rawJupiter = Array.isArray(saveData.jupiterPlacedHelpers) ? saveData.jupiterPlacedHelpers : [];
+        let rawTitan = Array.isArray(saveData.titanPlacedHelpers) ? saveData.titanPlacedHelpers : [];
 
-        if (!rawEarth.length && !rawMoon.length && Array.isArray(saveData.placedHelpers)) {
-            if ((saveData.currentLevel || 'earth') === 'moon') {
+        if (!rawEarth.length && !rawMoon.length && !rawMars.length && !rawJupiter.length && !rawTitan.length && Array.isArray(saveData.placedHelpers)) {
+            const savedLevel = saveData.currentLevel || 'earth';
+            if (savedLevel === 'moon') {
                 rawMoon = saveData.placedHelpers;
+            } else if (savedLevel === 'mars') {
+                rawMars = saveData.placedHelpers;
+            } else if (savedLevel === 'jupiter') {
+                rawJupiter = saveData.placedHelpers;
+            } else if (savedLevel === 'titan') {
+                rawTitan = saveData.placedHelpers;
             } else {
                 rawEarth = saveData.placedHelpers;
             }
@@ -291,18 +351,122 @@ class SaveManager {
 
         this.game.earthPlacedHelpers = rebuildPlacedHelpers(rawEarth, 'earth');
         this.game.moonPlacedHelpers = rebuildPlacedHelpers(rawMoon, 'moon');
+        this.game.marsPlacedHelpers = rebuildPlacedHelpers(rawMars, 'mars');
+        this.game.jupiterPlacedHelpers = rebuildPlacedHelpers(rawJupiter, 'jupiter');
+        this.game.titanPlacedHelpers = rebuildPlacedHelpers(rawTitan, 'titan');
 
-        this.game.placedHelpers = this.game.currentLevel === 'moon'
-            ? [...this.game.moonPlacedHelpers]
-            : [...this.game.earthPlacedHelpers];
+        const helperListsForUnlock = [
+            this.game.helpers,
+            this.game.moonHelpers,
+            this.game.marsHelpers,
+            this.game.jupiterHelpers,
+            this.game.titanHelpers,
+            this.game.earthPlacedHelpers,
+            this.game.moonPlacedHelpers,
+            this.game.marsPlacedHelpers,
+            this.game.jupiterPlacedHelpers,
+            this.game.titanPlacedHelpers
+        ]; // Include all planet helpers when checking unlock prerequisites.
+
+        const hasMarsRocket = helperListsForUnlock.some(list =>
+            Array.isArray(list) && list.some(helper => helper && helper.type === 'marsRocket')
+        );
+
+        if (hasMarsRocket) {
+            this.game.hasPlayedMoonLaunch = true;
+        }
+
+        // Add missing helpers (owned but not placed) - spawn them in a clump for manual placement
+        const spawnMissingHelpers = (ownedHelpers, placedHelpers, planet) => {
+            if (!Array.isArray(ownedHelpers) || !Array.isArray(placedHelpers)) return placedHelpers;
+
+            // Count how many of each type are already placed
+            const placedCounts = {};
+            placedHelpers.forEach(helper => {
+                placedCounts[helper.type] = (placedCounts[helper.type] || 0) + 1;
+            });
+
+            // Count how many of each type are owned
+            const ownedCounts = {};
+            ownedHelpers.forEach(helper => {
+                ownedCounts[helper.type] = (ownedCounts[helper.type] || 0) + 1;
+            });
+
+            // Get shop category for this planet
+            let shopCategory;
+            if (planet === 'moon') {
+                shopCategory = window.shopManager?.shopData?.moonHelpers;
+            } else if (planet === 'mars') {
+                shopCategory = window.shopManager?.shopData?.marsHelpers;
+            } else if (planet === 'jupiter') {
+                shopCategory = window.shopManager?.shopData?.jupiterHelpers;
+            } else if (planet === 'titan') {
+                shopCategory = window.shopManager?.shopData?.titanHelpers;
+            } else {
+                shopCategory = window.shopManager?.shopData?.helpers;
+            }
+
+            // Spawn missing helpers in a clump (bottom-left of panel, away from rock)
+            const baseX = 120; // Far left side of panel
+            const baseY = 520; // Bottom area, below the rock
+            let spawnIndex = 0;
+
+            for (const [type, ownedCount] of Object.entries(ownedCounts)) {
+                const placedCount = placedCounts[type] || 0;
+                const missingCount = ownedCount - placedCount;
+
+                if (missingCount > 0) {
+                    const helperData = shopCategory?.[type];
+                    if (helperData) {
+                        for (let i = 0; i < missingCount; i++) {
+                            // Create clump pattern with small random offsets
+                            const offsetX = (Math.random() - 0.5) * 80;
+                            const offsetY = (Math.random() - 0.5) * 80;
+                            
+                            placedHelpers.push({
+                                type: type,
+                                x: baseX + offsetX,
+                                y: baseY + offsetY,
+                                id: Date.now() + Math.random(),
+                                isMining: false,
+                                helper: helperData,
+                                dps: helperData.baseDps
+                            });
+                            spawnIndex++;
+                        }
+                    }
+                }
+            }
+
+            return placedHelpers;
+        };
+
+        this.game.earthPlacedHelpers = spawnMissingHelpers(this.game.helpers, this.game.earthPlacedHelpers, 'earth');
+        this.game.moonPlacedHelpers = spawnMissingHelpers(this.game.moonHelpers, this.game.moonPlacedHelpers, 'moon');
+        this.game.marsPlacedHelpers = spawnMissingHelpers(this.game.marsHelpers, this.game.marsPlacedHelpers, 'mars');
+        this.game.jupiterPlacedHelpers = spawnMissingHelpers(this.game.jupiterHelpers, this.game.jupiterPlacedHelpers, 'jupiter');
+        this.game.titanPlacedHelpers = spawnMissingHelpers(this.game.titanHelpers, this.game.titanPlacedHelpers, 'titan');
+
+        if (this.game.currentLevel === 'moon') {
+            this.game.placedHelpers = [...this.game.moonPlacedHelpers];
+        } else if (this.game.currentLevel === 'mars') {
+            this.game.placedHelpers = [...this.game.marsPlacedHelpers];
+        } else if (this.game.currentLevel === 'jupiter') {
+            this.game.placedHelpers = [...this.game.jupiterPlacedHelpers];
+        } else if (this.game.currentLevel === 'titan') {
+            // Load Titan placed helpers when on Titan to prevent Earth helpers from appearing
+            this.game.placedHelpers = [...this.game.titanPlacedHelpers];
+        } else {
+            this.game.placedHelpers = [...this.game.earthPlacedHelpers];
+        }
 
         const body = document.body;
         if (body) {
-            if (this.game.currentLevel === 'moon') {
-                body.classList.add('moon-theme');
-            } else {
-                body.classList.remove('moon-theme');
-            }
+            const level = this.game.currentLevel;
+            document.body.classList.toggle('moon-theme', level === 'moon');
+            document.body.classList.toggle('planet-mars', level === 'mars');
+            document.body.classList.toggle('planet-jupiter', level === 'jupiter');
+            document.body.classList.toggle('planet-titan', level === 'titan');
         }
 
         this.game.recreateHelperSprites();
@@ -341,13 +505,33 @@ class SaveManager {
         if (window.uiManager) {
             if (this.game.currentLevel === 'moon') {
                 document.body.classList.add('moon-theme');
-                uiManager.initializePlanetTabs?.();
+                document.body.classList.remove('planet-mars');
+                document.body.classList.remove('planet-jupiter');
+            } else if (this.game.currentLevel === 'mars') {
+                document.body.classList.add('planet-mars');
+                document.body.classList.remove('moon-theme');
+                document.body.classList.remove('planet-jupiter');
+            } else if (this.game.currentLevel === 'jupiter') {
+                document.body.classList.add('planet-jupiter');
+                document.body.classList.remove('moon-theme');
+                document.body.classList.remove('planet-mars');
             } else {
                 document.body.classList.remove('moon-theme');
+                document.body.classList.remove('planet-mars');
+                document.body.classList.remove('planet-jupiter');
             }
 
             uiManager.updateBackground(this.game.currentLevel);
+            if (this.game.marsHelpers.length && !this.game.moonHelpers.some(helper => helper.type === 'marsRocket')) {
+                const hasMarsRocketInMarsHelpers = this.game.marsHelpers.some(helper => helper.type === 'marsRocket');
+                if (hasMarsRocketInMarsHelpers) {
+                    this.game.hasPlayedMoonLaunch = true;
+                    this.game.moonHelpers.push(...this.game.marsHelpers.filter(helper => helper.type === 'marsRocket'));
+                }
+            }
+
             uiManager.initializePlanetTabs?.();
+            uiManager.updatePlanetTabVisibility?.();
 
             if (this.game.hasPlayedMoonLaunch) {
                 uiManager.hideMoonLocked?.();
@@ -455,7 +639,7 @@ class SaveManager {
         input.click();
     }
     
-    resetGame() {
+    async resetGame() {
         if (confirm('Are you sure you want to reset your game? This cannot be undone!')) {
             if (confirm('This will permanently delete all your progress. Are you absolutely sure?')) {
                 // Clear all possible save data
@@ -471,6 +655,11 @@ class SaveManager {
                     }
                 }
                 
+                // Delete cloud save if user is signed in to prevent restore on reload
+                if (window.cloudSaveManager && window.cloudSaveManager.currentUser) {
+                    await window.cloudSaveManager.deleteCloudSave();
+                }
+                
                 // Reset game state directly
                 this.game.dogecoins = 0;
                 this.game.totalMined = 0;
@@ -478,8 +667,14 @@ class SaveManager {
                 this.game.dps = 0;
                 this.game.helpers = [];
                 this.game.moonHelpers = [];
+                this.game.marsHelpers = [];
+                this.game.jupiterHelpers = [];
+                this.game.titanHelpers = [];
                 this.game.earthPlacedHelpers = [];
                 this.game.moonPlacedHelpers = [];
+                this.game.marsPlacedHelpers = [];
+                this.game.jupiterPlacedHelpers = [];
+                this.game.titanPlacedHelpers = [];
                 this.game.placedHelpers = [];
                 this.game.helpersOnCursor = [];
                 this.game.placementQueue = [];

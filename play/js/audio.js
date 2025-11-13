@@ -7,6 +7,9 @@ class AudioManager {
         this.introSound = null;
         this.loopSound = null;
         this.moonLoop = null;
+        this.marsLoop = null;
+        this.jupiterLoop = null;
+        this.titanLoop = null;
         this.soundEffects = {};
         this.currentMusicPlanet = null;
     }
@@ -15,6 +18,9 @@ class AudioManager {
         // Load background music
         this.loadLevel1Music();
         this.loadMoonMusic();
+        this.loadMarsMusic();
+        this.loadJupiterMusic();
+        this.loadTitanMusic();
         
         // Load sound effects
         this.loadSoundEffects();
@@ -24,7 +30,7 @@ class AudioManager {
     }
 
     loadSoundEffects() {
-        // Load swipe sound for tab switching
+        // Load swipe sound for tab switching - paths adjusted for play/ directory serving
         this.soundEffects.swipe = new Howl({
             src: ['../assets/SoundsSrc/main/swipe3.wav'],
             volume: 0.5
@@ -102,7 +108,7 @@ class AudioManager {
     }
 
     loadLevel1Music() {
-        // Create intro sound
+        // Create intro sound - path adjusted for play/ directory serving
         this.introSound = new Howl({
             src: ['../assets/SoundsSrc/musiclevel1/music_intro.mp3'],
             loop: false,
@@ -116,7 +122,7 @@ class AudioManager {
             }
         });
 
-        // Create loop sound
+        // Create loop sound - path adjusted for play/ directory serving
         this.loopSound = new Howl({
             src: ['../assets/SoundsSrc/musiclevel1/music.mp3'],
             loop: true,
@@ -128,6 +134,35 @@ class AudioManager {
     loadMoonMusic() {
         this.moonLoop = new Howl({
             src: ['../assets/SoundsSrc/musiclevel2/music.mp3'],
+            loop: true,
+            autoplay: false,
+            volume: 0.5
+        });
+    }
+
+    loadMarsMusic() {
+        this.marsLoop = new Howl({
+            src: ['../assets/SoundsSrc/musiclevel3/music.mp3'],
+            loop: true,
+            autoplay: false,
+            volume: 0.5
+        });
+    }
+
+    loadJupiterMusic() {
+        // Jupiter uses musiclevel4 for atmospheric background music
+        this.jupiterLoop = new Howl({
+            src: ['../assets/SoundsSrc/musiclevel4/music.mp3'],
+            loop: true,
+            autoplay: false,
+            volume: 0.5
+        });
+    }
+
+    loadTitanMusic() {
+        // Titan uses musiclevel5 compiled audiosprite for ambient soundscape
+        this.titanLoop = new Howl({
+            src: ['../assets/SoundsSrc/musiclevel5/compiled/audiosprite_level5.mp3'],
             loop: true,
             autoplay: false,
             volume: 0.5
@@ -147,7 +182,16 @@ class AudioManager {
             if (currentLevel === 'moon' && this.isPlaying(this.moonLoop)) {
                 return;
             }
-            if (currentLevel !== 'moon' && (this.isPlaying(this.introSound) || this.isPlaying(this.loopSound))) {
+            if (currentLevel === 'mars' && this.isPlaying(this.marsLoop)) {
+                return;
+            }
+            if (currentLevel === 'jupiter' && this.isPlaying(this.jupiterLoop)) {
+                return;
+            }
+            if (currentLevel === 'titan' && this.isPlaying(this.titanLoop)) {
+                return;
+            }
+            if (currentLevel === 'earth' && (this.isPlaying(this.introSound) || this.isPlaying(this.loopSound))) {
                 return;
             }
         }
@@ -160,6 +204,20 @@ class AudioManager {
         if (currentLevel === 'moon') {
             if (this.moonLoop) {
                 this.moonLoop.play();
+            }
+        } else if (currentLevel === 'mars') {
+            if (this.marsLoop) {
+                this.marsLoop.play();
+            }
+        } else if (currentLevel === 'jupiter') {
+            // Jupiter uses its own atmospheric music track
+            if (this.jupiterLoop) {
+                this.jupiterLoop.play();
+            }
+        } else if (currentLevel === 'titan') {
+            // Titan uses ambient soundscape music
+            if (this.titanLoop) {
+                this.titanLoop.play();
             }
         } else {
             // Play intro first, then loop (Earth)
@@ -179,6 +237,15 @@ class AudioManager {
         if (this.moonLoop) {
             this.moonLoop.stop();
         }
+        if (this.marsLoop) {
+            this.marsLoop.stop();
+        }
+        if (this.jupiterLoop) {
+            this.jupiterLoop.stop();
+        }
+        if (this.titanLoop) {
+            this.titanLoop.stop();
+        }
         this.currentMusicPlanet = null;
     }
 
@@ -192,6 +259,15 @@ class AudioManager {
         }
         if (this.moonLoop) {
             this.moonLoop.volume(clampedVolume);
+        }
+        if (this.marsLoop) {
+            this.marsLoop.volume(clampedVolume);
+        }
+        if (this.jupiterLoop) {
+            this.jupiterLoop.volume(clampedVolume);
+        }
+        if (this.titanLoop) {
+            this.titanLoop.volume(clampedVolume);
         }
     }
 

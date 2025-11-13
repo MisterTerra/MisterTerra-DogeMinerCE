@@ -152,6 +152,184 @@ class ShopManager {
                 }
             },
             
+            // Mars helpers
+            marsHelpers: {
+                marsBase: {
+                    name: 'Mars Base',
+                    baseCost: 500000,
+                    baseDps: 23,
+                    icon: 'assets/helpers/marsbase/marsbase-idle-0.png',
+                    miningSprite: 'assets/helpers/marsbase/marsbase-mine-0.png',
+                    description: 'A base on Mars to mine ludicrous amounts of Dogecoin.',
+                    category: 'mars'
+                },
+                partyShibe: {
+                    name: 'Party Shibe',
+                    baseCost: 100000,
+                    baseDps: 26,
+                    icon: 'assets/helpers/partyshibe/partyshibe-idle-0.png',
+                    miningSprite: 'assets/helpers/partyshibe/partyshibe-mine-0.png',
+                    description: 'Cool space rave party shibes to rave much dogecoin.',
+                    category: 'mars'
+                },
+                curiosiDoge: {
+                    name: 'CuriousiDoge',
+                    baseCost: 400000,
+                    baseDps: 30,
+                    icon: 'assets/helpers/curiosidoge/curiosidoge-idle-0.png',
+                    miningSprite: 'assets/helpers/curiosidoge/curiosidoge-mine-0.png',
+                    description: 'Much curious Doge to explore Mars riches.',
+                    category: 'mars'
+                },
+                djKittenz: {
+                    name: 'DJ Kittenz',
+                    baseCost: 1000000,
+                    baseDps: 45,
+                    icon: 'assets/helpers/djkittenz/djkittenz-idle-0.png',
+                    miningSprite: 'assets/helpers/djkittenz/djkittenz-mine-0.png',
+                    description: 'Very music creation. DJ Kittenz specializes in House music.',
+                    category: 'mars'
+                },
+                spaceBass: {
+                    name: 'Space Bass',
+                    baseCost: 8000000,
+                    baseDps: 70,
+                    icon: 'assets/helpers/spacebass/spacebass-idle-0.png',
+                    miningSprite: 'assets/helpers/spacebass/spacebass-mine-0.png',
+                    description: 'It is said to vibrate the essence of gravity itself.',
+                    category: 'mars'
+                },
+                jupiterRocket: {
+                    name: 'Jupiter Rocket',
+                    baseCost: 50000000,
+                    baseDps: 100,
+                    icon: 'assets/helpers/juprocket/juprocket-idle-0.png',
+                    miningSprite: 'assets/helpers/juprocket/juprocket-mine-0.png',
+                    description: 'A rocket to fly to Jupiter.',
+                    category: 'mars'
+                }
+            },
+
+            // Jupiter helpers sourced from /jupiterhelpers reference
+            jupiterHelpers: {
+                cloudBase: {
+                    name: 'Cloud Base',
+                    baseCost: 20000000,
+                    baseDps: 45,
+                    icon: 'assets/helpers/jupiterbase/jupiterbase-idle-0.png',
+                    miningSprite: 'assets/helpers/jupiterbase/jupiterbase-mine-0.png',
+                    description: 'A flying base in the clouds of Jupiter.',
+                    category: 'jupiter'
+                },
+                superShibe: {
+                    name: 'Super Shibe',
+                    baseCost: 1000000,
+                    baseDps: 50,
+                    icon: 'assets/helpers/supershibe/supershibe-idle-0.png',
+                    miningSprite: 'assets/helpers/supershibe/supershibe-mine-0.png',
+                    description: 'A scary-strong shibe. Probably on steroids.',
+                    category: 'jupiter'
+                },
+                dogeAirShip: {
+                    name: 'Doge Air Ship',
+                    baseCost: 15000000,
+                    baseDps: 80,
+                    icon: 'assets/helpers/airship/airship-idle-0.png',
+                    miningSprite: 'assets/helpers/airship/airship-mine-0.png',
+                    description: 'A flying ship with eager astro shibes.',
+                    category: 'jupiter'
+                },
+                flyingDoggo: {
+                    name: 'Flying Doggo',
+                    baseCost: 35000000,
+                    baseDps: 120,
+                    icon: 'assets/helpers/flyingdoge/flyingdoge-idle-0.png',
+                    miningSprite: 'assets/helpers/flyingdoge/flyingdoge-mine-0.png',
+                    description: 'It comes wif two sub-woofers.',
+                    category: 'jupiter'
+                },
+                tardogeis: {
+                    name: 'TARDogeIS',
+                    baseCost: 55000000,
+                    baseDps: 150,
+                    icon: 'assets/helpers/tardogeis/tardogeis-idle-0.png',
+                    miningSprite: 'assets/helpers/tardogeis/tardogeis-mine-0.png',
+                    description: 'Time and Relative Doge in Space exists everywhere at the same time. Sort of.',
+                    category: 'jupiter'
+                },
+                dogeStar: {
+                    name: 'DogeStar',
+                    baseCost: 699999999,
+                    baseDps: 420,
+                    icon: 'assets/helpers/dogestar/dogestar-idle-0.png',
+                    miningSprite: 'assets/helpers/dogestar/dogestar-mine-0.png',
+                    description: 'A space station the size of a small moon, equipped with a mining laser.',
+                    category: 'jupiter'
+                }
+            },
+            titanHelpers: {
+                // Helper 1: Titan Base - Foundation structure for manufacturing and mining operations
+                titanBase: {
+                    name: 'Titan Base',
+                    baseCost: 500000000,
+                    baseDps: 165,
+                    icon: 'assets/helpers/titanbase/titanbase-idle-0.png',
+                    miningSprite: 'assets/helpers/titanbase/titanbase-mine-0.png',
+                    description: 'A base on Titan to mine dogecoins and manufacture robots.',
+                    category: 'titan'
+                },
+                // Helper 2: Robo Shibe - Automated mining unit designed for Titan's harsh environment
+                roboShibe: {
+                    name: 'Robo Shibe',
+                    baseCost: 455000000,
+                    baseDps: 195,
+                    icon: 'assets/helpers/roboshibe/roboshibe-idle-0.png',
+                    miningSprite: 'assets/helpers/roboshibe/roboshibe-mine-0.png',
+                    description: 'A robotic shibe to mine the riches on Titan.',
+                    category: 'titan'
+                },
+                // Helper 3: Heavy Doge Walker - Large cargo and mining vehicle
+                heavyDogeWalker: {
+                    name: 'Heavy Doge Walker',
+                    baseCost: 2000000000,
+                    baseDps: 400,
+                    icon: 'assets/helpers/walker/walker-idle-0.png',
+                    miningSprite: 'assets/helpers/walker/walker-mine-0.png',
+                    description: 'Large vehicle. Much cargo, Very carry.',
+                    category: 'titan'
+                },
+                // Helper 4: Coin Seeker 5000 - Advanced robotic mining predator
+                coinSeeker5000: {
+                    name: 'Coin Seeker 5000',
+                    baseCost: 4500000000,
+                    baseDps: 500,
+                    icon: 'assets/helpers/seeker/seeker-idle-0.png',
+                    miningSprite: 'assets/helpers/seeker/seeker-mine-0.png',
+                    description: 'Advanced robotic dogecoin seeking predator.',
+                    category: 'titan'
+                },
+                // Helper 5: Time Travel D-Rex - Half terrifying, half amazing dinosaur from the past
+                timeTravelDRex: {
+                    name: 'Time Travel D-Rex',
+                    baseCost: 8000000000,
+                    baseDps: 620,
+                    icon: 'assets/helpers/trex/trex-idle-0.png',
+                    miningSprite: 'assets/helpers/trex/trex-mine-0.png',
+                    description: 'Half terrifying, half amazing. Rawr.',
+                    category: 'titan'
+                },
+                // Helper 6: Altar of the SunDoge - Sacred structure for enlightened mining
+                altarOfTheSunDoge: {
+                    name: 'Altar of the SunDoge',
+                    baseCost: 100000000000,
+                    baseDps: 1200,
+                    icon: 'assets/helpers/altarofthesundoge/altarofthesundoge-idle-0.png',
+                    miningSprite: 'assets/helpers/altarofthesundoge/altarofthesundoge-mine-0.png',
+                    description: 'An altar of calling to an enlightened Doge above our WOW.',
+                    category: 'titan'
+                }
+            },
+            
             pickaxes: {
                 standard: {
                     name: 'Standard Pickaxe',
@@ -284,6 +462,7 @@ class ShopManager {
         this.game.dogecoins -= cost;
         this.game.helpers.push({
             type: helperType,
+            name: helper.name,  // Store the display name from shop data
             dps: helper.baseDps,
             owned: owned + 1
         });
