@@ -526,6 +526,114 @@
     color: rgba(45, 36, 22, 0.85);
 }
 
+/* Titan Theme - Golden/amber color palette for Saturn's largest moon */
+.planet-titan #left-panel,
+.planet-titan #right-panel {
+    background: linear-gradient(to bottom, rgba(245, 210, 100, 0.95) 20%, rgba(250, 175, 70, 0.95) 80%);
+    border: 1px solid rgb(110, 120, 50);
+}
+
+.planet-titan .shop-grid-item,
+.planet-titan .shop-item {
+    background: linear-gradient(to bottom, rgba(245, 210, 100, 0.95) 20%, rgba(250, 175, 70, 0.95) 80%);
+    border: 1px solid rgb(110, 120, 50);
+}
+
+/* Titan text color - dark for readability on light background */
+.planet-titan #dogecoin-amount,
+.planet-titan #dps-amount,
+.planet-titan .shop-item-dps,
+.planet-titan .shop-item-description,
+.planet-titan .buy-btn-price,
+.planet-titan .tab-text,
+.planet-titan .shop-item-quantity,
+.planet-titan .shop-item-title {
+    color: #2d2416 !important;
+}
+
+/* Tab icons dark on Titan */
+.planet-titan .tab-btn .tab-icon,
+.planet-titan .tab-btn.active .tab-icon {
+    filter: brightness(0) saturate(100%) invert(0%);
+}
+
+/* Tab rectangle behind main tabs */
+.planet-titan #panel-tabs {
+    background: linear-gradient(to bottom, rgb(180, 150, 100) 50%, rgb(175, 140, 90) 50%);
+    border: 1px solid rgb(110, 120, 50);
+}
+
+/* Buttons and tabs */
+.planet-titan .tab-btn {
+    background: linear-gradient(to bottom, rgb(255, 235, 173) 50%, rgb(247, 221, 140) 50%);
+    border: 1px solid rgb(235, 190, 80);
+}
+
+.planet-titan .tab-btn:hover {
+    background: linear-gradient(to bottom, rgb(255, 245, 183) 50%, rgb(252, 231, 150) 50%);
+}
+
+.planet-titan .tab-btn.active {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95) 30%, rgba(245, 245, 245, 0.95) 70%);
+    border-color: rgb(235, 190, 80);
+    color: rgb(250, 175, 70);
+}
+
+.planet-titan .tab-btn.active .tab-text {
+    color: rgb(250, 175, 70);
+}
+
+.planet-titan .tab-text {
+    color: #2d2416;
+}
+
+.planet-titan .shop-buy-btn {
+    background: linear-gradient(to bottom, rgb(255, 235, 173) 50%, rgb(247, 221, 140) 50%);
+    border: 1px solid rgb(235, 190, 80);
+    color: #2d2416;
+}
+
+.planet-titan .shop-buy-btn:hover:not(:disabled) {
+    background: linear-gradient(to bottom, rgb(255, 245, 183) 50%, rgb(252, 231, 150) 50%);
+}
+
+.planet-titan .shop-buy-btn:disabled {
+    background: linear-gradient(to bottom, rgb(180, 150, 100) 50%, rgb(175, 140, 90) 50%);
+    border: 1px solid rgb(110, 120, 50);
+    color: rgba(45, 36, 22, 0.4);
+}
+
+.planet-titan .shop-buy-btn:active:not(:disabled) {
+    background: linear-gradient(to bottom, rgb(247, 221, 140) 50%, rgb(240, 210, 120) 50%);
+}
+
+/* Titan uses Earth-style stats and settings menus */
+
+/* Titan helper lock overlay styling */
+.planet-titan .helper-lock-overlay::before {
+    background: rgba(245, 200, 110, 0.85);
+    border: 2px solid rgba(250, 210, 130, 0.9);
+    box-shadow: inset 0 2px 8px rgba(200, 160, 70, 0.4);
+}
+
+.planet-titan .helper-lock-icon {
+    background-color: rgb(45, 36, 22);
+}
+
+.planet-titan .helper-lock-text {
+    color: rgb(45, 36, 22);
+    text-shadow:
+        0 0 0 rgba(245, 210, 155, 0.8),
+        0.45px 0.45px 0 rgba(245, 210, 155, 0.8),
+        0.45px -0.45px 0 rgba(245, 210, 155, 0.8),
+        -0.45px 0.45px 0 rgba(245, 210, 155, 0.8),
+        -0.45px -0.45px 0 rgba(245, 210, 155, 0.8);
+}
+
+.planet-titan .helper-lock-subtext {
+    color: rgba(45, 36, 22, 0.85);
+}
+
 /* Prevent image dragging throughout the game */
 img {
     -webkit-user-drag: none;
@@ -905,6 +1013,22 @@ body {
 
 .helper-sprite.space-bass {
     animation: rocketFloat 2.4s ease-in-out infinite;
+}
+
+/* Titan helper sizing */
+.helper-sprite.titan-base {
+    width: 90px; /* 60px * 1.5 = 90px */
+    height: 90px;
+}
+
+.helper-sprite.altar-of-sundoge {
+    width: 90px; /* 60px * 1.5 = 90px */
+    height: 90px;
+}
+
+.helper-sprite.time-travel-drex {
+    width: 72px; /* 60px * 1.2 = 72px */
+    height: 72px;
 }
 
 /* Cursor helper floating animation */

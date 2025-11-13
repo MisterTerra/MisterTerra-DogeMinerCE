@@ -132,6 +132,24 @@ class UIManager {
                 }
             }
 
+            if (planetName === 'titan') {
+                if (!this.isJupiterUnlocked()) {
+                    if (window.audioManager) {
+                        audioManager.playSound('uhoh');
+                    }
+                    window.notificationManager?.showWarning?.('LOCKED: Requires Jupiter');
+                    return;
+                }
+
+                if (!this.isTitanUnlocked()) {
+                    if (window.audioManager) {
+                        audioManager.playSound('uhoh');
+                    }
+                    window.notificationManager?.showWarning?.('LOCKED: Requires DogeStar');
+                    return;
+                }
+            }
+
             // Update planet tab buttons
             document.querySelectorAll('.planet-tab').forEach(btn => {
                 btn.classList.remove('active');
@@ -176,6 +194,9 @@ class UIManager {
                     this.game.marsPlacedHelpers = [...this.game.placedHelpers];
                 } else if (this.game.currentLevel === 'jupiter') {
                     this.game.jupiterPlacedHelpers = [...this.game.placedHelpers];
+                } else if (this.game.currentLevel === 'titan') {
+                    // Save titan placed helpers when leaving Titan
+                    this.game.titanPlacedHelpers = [...this.game.placedHelpers];
                 }
                 
                 // Clear the current helpers from the screen
@@ -193,6 +214,9 @@ class UIManager {
                     this.game.placedHelpers = [...(this.game.marsPlacedHelpers || [])];
                 } else if (planetName === 'jupiter') {
                     this.game.placedHelpers = [...(this.game.jupiterPlacedHelpers || [])];
+                } else if (planetName === 'titan') {
+                    // Load titan placed helpers when switching to Titan
+                    this.game.placedHelpers = [...(this.game.titanPlacedHelpers || [])];
                 }
                 
                 // Update the character sprite
@@ -207,6 +231,9 @@ class UIManager {
                 } else if (planetName === 'jupiter') {
                     // Use moon suit on Jupiter per requirements
                     this.updateCharacter('spacehelmet');
+                } else if (planetName === 'titan') {
+                    // Titan uses space helmet like Jupiter and Moon
+                    this.updateCharacter('spacehelmet');
                 }
                 
                 // Update the rock image
@@ -220,6 +247,7 @@ class UIManager {
                     document.body.classList.remove('moon-theme');
                     document.body.classList.remove('planet-mars');
                     document.body.classList.remove('planet-jupiter');
+                    document.body.classList.remove('planet-titan');
                     if (window.audioManager) {
                         audioManager.playBackgroundMusic();
                     }
@@ -231,6 +259,7 @@ class UIManager {
                     document.body.classList.add('moon-theme');
                     document.body.classList.remove('planet-mars');
                     document.body.classList.remove('planet-jupiter');
+                    document.body.classList.remove('planet-titan');
                     if (window.audioManager) {
                         audioManager.playBackgroundMusic();
                     }
@@ -242,6 +271,7 @@ class UIManager {
                     document.body.classList.remove('moon-theme');
                     document.body.classList.add('planet-mars');
                     document.body.classList.remove('planet-jupiter');
+                    document.body.classList.remove('planet-titan');
                     if (window.audioManager) {
                         audioManager.playBackgroundMusic();
                     }
@@ -253,7 +283,21 @@ class UIManager {
                     }
                     document.body.classList.remove('moon-theme');
                     document.body.classList.remove('planet-mars');
+                    document.body.classList.remove('planet-titan');
                     document.body.classList.add('planet-jupiter');
+                    if (window.audioManager) {
+                        audioManager.playBackgroundMusic();
+                    }
+                } else if (planetName === 'titan') {
+                    // Titan uses its own rock and platform
+                    rockElement.src = 'assets/general/rocks/titan.png';
+                    if (platform) {
+                        platform.src = '../assets/quickUI/titandogeplatform.png';
+                    }
+                    document.body.classList.remove('moon-theme');
+                    document.body.classList.remove('planet-mars');
+                    document.body.classList.remove('planet-jupiter');
+                    document.body.classList.add('planet-titan');
                     if (window.audioManager) {
                         audioManager.playBackgroundMusic();
                     }
@@ -301,6 +345,14 @@ class UIManager {
                         'assets/backgrounds/bgjup03.jpg',
                         'assets/backgrounds/dogewow.jpg'
                     ];
+                } else if (planetName === 'titan') {
+                    // Titan uses its own background set for atmospheric effect
+                    this.game.backgrounds = [
+                        'assets/backgrounds/titan02.jpg',
+                        'assets/backgrounds/titan03.jpg',
+                        'assets/backgrounds/titan04.jpg',
+                        'assets/backgrounds/titan05.jpg'
+                    ];
                 }
                 this.game.currentBackgroundIndex = 0;
 
@@ -333,7 +385,8 @@ class UIManager {
                             characterContainer.style.visibility = 'visible';
                         }
 
-                        const forceIntro = planetName === 'moon' || planetName === 'earth' || planetName === 'mars' || planetName === 'jupiter';
+                        // Play drop-in intro animation for all planets to maintain consistency
+                        const forceIntro = planetName === 'moon' || planetName === 'earth' || planetName === 'mars' || planetName === 'jupiter' || planetName === 'titan';
                         if (forceIntro) {
                             this.game.playDogeIntro(true);
                         }
@@ -1049,6 +1102,18 @@ class UIManager {
         return this.playerHasJupiterRocket();
     }
 
+    playerHasDogeStar() {
+        // Check if player owns at least one DogeStar (final Jupiter helper)
+        const jupiterHelpers = this.game.jupiterHelpers || [];
+        const hasDogeStar = jupiterHelpers.some(helper => helper && helper.type === 'dogeStar');
+        return hasDogeStar;
+    }
+
+    isTitanUnlocked() {
+        // Titan requires owning at least one DogeStar from Jupiter
+        return this.playerHasDogeStar();
+    }
+
     updatePlanetTabVisibility() {
         const marsTab = document.querySelector('.planet-tab[data-planet="mars"]');
         if (marsTab) {
@@ -1071,6 +1136,19 @@ class UIManager {
 
             if (!jupiterUnlocked && jupiterTab.classList.contains('active')) {
                 jupiterTab.classList.remove('active');
+                const fallbackTab = document.querySelector('.planet-tab[data-planet="earth"]');
+                fallbackTab?.classList.add('active');
+            }
+        }
+
+        const titanTab = document.querySelector('.planet-tab[data-planet="titan"]');
+        if (titanTab) {
+            const titanUnlocked = this.isTitanUnlocked();
+            titanTab.style.display = titanUnlocked ? '' : 'none';
+            titanTab.disabled = !titanUnlocked;
+
+            if (!titanUnlocked && titanTab.classList.contains('active')) {
+                titanTab.classList.remove('active');
                 const fallbackTab = document.querySelector('.planet-tab[data-planet="earth"]');
                 fallbackTab?.classList.add('active');
             }

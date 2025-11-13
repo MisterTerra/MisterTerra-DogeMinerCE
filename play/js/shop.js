@@ -253,7 +253,68 @@ class ShopManager {
                     category: 'jupiter'
                 }
             },
-            titanHelpers: {},
+            titanHelpers: {
+                // Helper 1: Titan Base - Foundation structure for manufacturing and mining operations
+                titanBase: {
+                    name: 'Titan Base',
+                    baseCost: 500000000,
+                    baseDps: 165,
+                    icon: 'assets/helpers/titanbase/titanbase-idle-0.png',
+                    miningSprite: 'assets/helpers/titanbase/titanbase-mine-0.png',
+                    description: 'A base on Titan to mine dogecoins and manufacture robots.',
+                    category: 'titan'
+                },
+                // Helper 2: Robo Shibe - Automated mining unit designed for Titan's harsh environment
+                roboShibe: {
+                    name: 'Robo Shibe',
+                    baseCost: 455000000,
+                    baseDps: 195,
+                    icon: 'assets/helpers/roboshibe/roboshibe-idle-0.png',
+                    miningSprite: 'assets/helpers/roboshibe/roboshibe-mine-0.png',
+                    description: 'A robotic shibe to mine the riches on Titan.',
+                    category: 'titan'
+                },
+                // Helper 3: Heavy Doge Walker - Large cargo and mining vehicle
+                heavyDogeWalker: {
+                    name: 'Heavy Doge Walker',
+                    baseCost: 2000000000,
+                    baseDps: 400,
+                    icon: 'assets/helpers/walker/walker-idle-0.png',
+                    miningSprite: 'assets/helpers/walker/walker-mine-0.png',
+                    description: 'Large vehicle. Much cargo, Very carry.',
+                    category: 'titan'
+                },
+                // Helper 4: Coin Seeker 5000 - Advanced robotic mining predator
+                coinSeeker5000: {
+                    name: 'Coin Seeker 5000',
+                    baseCost: 4500000000,
+                    baseDps: 500,
+                    icon: 'assets/helpers/seeker/seeker-idle-0.png',
+                    miningSprite: 'assets/helpers/seeker/seeker-mine-0.png',
+                    description: 'Advanced robotic dogecoin seeking predator.',
+                    category: 'titan'
+                },
+                // Helper 5: Time Travel D-Rex - Half terrifying, half amazing dinosaur from the past
+                timeTravelDRex: {
+                    name: 'Time Travel D-Rex',
+                    baseCost: 8000000000,
+                    baseDps: 620,
+                    icon: 'assets/helpers/trex/trex-idle-0.png',
+                    miningSprite: 'assets/helpers/trex/trex-mine-0.png',
+                    description: 'Half terrifying, half amazing. Rawr.',
+                    category: 'titan'
+                },
+                // Helper 6: Altar of the SunDoge - Sacred structure for enlightened mining
+                altarOfTheSunDoge: {
+                    name: 'Altar of the SunDoge',
+                    baseCost: 100000000000,
+                    baseDps: 1200,
+                    icon: 'assets/helpers/altarofthesundoge/altarofthesundoge-idle-0.png',
+                    miningSprite: 'assets/helpers/altarofthesundoge/altarofthesundoge-mine-0.png',
+                    description: 'An altar of calling to an enlightened Doge above our WOW.',
+                    category: 'titan'
+                }
+            },
             
             pickaxes: {
                 standard: {
@@ -387,6 +448,7 @@ class ShopManager {
         this.game.dogecoins -= cost;
         this.game.helpers.push({
             type: helperType,
+            name: helper.name,  // Store the display name from shop data
             dps: helper.baseDps,
             owned: owned + 1
         });

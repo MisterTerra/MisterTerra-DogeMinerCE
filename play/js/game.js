@@ -149,7 +149,7 @@ class DogeMinerGame {
                 character: 'assets/general/character/spacehelmet.png'
             },
             titan: {
-                name: 'Titan (Coming Soon)',
+                name: 'Titan',
                 background: 'assets/backgrounds/titan02.jpg',
                 rock: 'assets/general/rocks/titan.png',
                 character: 'assets/general/character/spacehelmet.png'
@@ -804,6 +804,14 @@ class DogeMinerGame {
             }
         }
 
+        if (this.currentLevel === 'titan' && helperType !== 'titanBase') {
+            const hasTitanBase = (this.titanHelpers || []).some(h => h.type === 'titanBase');
+            if (!hasTitanBase) {
+                this.showNotification?.('LOCKED: Requires Titan Base');
+                return false;
+            }
+        }
+
         const helperArray = this.getHelperArrayForLevel();
         const owned = helperArray.filter(h => h.type === helperType).length;
         const cost = Math.floor(helperData.baseCost * Math.pow(1.15, owned));
@@ -941,16 +949,24 @@ class DogeMinerGame {
                 helperSprite.classList.add('mars-rocket');
             } else if (helperData.type === 'landerShibe') {
                 helperSprite.classList.add('lander-shibe');
+            } else if (helperData.type === 'titanBase') {
+                helperSprite.classList.add('titan-base');
+            } else if (helperData.type === 'altarOfTheSunDoge') {
+                helperSprite.classList.add('altar-of-sundoge');
+            } else if (helperData.type === 'timeTravelDRex') {
+                helperSprite.classList.add('time-travel-drex');
             }
             
             // Position the sprite immediately at current cursor position
             let helperSize = 60;
             if (helperSprite.classList.contains('shibe')) {
                 helperSize = 30;
-            } else if (helperSprite.classList.contains('moon-base') || helperSprite.classList.contains('lander-shibe') || helperSprite.classList.contains('mars-base')) {
-                helperSize = 90;
+            } else if (helperSprite.classList.contains('moon-base') || helperSprite.classList.contains('lander-shibe') || helperSprite.classList.contains('mars-base') || helperSprite.classList.contains('titan-base') || helperSprite.classList.contains('altar-of-sundoge')) {
+                helperSize = 90; // 1.5x helpers
             } else if (helperSprite.classList.contains('dogebility')) {
                 helperSize = 69;
+            } else if (helperSprite.classList.contains('time-travel-drex')) {
+                helperSize = 72; // 1.2x helper
             }
             const offset = helperSize / 2;
             
@@ -1008,10 +1024,12 @@ class DogeMinerGame {
                     let helperSize = 60;
                     if (sprite.classList.contains('shibe')) {
                         helperSize = 30;
-                    } else if (sprite.classList.contains('moon-base') || sprite.classList.contains('lander-shibe')) {
-                        helperSize = 90;
+                    } else if (sprite.classList.contains('moon-base') || sprite.classList.contains('lander-shibe') || sprite.classList.contains('titan-base') || sprite.classList.contains('altar-of-sundoge')) {
+                        helperSize = 90; // 1.5x helpers
                     } else if (sprite.classList.contains('dogebility')) {
                         helperSize = 69;
+                    } else if (sprite.classList.contains('time-travel-drex')) {
+                        helperSize = 72; // 1.2x helper
                     }
                     const offset = helperSize / 2; // Center the sprite
                     
@@ -1055,10 +1073,12 @@ class DogeMinerGame {
                 let helperSize = 60;
                 if (firstHelper.type === 'miningShibe' || firstHelper.type === 'moonShibe') {
                     helperSize = 30;
-                } else if (firstHelper.type === 'moonBase' || firstHelper.type === 'landerShibe') {
-                    helperSize = 90;
+                } else if (firstHelper.type === 'moonBase' || firstHelper.type === 'landerShibe' || firstHelper.type === 'titanBase' || firstHelper.type === 'altarOfTheSunDoge') {
+                    helperSize = 90; // 1.5x helpers
                 } else if (firstHelper.type === 'infiniteDogebility') {
                     helperSize = 69;
+                } else if (firstHelper.type === 'timeTravelDRex') {
+                    helperSize = 72; // 1.2x helper
                 }
                 const offset = helperSize / 2;
                 
@@ -1150,7 +1170,7 @@ class DogeMinerGame {
                 y: placeY,
                 id: Date.now() + Math.random() + index, // Unique ID
                 isMining: false,
-                name: this.getHelperName(helperData.type) // Always generate the name here
+                name: helperData.helper?.name || helperData.name || this.getHelperName(helperData.type) // Use helper data name
             };
             
             // Add to placed helpers array
@@ -1551,6 +1571,12 @@ class DogeMinerGame {
             helperSprite.classList.add('space-bass');
         } else if (placedHelper.type === 'jupiterRocket') {
             helperSprite.classList.add('jupiter-rocket');
+        } else if (placedHelper.type === 'titanBase') {
+            helperSprite.classList.add('titan-base');
+        } else if (placedHelper.type === 'altarOfTheSunDoge') {
+            helperSprite.classList.add('altar-of-sundoge');
+        } else if (placedHelper.type === 'timeTravelDRex') {
+            helperSprite.classList.add('time-travel-drex');
         }
         
         // Add bounce animation class
@@ -1608,6 +1634,14 @@ class DogeMinerGame {
         } else if (placedHelper.type === 'dogeCar') {
             centerOffset = 30;
             verticalOffset = 28; // Doge Car: needs more vertical offset
+        } else if (placedHelper.type === 'titanBase' || placedHelper.type === 'altarOfTheSunDoge') {
+            // Titan Base and Altar of SunDoge are 1.5x (90px)
+            centerOffset = 45;
+            verticalOffset = 30;
+        } else if (placedHelper.type === 'timeTravelDRex') {
+            // Time Travel D-Rex is 1.2x (72px)
+            centerOffset = 36;
+            verticalOffset = 26;
         }
         
         nameTooltip.style.left = (placedHelper.x + centerOffset) + 'px'; // Center horizontally
@@ -1740,7 +1774,14 @@ class DogeMinerGame {
             const cursorSprites = document.querySelectorAll('.helper-sprite.attached-to-mouse');
             cursorSprites.forEach((sprite, index) => {
                 const helperData = this.helpersOnCursor[index];
-                const helperSize = sprite.classList.contains('shibe') ? 30 : 60;
+                let helperSize = 60;
+                if (sprite.classList.contains('shibe')) {
+                    helperSize = 30;
+                } else if (sprite.classList.contains('titan-base') || sprite.classList.contains('altar-of-sundoge')) {
+                    helperSize = 90;
+                } else if (sprite.classList.contains('time-travel-drex')) {
+                    helperSize = 72;
+                }
                 const offset = helperSize / 2;
                 
                 let stackOffsetX = 0;
@@ -1965,11 +2006,12 @@ class DogeMinerGame {
             return total + helper.dps;
         }, 0);
         
-        // Total DPS is the sum of both planet helpers
+        // Calculate Mars, Jupiter, and Titan helpers DPS
         const marsDPS = this.marsHelpers.reduce((total, helper) => total + helper.dps, 0);
         const jupiterDPS = this.jupiterHelpers.reduce((total, helper) => total + helper.dps, 0);
+        const titanDPS = this.titanHelpers.reduce((total, helper) => total + helper.dps, 0);
 
-        this.dps = earthDPS + moonDPS + marsDPS + jupiterDPS;
+        this.dps = earthDPS + moonDPS + marsDPS + jupiterDPS + titanDPS;
         
         // Update highest DPS
         if (this.dps > this.highestDps) {
@@ -2164,8 +2206,14 @@ class DogeMinerGame {
             closedEyesSprite = 'assets/general/character/closed_eyes.png';
         } else if (this.currentLevel === 'moon') {
             closedEyesSprite = 'assets/general/character/closed_space.png';
+        } else if (this.currentLevel === 'mars') {
+            // Mars uses party sprite with happy variant for blinking
+            closedEyesSprite = 'assets/general/character/happy_party.png';
         } else if (this.currentLevel === 'jupiter') {
             // Jupiter uses space helmet sprite like the Moon
+            closedEyesSprite = 'assets/general/character/closed_space.png';
+        } else if (this.currentLevel === 'titan') {
+            // Titan uses space helmet (eyes open), blink with closed_space (eyes closed)
             closedEyesSprite = 'assets/general/character/closed_space.png';
         } else {
             // Default fallback

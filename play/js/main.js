@@ -123,12 +123,12 @@ async function initializeGame() {
                         'assets/backgrounds/dogewow.jpg'
                     ];
                 } else if (game.currentLevel === 'titan') {
-                    // Titan is a placeholder world for upcoming content.
+                    // Titan uses the space helmet like Jupiter and Moon
                     mainCharacter.src = 'assets/general/character/spacehelmet.png';
                     mainRock.src = 'assets/general/rocks/titan.png';
                     if (platform) {
-                        // Reuse the Jupiter platform art until Titan-specific art arrives.
-                        platform.src = '../assets/quickUI/jupiterdogeplatform.png';
+                        // Titan uses its own platform
+                        platform.src = '../assets/quickUI/titandogeplatform.png';
                     }
                     document.body.classList.remove('moon-theme');
                     document.body.classList.remove('planet-mars');
@@ -145,8 +145,8 @@ async function initializeGame() {
                 // Make sure the background DOM nodes reflect the resolved pool for this load-in planet.
                 game.syncBackgroundImages?.(true);
                 
-                // Force update shop content and planet tabs if on Moon, Mars, or Jupiter
-                if ((game.currentLevel === 'moon' || game.currentLevel === 'mars' || game.currentLevel === 'jupiter') && uiManager) {
+                // Force update shop content and planet tabs if on Moon, Mars, Jupiter, or Titan
+                if ((game.currentLevel === 'moon' || game.currentLevel === 'mars' || game.currentLevel === 'jupiter' || game.currentLevel === 'titan') && uiManager) {
                     uiManager.initializePlanetTabs?.();
                     setTimeout(() => {
                         uiManager.updateShopContent();
