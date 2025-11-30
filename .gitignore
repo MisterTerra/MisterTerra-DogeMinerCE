@@ -69,3 +69,7 @@ firebase-debug.*.log
 sdk script.txt
 complete windsurf chat history.md
 .windsurf/rules/
+
+# Dist directories
+dist
+dist-offline

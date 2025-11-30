@@ -6,6 +6,11 @@ import audioManager  from './audio.js';
 import notificationManager from './notification.js';
 import cloudSaveManager from './cloud-save.js';
 
+import { backgroundSprites } from '../assets/bundles/backgrounds.js';
+import { characterSprites } from '../assets/bundles/characters.js';
+import { rockSprites } from '../assets/bundles/rocks.js';
+import { platformSprites } from '../assets/bundles/platforms.js';
+
 // DogeMiner: Community Edition - Main Initialization
 const startGameWhenReady = () => initializeGame();
 
@@ -69,92 +74,46 @@ async function initializeGame() {
             if (mainCharacter && mainRock) {
                 // Set correct character sprite
                 if (gameManager.currentLevel === 'earth') {
-                    mainCharacter.src = 'assets/general/character/standard.png';
-                    mainRock.src = 'assets/general/rocks/earth.png';
-                    if (platform) {
-                        platform.src = '../assets/quickUI/dogeplatform.png';
-                    }
                     document.body.classList.remove('moon-theme');
                     document.body.classList.remove('planet-mars');
                     document.body.classList.remove('planet-jupiter');
                     document.body.classList.remove('planet-titan');
-                    gameManager.backgrounds = [
-                        'backgrounds/bg1.jpg',
-                        'backgrounds/bg3.jpg',
-                        'backgrounds/bg4.jpg',
-                        'backgrounds/bg5.jpg',
-                        'backgrounds/bg6.jpg',
-                        'backgrounds/bg7.jpg',
-                        'backgrounds/bg9.jpg',
-                        'backgrounds/bg-new.jpg'
-                    ];
+
                 } else if (gameManager.currentLevel === 'moon') {
-                    mainCharacter.src = 'assets/general/character/spacehelmet.png';
-                    mainRock.src = 'assets/general/rocks/moon.png';
-                    if (platform) {
-                        platform.src = '../assets/quickUI/dogeplatformmoon.png';
-                    }
                     document.body.classList.remove('planet-mars');
                     document.body.classList.remove('planet-jupiter');
                     document.body.classList.remove('planet-titan');
                     
                     // Make sure moon is unlocked in UI
                     uiManager.hideMoonLocked();
+
                 } else if (gameManager.currentLevel === 'mars') {
-                    mainCharacter.src = 'assets/general/character/party.png';
-                    mainRock.src = 'assets/general/rocks/mars.png';
-                    if (platform) {
-                        platform.src = '../assets/quickUI/marsdogeplatform.png';
-                    }
                     document.body.classList.remove('moon-theme');
                     document.body.classList.remove('planet-jupiter');
                     document.body.classList.remove('planet-titan');
                     document.body.classList.add('planet-mars');
-                    gameManager.backgrounds = [
-                        'backgrounds/bg6.jpg',
-                        'assets/backgrounds/bg101.jpg', // Mars extras live under play/assets/backgrounds/
-                        'assets/backgrounds/bg102.jpg',
-                        'assets/backgrounds/bg103.jpg',
-                        'assets/backgrounds/bg104.jpg',
-                        'assets/backgrounds/bg105.jpg',
-                        'backgrounds/bg-new.jpg'
-                    ];
+
                 } else if (gameManager.currentLevel === 'jupiter') {
-                    // Jupiter reuses the space suit but swaps to the dedicated platform art.
-                    mainCharacter.src = 'assets/general/character/spacehelmet.png';
-                    mainRock.src = 'assets/general/rocks/jupiter.png';
-                    if (platform) {
-                        platform.src = '../assets/quickUI/jupiterdogeplatform.png';
-                    }
                     document.body.classList.remove('moon-theme');
                     document.body.classList.remove('planet-mars');
                     document.body.classList.remove('planet-titan');
                     document.body.classList.add('planet-jupiter');
-                    gameManager.backgrounds = [
-                        'assets/backgrounds/bgjup01.jpg',
-                        'assets/backgrounds/bgjup02.jpg',
-                        'assets/backgrounds/bgjup03.jpg',
-                        'assets/backgrounds/dogewow.jpg'
-                    ];
+
                 } else if (gameManager.currentLevel === 'titan') {
-                    // Titan uses the space helmet like Jupiter and Moon
-                    mainCharacter.src = 'assets/general/character/spacehelmet.png';
-                    mainRock.src = 'assets/general/rocks/titan.png';
-                    if (platform) {
-                        // Titan uses its own platform
-                        platform.src = '../assets/quickUI/titandogeplatform.png';
-                    }
                     document.body.classList.remove('moon-theme');
                     document.body.classList.remove('planet-mars');
                     document.body.classList.remove('planet-jupiter');
                     document.body.classList.add('planet-titan');
-                    gameManager.backgrounds = [
-                        'assets/backgrounds/titan02.jpg',
-                        'assets/backgrounds/titan03.jpg',
-                        'assets/backgrounds/titan04.jpg',
-                        'assets/backgrounds/titan05.jpg'
-                    ];
+
                 }
+
+                if(platform) {
+                    platform.src = platformSprites[gameManager.currentLevel];
+                }
+
+                gameManager.backgrounds = backgroundSprites[gameManager.currentLevel];
+                mainRock.src = rockSprites[gameManager.currentLevel][0];
+                mainCharacter.src = characterSprites[gameManager.currentLevel].open;
 
                 // Make sure the background DOM nodes reflect the resolved pool for this load-in planet.
                 gameManager.syncBackgroundImages?.(true);
@@ -201,62 +160,6 @@ async function initializeGame() {
         console.error('Error name:', error.name);
         uiManager.hideLoadingScreen();
         alert('Error initializing game: ' + (error.message || error.toString()) + '. Please check console and refresh.');
-    }
-}
-
-// Asset preloading
-async function preloadAssets() {
-    const assets = [
-        // Backgrounds
-        'assets/backgrounds/bg/bg1.jpg',
-        'assets/backgrounds/bg/bgmoon01.jpg',
-        'assets/backgrounds/bg/bg4.jpg',
-        'assets/backgrounds/bg/bgjup01.jpg',
-        
-        // Rocks
-        'assets/general/rocks/earth.png',
-        'assets/general/rocks/moon.png',
-        'assets/general/rocks/mars.png',
-        'assets/general/rocks/jupiter.png',
-        
-        // Characters
-        'assets/general/character/standard.png',
-        'assets/general/character/happydoge.png',
-        'assets/general/character/spacehelmet.png',
-        
-        // Icons
-        'assets/general/dogecoin_70x70.png',
-        'assets/general/persec_icon.png',
-        'assets/general/logo.png',
-        
-        // Helper icons
-        'assets/helpers/helpers/shibes/shibes-idle-0.png',
-        'assets/helpers/helpers/kittens/kittens-idle-0.png',
-        'assets/helpers/helpers/kennels/kennels-idle-0.png',
-        'assets/helpers/helpers/rockets/rockets-idle-0.png',
-        'assets/helpers/helpers/marsbase/marsbase-idle-0.png',
-        
-        // Pickaxe icons
-        'assets/items/items/pickaxes/standard.png',
-        'assets/items/items/pickaxes/stronger.png',
-        'assets/items/items/pickaxes/golden.png',
-        'assets/items/items/pickaxes/rocketaxe.png'
-    ];
-    
-    const loadPromises = assets.map(asset => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve(asset);
-            img.onerror = () => reject(asset);
-            img.src = asset;
-        });
-    });
-    
-    try {
-        await Promise.all(loadPromises);
-        console.log('All assets preloaded successfully');
-    } catch (error) {
-        console.warn('Some assets failed to load:', error);
     }
 }
 

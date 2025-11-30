@@ -1,8 +1,10 @@
-// TODO - remove all usage of window here (except for firebase), and instead import each respective class when needed
-
 import notificationManager from './notification.js';
 import gameManager from './game.js';
 import uiManager from './ui.js';
+
+import { characterSprites } from '../assets/bundles/characters.js';
+import { rockSprites } from '../assets/bundles/rocks.js';
+import { platformSprites } from '../assets/bundles/platforms.js';
 
 // Cloud Save Manager for DogeMiner CE
 class CloudSaveManager {
@@ -311,16 +313,16 @@ class CloudSaveManager {
 
             if (mainCharacter && mainRock) {
                 if (gameManager.currentLevel === 'moon') {
-                    mainCharacter.src = 'assets/general/character/spacehelmet.png';
-                    mainRock.src = 'assets/general/rocks/moon.png';
+                    mainCharacter.src = characterSprites.moon.open;
+                    mainRock.src = rockSprites.moon[0];
                     if (platform) {
-                        platform.src = '../assets/quickUI/dogeplatformmoon.png';
+                        platform.src = platformSprites.moon;
                     }
                 } else {
-                    mainCharacter.src = 'assets/general/character/standard.png';
-                    mainRock.src = 'assets/general/rocks/earth.png';
+                    mainCharacter.src = characterSprites.earth.open;
+                    mainRock.src = rockSprites.earth[0];
                     if (platform) {
-                        platform.src = '../assets/quickUI/dogeplatform.png';
+                        platform.src = platformSprites.earth;
                     }
                 }
             }

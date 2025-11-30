@@ -6,6 +6,10 @@ import saveManager from "./save.js";
 import performanceMonitor from "./performance-monitor.js";
 import cloudSaveManager from "./cloud-save.js";
 
+import { backgroundSprites } from "../assets/bundles/backgrounds.js";
+import { rockSprites } from "../assets/bundles/rocks.js";
+import { platformSprites } from "../assets/bundles/platforms.js";
+
 // DogeMiner: Community Edition - UI Management
 class UIManager {
     debugMode = false;
@@ -327,52 +331,34 @@ class UIManager {
                 const rockElement = document.getElementById('main-rock');
                 const platform = document.getElementById('platform');
                 if (planetName === 'earth') {
-                    document.getElementById('main-rock').src = 'assets/general/rocks/earth.png';
-                    if (platform) {
-                        platform.src = '../assets/quickUI/dogeplatform.png';
-                    }
                     document.body.classList.remove('moon-theme');
                     document.body.classList.remove('planet-mars');
                     document.body.classList.remove('planet-jupiter');
                     document.body.classList.remove('planet-titan');
                     audioManager.playBackgroundMusic();
+
                 } else if (planetName === 'moon') {
-                    rockElement.src = 'assets/general/rocks/moon.png';
-                    if (platform) {
-                        platform.src = '../assets/quickUI/dogeplatformmoon.png';
-                    }
                     document.body.classList.add('moon-theme');
                     document.body.classList.remove('planet-mars');
                     document.body.classList.remove('planet-jupiter');
                     document.body.classList.remove('planet-titan');
                     audioManager.playBackgroundMusic();
+
                 } else if (planetName === 'mars') {
-                    rockElement.src = 'assets/general/rocks/mars.png';
-                    if (platform) {
-                        platform.src = '../assets/quickUI/marsdogeplatform.png';
-                    }
                     document.body.classList.remove('moon-theme');
                     document.body.classList.add('planet-mars');
                     document.body.classList.remove('planet-jupiter');
                     document.body.classList.remove('planet-titan');
                     audioManager.playBackgroundMusic();
+
                 } else if (planetName === 'jupiter') {
-                    rockElement.src = 'assets/general/rocks/jupiter.png';
-                    if (platform) {
-                        // Jupiter uses its own platform art so the scene matches the new assets.
-                        platform.src = '../assets/quickUI/jupiterdogeplatform.png';
-                    }
                     document.body.classList.remove('moon-theme');
                     document.body.classList.remove('planet-mars');
                     document.body.classList.remove('planet-titan');
                     document.body.classList.add('planet-jupiter');
                     audioManager.playBackgroundMusic();
+
                 } else if (planetName === 'titan') {
-                    // Titan uses its own rock and platform
-                    rockElement.src = 'assets/general/rocks/titan.png';
-                    if (platform) {
-                        platform.src = '../assets/quickUI/titandogeplatform.png';
-                    }
                     document.body.classList.remove('moon-theme');
                     document.body.classList.remove('planet-mars');
                     document.body.classList.remove('planet-jupiter');
@@ -380,57 +366,13 @@ class UIManager {
                     audioManager.playBackgroundMusic();
                 }
 
-                // Update backgrounds with the correct pool
-                if (planetName === 'earth') {
-                    // Earth backgrounds
-                    gameManager.backgrounds = [
-                        'backgrounds/bg1.jpg',
-                        'backgrounds/bg3.jpg',
-                        'backgrounds/bg4.jpg',
-                        'backgrounds/bg5.jpg',
-                        'backgrounds/bg6.jpg',
-                        'backgrounds/bg7.jpg',
-                        'backgrounds/bg9.jpg',
-                        'backgrounds/bg-new.jpg'
-                    ];
-                } else if (planetName === 'moon') {
-                    // Moon backgrounds (same as earth since DOM only has 8 background elements)
-                    gameManager.backgrounds = [
-                        'backgrounds/bg1.jpg',
-                        'backgrounds/bg3.jpg',
-                        'backgrounds/bg4.jpg',
-                        'backgrounds/bg5.jpg',
-                        'backgrounds/bg6.jpg',
-                        'backgrounds/bg7.jpg',
-                        'backgrounds/bg9.jpg',
-                        'backgrounds/bg-new.jpg'
-                    ];
-                } else if (planetName === 'mars') {
-                    gameManager.backgrounds = [
-                        'backgrounds/bg6.jpg',
-                        'assets/backgrounds/bg101.jpg',
-                        'assets/backgrounds/bg102.jpg',
-                        'assets/backgrounds/bg103.jpg',
-                        'assets/backgrounds/bg104.jpg',
-                        'assets/backgrounds/bg105.jpg',
-                        'backgrounds/bg-new.jpg'
-                    ];
-                } else if (planetName === 'jupiter') {
-                    gameManager.backgrounds = [
-                        'assets/backgrounds/bgjup01.jpg',
-                        'assets/backgrounds/bgjup02.jpg',
-                        'assets/backgrounds/bgjup03.jpg',
-                        'assets/backgrounds/dogewow.jpg'
-                    ];
-                } else if (planetName === 'titan') {
-                    // Titan uses its own background set for atmospheric effect
-                    gameManager.backgrounds = [
-                        'assets/backgrounds/titan02.jpg',
-                        'assets/backgrounds/titan03.jpg',
-                        'assets/backgrounds/titan04.jpg',
-                        'assets/backgrounds/titan05.jpg'
-                    ];
+                rockElement.src = rockSprites[planetName][0];
+                if(platform) {
+                    platform.src = platformSprites[planetName];
                 }
+
+                // Update backgrounds with the correct pool
+                gameManager.backgrounds = backgroundSprites[planetName];
                 gameManager.currentBackgroundIndex = 0;
 
                 // Sync background image DOM nodes to match the newly selected planet.
