@@ -50,12 +50,15 @@ export function createLevelBundleLoader(basePath) {
 // Each bundle can contain whatever, this will load all entries in the bundle
 export function createBundleLoader(path) {
   const module = import.meta.glob(`${path}/*.js`);
+// import.meta.glob(path)
   let cache = null;
 
   return {
     async loadAll() {
       if (cache) return cache;
 
+      // We'll only ever have one module here, so no need to iterate over each prop in modules
+      // if(module) { await module() }
       const entries = await Promise.all(
         Object.entries(module).map(async ([path, loader]) => {
           const mod = await loader();
