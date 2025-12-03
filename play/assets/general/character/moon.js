@@ -1,6 +1,6 @@
-import spaceOpen from '../general/character/spacehelmet.png';
-import spaceClosed from '../general/character/closed_space.png';
-import spaceHappy from '../general/character/happy_space.png';
+import spaceOpen from './character/spacehelmet.png';
+import spaceClosed from './character/closed_space.png';
+import spaceHappy from './character/happy_space.png';
 
 export const moon = {
     open: spaceOpen,
