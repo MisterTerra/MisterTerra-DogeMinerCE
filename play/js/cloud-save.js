@@ -2,10 +2,7 @@ import notificationManager from './notification.js';
 import gameManager from './game.js';
 import uiManager from './ui.js';
 
-import { characterSprites } from '../assets/bundles/characters.js';
-import { rockSprites } from '../assets/bundles/rocks.js';
-import { platformSprites } from '../assets/bundles/platforms.js';
-
+import { characterSprites, rockSprites, platformSprites } from './assets/asset-loaders.js';
 // Cloud Save Manager for DogeMiner CE
 class CloudSaveManager {
     constructor() {

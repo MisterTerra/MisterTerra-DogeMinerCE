@@ -1,9 +1,9 @@
-import standardOpen from './character/standard.png';
-import standardClosed from './character/closed_eyes.png';
-import standardHappy from './character/happydoge.png';
-import standardUnhappy from './character/nothappydoge.png';
+import standardOpen from './standard.png';
+import standardClosed from './closed_eyes.png';
+import standardHappy from './happydoge.png';
+import standardUnhappy from './nothappydoge.png';
 
-export const earth = {
+export const sprites = {
     open: standardOpen,
     closed: standardClosed,
     happy: standardHappy,

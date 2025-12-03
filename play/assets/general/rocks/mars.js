@@ -5,4 +5,4 @@ import marsMedium1 from './mars_dmg_medium1.png';
 import marsMedium2 from './mars_dmg_medium2.png';
 import marsLarge1 from './mars_dmg_large1.png';
 
-export const rocks = [mars, marsSmall1, marsSmall2, marsMedium1, marsMedium2, marsLarge1];
+export const sprites = [mars, marsSmall1, marsSmall2, marsMedium1, marsMedium2, marsLarge1];

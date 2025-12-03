@@ -6,10 +6,12 @@ import audioManager  from './audio.js';
 import notificationManager from './notification.js';
 import cloudSaveManager from './cloud-save.js';
 
-import { backgroundSprites } from '../assets/bundles/backgrounds.js';
-import { characterSprites } from '../assets/bundles/characters.js';
-import { rockSprites } from '../assets/bundles/rocks.js';
-import { platformSprites } from '../assets/bundles/platforms.js';
+// import { backgroundSprites } from '../assets/bundles/backgrounds.js';
+// import { characterSprites } from '../assets/bundles/characters.js';
+// import { rockSprites } from '../assets/bundles/rocks.js';
+// import { platformSprites } from '../assets/bundles/platforms.js';
+
+import { backgroundSprites, characterSprites, rockSprites, platformSprites } from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Main Initialization
 const startGameWhenReady = () => initializeGame();
@@ -111,9 +113,19 @@ async function initializeGame() {
                     platform.src = platformSprites[gameManager.currentLevel];
                 }
 
-                gameManager.backgrounds = backgroundSprites[gameManager.currentLevel];
-                mainRock.src = rockSprites[gameManager.currentLevel][0];
-                mainCharacter.src = characterSprites[gameManager.currentLevel].open;
+                backgroundSprites.load(gameManager.currentLevel).then((sprites) => {
+                    console.log('Background sprites: ', sprites);
+                    gameManager.backgrounds = sprites;
+                });
+
+                rockSprites.load(gameManager.currentLevel).then((sprites) => {
+                    mainRock.src = sprites[0];
+                });
+
+                characterSprites.load(gameManager.currentLevel).then((sprites) => {
+                    mainCharacter.src = sprites.open;
+                });
+
 
                 // Make sure the background DOM nodes reflect the resolved pool for this load-in planet.
                 gameManager.syncBackgroundImages?.(true);

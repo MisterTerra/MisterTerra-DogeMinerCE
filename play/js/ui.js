@@ -370,11 +370,13 @@ class UIManager {
             }
 
             // Update backgrounds with the correct pool
-            gameManager.backgrounds = backgroundSprites.load(planetName);
-            gameManager.currentBackgroundIndex = 0;
+            backgroundSprites.load(planetName).then((sprites) => {
+                gameManager.backgrounds = sprites;
+                gameManager.currentBackgroundIndex = 0;
 
-            // Sync background image DOM nodes to match the newly selected planet.
-            gameManager.syncBackgroundImages?.(true);
+                // Sync background image DOM nodes to match the newly selected planet.
+                gameManager.syncBackgroundImages?.(true);
+            });
 
             // Update the shop to show the appropriate helpers
             this.updateShopContent();

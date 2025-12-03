@@ -1,6 +1,6 @@
-import spaceOpen from './character/spacehelmet.png';
-import spaceClosed from './character/closed_space.png';
-import spaceHappy from './character/happy_space.png';
+import spaceOpen from './spacehelmet.png';
+import spaceClosed from './closed_space.png';
+import spaceHappy from './happy_space.png';
 
 export const jupiter = {
     open: spaceOpen,

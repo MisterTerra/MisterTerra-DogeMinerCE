@@ -3,6 +3,8 @@ import shopManager from './shop.js';
 import uiManager from './ui.js';
 import gsap from "https://cdn.skypack.dev/gsap";
 
+import { backgroundSprites } from './assets/asset-loaders.js';
+
 // DogeMiner: Community Edition - Main Game Logic
 class GameManager {
     constructor() {}
@@ -112,19 +114,16 @@ class GameManager {
         this.placedHelpers = [];
         this.helpersOnCursor = []; // Array to hold multiple helpers being placed // Array of placed helper objects with positions
         
-        // Background rotation
-        this.backgrounds = [
-            'backgrounds/bg1.jpg',
-            'backgrounds/bg3.jpg',
-            'backgrounds/bg4.jpg',
-            'backgrounds/bg5.jpg',
-            'backgrounds/bg6.jpg',
-            'backgrounds/bg7.jpg',
-            'backgrounds/bg9.jpg',
-            'backgrounds/bg-new.jpg'
-        ];
-        this.currentBackgroundIndex = 0;
-        this.backgroundRotationInterval = null;
+        backgroundSprites.load('earth').then((sprites) => {
+            // Background rotation
+            this.backgrounds = sprites;
+            this.currentBackgroundIndex = 0;
+            this.backgroundRotationInterval = null;
+            this.startBackgroundRotation();
+            
+            // Ensure the DOM background images match the initial planet selection.
+            this.syncBackgroundImages(true);
+        });
         
         // Blinking animation
         this.blinkInterval = null;
@@ -189,16 +188,12 @@ class GameManager {
         this.initializeGameData();
         this.setupEventListeners();
         this.startGameLoop();
-        this.startBackgroundRotation();
         this.startBlinking();
         this.startRickSpawn();
         this.startSearchdogAnimation();
         
         // Track global mouse position
         this.addGlobalMouseTracking();
-
-        // Ensure the DOM background images match the initial planet selection.
-        this.syncBackgroundImages(true);
 
         // Intro animation state
         this.isIntroPlaying = false;
@@ -1538,9 +1533,8 @@ class GameManager {
         // Make sure we have a valid helper reference
         if (!placedHelper.helper || !placedHelper.helper.icon) {
             // Try to get helper data based on current level and type
-            const helperCategory = this.getHelperCategoryForLevel();
-            if (shopManager.shopData[helperCategory]) {
-                placedHelper.helper = shopManager.shopData[helperCategory][placedHelper.type] || this.getHelperData(placedHelper.type);
+            if (shopManager.shopData[placedHelper.type]) {
+                placedHelper.helper = shopManager.shopData[placedHelper.type] || this.getHelperData(placedHelper.type);
             } else {
                 // Fallback to generic helper data
                 placedHelper.helper = this.getHelperData(placedHelper.type);

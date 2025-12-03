@@ -2,7 +2,7 @@ import uiManager from './ui.js';
 import gameManager from './game.js';
 import { Utils } from './utils.js';
 
-import { helperSprites } from '../assets/bundles/helpers.js';
+import { helperSprites } from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Shop Management
 class ShopManager {
@@ -13,8 +13,6 @@ class ShopManager {
                         name: 'Mining Shibe',
                         baseCost: 20,
                         baseDps: 0.2,
-                        icon: helperSprites.miningShibe.idle,
-                        miningSprite: helperSprites.miningShibe.mine,
                         description: 'Very kind shibe to mine much dogecoin.',
                         category: 'basic'
                     },
@@ -22,8 +20,6 @@ class ShopManager {
                         name: 'Doge Kennels',
                         baseCost: 400,
                         baseDps: 2,
-                        icon: helperSprites.dogeKennels.idle,
-                        miningSprite: helperSprites.dogeKennels.mine,
                         description: 'Wow very efficiency, entire kennels to mine dogecoin.',
                         category: 'basic'
                     },
@@ -31,8 +27,6 @@ class ShopManager {
                         name: 'Streamer Kittens',
                         baseCost: 1800,
                         baseDps: 4,
-                        icon: helperSprites.streamerKittens.idle,
-                        miningSprite: helperSprites.streamerKittens.mine,
                         description: 'Kittens to stream cute videos to the internet for dogecoin.',
                         category: 'basic'
                     },
@@ -40,8 +34,6 @@ class ShopManager {
                         name: 'Space Rocket',
                         baseCost: 50000,
                         baseDps: 9,
-                        icon: helperSprites.spaceRocket.idle,
-                        miningSprite: helperSprites.spaceRocket.mine,
                         description: 'A rocket to fly to the moon.',
                         category: 'advanced'
                     },
@@ -49,8 +41,6 @@ class ShopManager {
                         name: 'Time Machine Mining Rig',
                         baseCost: 9999999,
                         baseDps: 66,
-                        icon: helperSprites.timeMachineRig.idle,
-                        miningSprite: helperSprites.timeMachineRig.mine,
                         description: 'Mines into the future where infinite dogecoins exist.',
                         category: 'advanced'
                     },
@@ -58,25 +48,7 @@ class ShopManager {
                         name: 'Infinite Dogebility Drive',
                         baseCost: 9999999999,
                         baseDps: 999,
-                        icon: helperSprites.infiniteDogebility.idle,
-                        miningSprite: helperSprites.infiniteDogebility.mine,
                         description: 'A ship that instantaneously travels to any place in the Universe. Result? Many Dogecoins.',
-                        category: 'advanced'
-                    },
-                    jupiterbase: {
-                        name: 'Jupiter Base',
-                        baseCost: 25000,
-                        baseDps: 2500,
-                        icon: 'assets/helpers/helpers/jupiterbase/jupiterbase-idle-0.png',
-                        description: 'Gas giant mining operations',
-                        category: 'advanced'
-                    },
-                    titanbase: {
-                        name: 'Titan Base',
-                        baseCost: 100000,
-                        baseDps: 10000,
-                        icon: 'assets/helpers/helpers/titanbase/titanbase-idle-0.png',
-                        description: 'Saturn moon mining facility',
                         category: 'advanced'
                     }
                 },
@@ -85,8 +57,6 @@ class ShopManager {
                         name: 'Moon Base',
                         baseCost: 29999,
                         baseDps: 12,
-                        icon: helperSprites.moonBase.idle,
-                        miningSprite: helperSprites.moonBase.mine,
                         description: 'A base on the moon to extract much dogecoin.',
                         category: 'moon'
                     },
@@ -94,8 +64,6 @@ class ShopManager {
                         name: 'Moon Shibe',
                         baseCost: 10000,
                         baseDps: 9,
-                        icon: helperSprites.moonShibe.idle,
-                        miningSprite: helperSprites.moonShibe.mine,
                         description: 'Astronaut moon shibe to mine much dogecoin.',
                         category: 'moon'
                     },
@@ -103,8 +71,6 @@ class ShopManager {
                         name: 'Doge Car',
                         baseCost: 35000,
                         baseDps: 12,
-                        icon: helperSprites.dogeCar.idle,
-                        miningSprite: helperSprites.dogeCar.mine,
                         description: 'Wow! Much fast doge car with such doge driver. Very Wise. How it mines, no one knows.',
                         category: 'moon'
                     },
@@ -112,8 +78,6 @@ class ShopManager {
                         name: 'Lander Shibe',
                         baseCost: 420000,
                         baseDps: 20,
-                        icon: helperSprites.landerShibe.idle,
-                        miningSprite: helperSprites.landerShibe.mine,
                         description: 'Lander shibe explores other planets and moons in pursuit of dogecoin.',
                         category: 'moon'
                     },
@@ -121,8 +85,6 @@ class ShopManager {
                         name: 'Mars Rocket',
                         baseCost: 2500000,
                         baseDps: 50,
-                        icon: helperSprites.marsRocket.idle,
-                        miningSprite: helperSprites.marsRocket.mine,
                         description: 'A rocket to fly to Mars, much red planet, such adventure.',
                         category: 'moon'
                     },
@@ -130,8 +92,6 @@ class ShopManager {
                         name: 'Doge Gate',
                         baseCost: 123000000,
                         baseDps: 155,
-                        icon: helperSprites.dogeGate.idle,
-                        miningSprite: helperSprites.dogeGate.mine,
                         description: 'A Doge Gate for instant galaxy-wide dogecoin transfers.',
                         category: 'moon'
                     }
@@ -141,8 +101,6 @@ class ShopManager {
                         name: 'Mars Base',
                         baseCost: 500000,
                         baseDps: 23,
-                        icon: helperSprites.marsBase.idle,
-                        miningSprite: helperSprites.marsBase.mine,
                         description: 'A base on Mars to mine ludicrous amounts of Dogecoin.',
                         category: 'mars'
                     },
@@ -150,8 +108,6 @@ class ShopManager {
                         name: 'Party Shibe',
                         baseCost: 100000,
                         baseDps: 26,
-                        icon: helperSprites.partyShibe.idle,
-                        miningSprite: helperSprites.partyShibe.mine,
                         description: 'Cool space rave party shibes to rave much dogecoin.',
                         category: 'mars'
                     },
@@ -159,8 +115,6 @@ class ShopManager {
                         name: 'CuriousiDoge',
                         baseCost: 400000,
                         baseDps: 30,
-                        icon: helperSprites.curiosiDoge.idle,
-                        miningSprite: helperSprites.curiosiDoge.mine,
                         description: 'Much curious Doge to explore Mars riches.',
                         category: 'mars'
                     },
@@ -168,8 +122,6 @@ class ShopManager {
                         name: 'DJ Kittenz',
                         baseCost: 1000000,
                         baseDps: 45,
-                        icon: helperSprites.djKittenz.idle,
-                        miningSprite: helperSprites.djKittenz.mine,
                         description: 'Very music creation. DJ Kittenz specializes in House music.',
                         category: 'mars'
                     },
@@ -177,8 +129,6 @@ class ShopManager {
                         name: 'Space Bass',
                         baseCost: 8000000,
                         baseDps: 70,
-                        icon: helperSprites.spaceBass.idle,
-                        miningSprite: helperSprites.spaceBass.mine,
                         description: 'It is said to vibrate the essence of gravity itself.',
                         category: 'mars'
                     },
@@ -186,8 +136,6 @@ class ShopManager {
                         name: 'Jupiter Rocket',
                         baseCost: 50000000,
                         baseDps: 100,
-                        icon: helperSprites.jupiterRocket.idle,
-                        miningSprite: helperSprites.jupiterRocket.mine,
                         description: 'A rocket to fly to Jupiter.',
                         category: 'mars'
                     }
@@ -198,8 +146,6 @@ class ShopManager {
                         name: 'Cloud Base',
                         baseCost: 20000000,
                         baseDps: 45,
-                        icon: helperSprites.cloudBase.idle,
-                        miningSprite: helperSprites.cloudBase.mine,
                         description: 'A flying base in the clouds of Jupiter.',
                         category: 'jupiter'
                     },
@@ -207,8 +153,6 @@ class ShopManager {
                         name: 'Super Shibe',
                         baseCost: 1000000,
                         baseDps: 50,
-                        icon: helperSprites.superShibe.idle,
-                        miningSprite: helperSprites.superShibe.mine,
                         description: 'A scary-strong shibe. Probably on steroids.',
                         category: 'jupiter'
                     },
@@ -216,8 +160,6 @@ class ShopManager {
                         name: 'Doge Air Ship',
                         baseCost: 15000000,
                         baseDps: 80,
-                        icon: helperSprites.dogeAirShip.idle,
-                        miningSprite: helperSprites.dogeAirShip.mine,
                         description: 'A flying ship with eager astro shibes.',
                         category: 'jupiter'
                     },
@@ -225,8 +167,6 @@ class ShopManager {
                         name: 'Flying Doggo',
                         baseCost: 35000000,
                         baseDps: 120,
-                        icon: helperSprites.flyingDoggo.idle,
-                        miningSprite: helperSprites.flyingDoggo.mine,
                         description: 'It comes wif two sub-woofers.',
                         category: 'jupiter'
                     },
@@ -234,8 +174,6 @@ class ShopManager {
                         name: 'TARDogeIS',
                         baseCost: 55000000,
                         baseDps: 150,
-                        icon: helperSprites.tardogeis.idle,
-                        miningSprite: helperSprites.tardogeis.mine,
                         description: 'Time and Relative Doge in Space exists everywhere at the same time. Sort of.',
                         category: 'jupiter'
                     },
@@ -243,8 +181,6 @@ class ShopManager {
                         name: 'DogeStar',
                         baseCost: 699999999,
                         baseDps: 420,
-                        icon: helperSprites.dogeStar.idle,
-                        miningSprite: helperSprites.dogeStar.mine,
                         description: 'A space station the size of a small moon, equipped with a mining laser.',
                         category: 'jupiter'
                     }
@@ -255,8 +191,6 @@ class ShopManager {
                         name: 'Titan Base',
                         baseCost: 500000000,
                         baseDps: 165,
-                        icon: helperSprites.titanBase.idle,
-                        miningSprite: helperSprites.titanBase.mine,
                         description: 'A base on Titan to mine dogecoins and manufacture robots.',
                         category: 'titan'
                     },
@@ -265,8 +199,6 @@ class ShopManager {
                         name: 'Robo Shibe',
                         baseCost: 455000000,
                         baseDps: 195,
-                        icon: helperSprites.roboShibe.idle,
-                        miningSprite: helperSprites.roboShibe.mine,
                         description: 'A robotic shibe to mine the riches on Titan.',
                         category: 'titan'
                     },
@@ -275,8 +207,6 @@ class ShopManager {
                         name: 'Heavy Doge Walker',
                         baseCost: 2000000000,
                         baseDps: 400,
-                        icon: helperSprites.heavyDogeWalker.idle,
-                        miningSprite: helperSprites.heavyDogeWalker.mine,
                         description: 'Large vehicle. Much cargo, Very carry.',
                         category: 'titan'
                     },
@@ -285,8 +215,6 @@ class ShopManager {
                         name: 'Coin Seeker 5000',
                         baseCost: 4500000000,
                         baseDps: 500,
-                        icon: helperSprites.coinSeeker5000.idle,
-                        miningSprite: helperSprites.coinSeeker5000.mine,
                         description: 'Advanced robotic dogecoin seeking predator.',
                         category: 'titan'
                     },
@@ -295,8 +223,6 @@ class ShopManager {
                         name: 'Time Travel D-Rex',
                         baseCost: 8000000000,
                         baseDps: 620,
-                        icon: helperSprites.timeTravelDRex.idle,
-                        miningSprite: helperSprites.timeTravelDRex.mine,
                         description: 'Half terrifying, half amazing. Rawr.',
                         category: 'titan'
                     },
@@ -305,8 +231,6 @@ class ShopManager {
                         name: 'Altar of the SunDoge',
                         baseCost: 100000000000,
                         baseDps: 1200,
-                        icon: helperSprites.altarOfTheSunDoge.idle,
-                        miningSprite: helperSprites.altarOfTheSunDoge.mine,
                         description: 'An altar of calling to an enlightened Doge above our WOW.',
                         category: 'titan'
                     }

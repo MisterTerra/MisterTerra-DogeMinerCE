@@ -1,5 +1,5 @@
-import partyOpen from './character/party.png';
-import partyHappy from './character/happy_party.png';
+import partyOpen from './party.png';
+import partyHappy from './happy_party.png';
 
 export const mars = {
     open: partyOpen,

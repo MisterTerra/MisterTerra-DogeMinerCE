@@ -5,4 +5,4 @@ import jupiterMedium1 from './jupiter_dmg_medium1.png';
 import jupiterMedium2 from './jupiter_dmg_medium2.png';
 import jupiterLarge1 from './jupiter_dmg_large1.png';
 
-export const rocks = [jupiter, jupiterSmall1, jupiterSmall2, jupiterMedium1, jupiterMedium2, jupiterLarge1];
+export const sprites = [jupiter, jupiterSmall1, jupiterSmall2, jupiterMedium1, jupiterMedium2, jupiterLarge1];
