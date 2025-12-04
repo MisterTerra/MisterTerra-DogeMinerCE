@@ -6,7 +6,7 @@ import saveManager from "./save.js";
 import performanceMonitor from "./performance-monitor.js";
 import cloudSaveManager from "./cloud-save.js";
 
-import { backgroundSprites, rockSprites, platformSprites } from "./assets/asset-loaders.js";
+import { backgroundSprites, rockSprites, platformSprites, helperSprites } from "./assets/asset-loaders.js";
 
 // DogeMiner: Community Edition - UI Management
 class UIManager {
@@ -678,7 +678,7 @@ class UIManager {
                     <div class="shop-item-title">${helper.name}</div>
                     <div class="shop-item-dps">${helper.baseDps} ĐPS</div>
                     <div class="shop-item-sprite">
-                        <img src="${helper.icon}" alt="${helper.name}">
+                        <img id="shop-sprite-${i}" src="" alt="${helper.name}">
                     </div>
                     <div class="shop-item-description">${helper.description}</div>
                     <button class="shop-buy-btn${isLocked ? ' locked' : ''}" data-helper-type="${type}" 
@@ -688,6 +688,10 @@ class UIManager {
                     </button>
                     ${lockOverlayHtml}
                 `;
+
+                helperSprites.load(gameManager.currentLevel).then((sprites) => {
+                    document.getElementById(`shop-sprite-${i}`).src = sprites[type].idle;
+                });
 
                 if (isLocked) {
                     item.classList.add('helper-locked');

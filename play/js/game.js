@@ -3,7 +3,7 @@ import shopManager from './shop.js';
 import uiManager from './ui.js';
 import gsap from "https://cdn.skypack.dev/gsap";
 
-import { backgroundSprites } from './assets/asset-loaders.js';
+import { backgroundSprites, helperSprites } from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Main Game Logic
 class GameManager {
@@ -1542,7 +1542,9 @@ class GameManager {
         }
         
         const helperSprite = document.createElement('img');
-        helperSprite.src = placedHelper.helper.icon; // Use icon as idle sprite
+        helperSprites.load(this.currentLevel).then((sprites) => {
+            helperSprite.src = sprites[placedHelper.type].idle;
+        });
         helperSprite.className = 'helper-sprite';
         helperSprite.style.left = placedHelper.x + 'px';
         helperSprite.style.top = placedHelper.y + 'px';
@@ -1960,11 +1962,14 @@ class GameManager {
         
         
         const intervalId = setInterval(() => {
-            if (isIdle) {
-                helperSprite.src = placedHelper.helper.miningSprite || placedHelper.helper.icon;
-            } else {
-                helperSprite.src = placedHelper.helper.icon;
-            }
+            helperSprites.load(this.currentLevel).then((sprites) => {
+                if (isIdle) {
+                    helperSprite.src = sprites[placedHelper.type].idle;
+                } else {
+                    helperSprite.src = sprites[placedHelper.type].mine;
+                }
+            });
+
             isIdle = !isIdle;
         }, animationInterval);
         

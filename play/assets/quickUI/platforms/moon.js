@@ -1,3 +1,3 @@
 import platform from './dogeplatformmoon.png';
 
-export default { platform };
+export default platform;

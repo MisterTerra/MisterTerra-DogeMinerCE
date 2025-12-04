@@ -1,3 +1,3 @@
 import platform from './titandogeplatform.png';
 
-export default { platform };
+export default platform;
