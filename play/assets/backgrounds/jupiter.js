@@ -3,4 +3,4 @@ import bgjup02 from './bgjup02.jpg';
 import bgjup03 from './bgjup03.jpg';
 import dogewow from './dogewow.jpg';
 
-export const sprites = [bgjup01, bgjup02, bgjup03, dogewow];
+export default [bgjup01, bgjup02, bgjup03, dogewow];

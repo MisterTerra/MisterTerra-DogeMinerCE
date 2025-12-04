@@ -16,7 +16,7 @@ import tardogeisMine from './tardogeis/tardogeis-mine-0.png';
 import dogeStarIdle from './dogestar/dogestar-idle-0.png';
 import dogeStarMine from './dogestar/dogestar-mine-0.png';
 
-export const sprites = {
+export default {
     cloudBase: { idle: cloudBaseIdle, mine: cloudBaseMine },
     superShibe: { idle: superShibeIdle, mine: superShibeMine },
     dogeAirShip: { idle: dogeAirShipIdle, mine: dogeAirShipMine },

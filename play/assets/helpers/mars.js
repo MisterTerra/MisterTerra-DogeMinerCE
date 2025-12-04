@@ -16,7 +16,7 @@ import spaceBassMine from './spacebass/spacebass-mine-0.png';
 import jupiterRocketIdle from './juprocket/juprocket-idle-0.png';
 import jupiterRocketMine from './juprocket/juprocket-mine-0.png';
 
-export const sprites = {
+export default {
     marsBase: { idle: marsBaseIdle, mine: marsBaseMine },
     partyShibe: { idle: partyShibeIdle, mine: partyShibeMine },
     curiosiDoge: { idle: curiosiDogeIdle, mine: curiosiDogeMine },

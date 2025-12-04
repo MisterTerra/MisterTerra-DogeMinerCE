@@ -1,5 +1,7 @@
-export function createBundleLoader(modules) {
+export function createLevelBundleLoader(modules) {
     const cache = new Map();
+
+    // TODO: Enforce that modules should contain ./earth.js, ./moon.js, ./mars.js etc...
 
     return {
         async load(level) {
@@ -15,100 +17,42 @@ export function createBundleLoader(modules) {
             }
 
             const module = await loader();
-            if (!module.sprites) {
-                throw new Error(`${level}.js must export "sprites". Available: ${Object.keys(module).join(", ")}`);
-            }
-            cache.set(level, module);
-            return module.sprites;
+            cache.set(level, module.default);
+            return module.default;
         },
     };
 }
 
-// Each bundle should contain an entry for each level (eg. earth, moon, mars, jupiter, titan etc...)
-// export function createLevelBundleLoaderOLD(basePath) {
-//     const expectedModules = ['earth', 'moon', 'mars', 'jupiter', 'titan'];
+/**
+ * Handles a single asset bundle.
+ * Expects no more and no less than a single module
+ * @param module 
+ */
+export function createBundleLoader(modules) {
+    const cache = null;
 
-//     const modules = import.meta.glob(`${basePath}/*.js`);
-//     const cache = new Map();
+    if (Object.keys(modules).length !== 1) {
+        throw new Error(`Expected one module, recieved ${Object.keys(modules).length} module(s).`
+            + ` Modules recieved ${Object.keys(modules).join(", ")}`);
+    }
 
-//     for (let index = 0; index < expectedModules.length; index++) {
-//         const level = expectedModules[index];
-//         if (!modules[level]) {
-//             throw new Error(`Missing asset bundle: ${level}`);
-//         }
-//     }
+    console.log(modules);
+    const module = modules[Object.keys(modules)[0]];
+    console.log(module);
 
-//     return {
-//         async load(level) {
-//             if (cache.has(level)) {
-//                 return cache.get(level);
-//             }
+    return {
+        async load() {
+            if (cache) {
+                return cache;
+            }
 
-//             const path = `${basePath}/${level}.js`;
-//             const loader = modules[path];
+            const mod = await module();
+            return mod.default;
+        }
+    }
+}
 
-//             if (!loader) {
-//                 throw new Error(`Missing asset bundle: ${path}`);
-//             }
-
-//             const module = await loader();
-//             cache.set(level, module);
-//             return module;
-//         },
-
-//         preload(level) {
-//             const path = `${basePath}/${level}.js`;
-//             const loader = modules[path];
-//             if (loader) loader();
-//         },
-
-//         has(level) {
-//             return Boolean(modules[`${basePath}/${level}.js`]);
-//         },
-
-//         clear(level) {
-//             cache.delete(level);
-//         },
-
-//         clearAll() {
-//             cache.clear();
-//         },
-
-//         clearExcept(level) {
-//             for (const key of cache.keys()) {
-//                 if (key !== level) cache.delete(key);
-//             }
-//         }
-//     };
-// }
-
-// // Each bundle can contain whatever, this will load all entries in the bundle
-// export function createBundleLoader(path) {
-//     const module = import.meta.glob(`${path}`);
-//     // import.meta.glob(path)
-//     let cache = null;
-
-//     return {
-//         async load() {
-//             if (cache) return cache;
-
-//             // const entries = await Promise.all(
-//             //   Object.entries(module).map(async ([path, loader]) => {
-//             //     const mod = await loader();
-//             //     return [path, mod.default];
-//             //   })
-//             // );
-
-//             if (module) {
-//                 const mod = await module();
-//                 cache = mod;
-//             }
-
-//             return cache;
-//         },
-
-//         clear() {
-//             cache = null;
-//         }
-//     };
-// }
+export function registerAssetPreload(modules) {
+    const preloads = {};
+    // TODO: Merge preloads and modules (or figure out a better solution)
+}

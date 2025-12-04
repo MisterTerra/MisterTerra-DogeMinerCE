@@ -6,4 +6,4 @@ import bg104 from './bg104.jpg';
 import bg105 from './bg105.jpg';
 import bgNew from './bg-new.jpg';
 
-export const sprites = [bg6, bg101, bg102, bg103, bg104, bg105, bgNew];
+export default [bg6, bg101, bg102, bg103, bg104, bg105, bgNew];

@@ -3,7 +3,7 @@ import standardClosed from './closed_eyes.png';
 import standardHappy from './happydoge.png';
 import standardUnhappy from './nothappydoge.png';
 
-export const sprites = {
+export default {
     open: standardOpen,
     closed: standardClosed,
     happy: standardHappy,

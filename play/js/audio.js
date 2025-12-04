@@ -2,14 +2,14 @@ import { Howl, Howler } from 'https://cdn.jsdelivr.net/npm/howler@2.2.4/+esm'
 import gameManager from './game.js';
 import saveManager from './save.js';
 
-// TODO - make more bundles for audio
+// TODO: make more bundles for audio
 import srcSwipe from '../../assets/SoundsSrc/main/swipe3.wav';
 import srcChing from '../../assets/SoundsSrc/main/ching.wav';
 import srcUhoh from '../../assets/SoundsSrc/main/uhoh.wav';
 import srcCheck from '../../assets/SoundsSrc/main/check.wav';
 
-import { soundSrcPicks as soundSrcPick } from '../../assets/bundles/audio-pick.js';
-import { soundSrcMusic } from '../../assets/bundles/level-music.js';
+import { pickAudioSprites } from './assets/asset-loaders.js';
+import { musicSprites } from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Audio Manager using Howler.js
 class AudioManager {
@@ -40,14 +40,12 @@ class AudioManager {
             try {
                 // Load background music
                 this.loadLevel1Music();
-                this.loadMoonMusic();
-                this.loadMarsMusic();
-                this.loadJupiterMusic();
-                this.loadTitanMusic();
-                
+
+                ['moon', 'mars', 'jupiter', 'titan'].forEach((level) => this.loadLevelMusic(level));
+
                 // Load sound effects
                 this.loadSoundEffects();
-                
+
                 // Listen for settings changes
                 this.setupSettingsListeners();
             } catch (error) {
@@ -68,32 +66,34 @@ class AudioManager {
             src: [srcSwipe],
             volume: 0.5
         });
-        
+
         // Load ching sound for purchasing
         this.soundEffects.ching = new Howl({
             src: [srcChing],
             volume: 0.5
         });
-        
+
         // Load uhoh sound for locked content
         this.soundEffects.uhoh = new Howl({
             src: [srcUhoh],
             volume: 0.5
         });
-        
+
         // Load check sound for settings toggles
         this.soundEffects.check = new Howl({
             src: [srcCheck],
             volume: 0.5
         });
-        
+
         // Load pick sounds for rock hitting
         this.soundEffects.pick = [];
-        soundSrcPick.forEach((src) => {
-            this.soundEffects.pick.push(new Howl({
-                src: [src],
-                volume: 0.375  // 75% of 0.5
-            }));
+        pickAudioSprites.load().then((sprites) => {
+            sprites.forEach((src) => {
+                this.soundEffects.pick.push(new Howl({
+                    src: [src],
+                    volume: 0.375  // 75% of 0.5
+                }));
+            });
         });
     }
 
@@ -134,63 +134,38 @@ class AudioManager {
 
     loadLevel1Music() {
         // Create intro sound - path adjusted for play/ directory serving
-        this.introSound = new Howl({
-            src: [soundSrcMusic.earth.intro],
-            loop: false,
-            autoplay: false,
-            volume: 0.5,
-            onend: () => {
-                // When intro ends, play the loop
-                if (this.musicEnabled) {
-                    this.loopSound.play();
+        musicSprites.load('earth').then((sprites) => {
+            this.introSound = new Howl({
+                src: [sprites.intro],
+                loop: false,
+                autoplay: false,
+                volume: 0.5,
+                onend: () => {
+                    // When intro ends, play the loop
+                    if (this.musicEnabled) {
+                        this.loopSound.play();
+                    }
                 }
-            }
-        });
+            });
 
-        // Create loop sound - path adjusted for play/ directory serving
-        this.loopSound = new Howl({
-            src: [soundSrcMusic.earth.loop],
-            loop: true,
-            autoplay: false,
-            volume: 0.5
-        });
-    }
-
-    loadMoonMusic() {
-        this.moonLoop = new Howl({
-            src: [soundSrcMusic.moon.loop],
-            loop: true,
-            autoplay: false,
-            volume: 0.5
+            // Create loop sound - path adjusted for play/ directory serving
+            this.loopSound = new Howl({
+                src: [sprites.loop],
+                loop: true,
+                autoplay: false,
+                volume: 0.5
+            });
         });
     }
 
-    loadMarsMusic() {
-        this.marsLoop = new Howl({
-            src: [soundSrcMusic.mars.loop],
-            loop: true,
-            autoplay: false,
-            volume: 0.5
-        });
-    }
-
-    loadJupiterMusic() {
-        // Jupiter uses musiclevel4 for atmospheric background music
-        this.jupiterLoop = new Howl({
-            src: [soundSrcMusic.jupiter.loop],
-            loop: true,
-            autoplay: false,
-            volume: 0.5
-        });
-    }
-
-    loadTitanMusic() {
-        // Titan uses musiclevel5 compiled audiosprite for ambient soundscape
-        this.titanLoop = new Howl({
-            src: [soundSrcMusic.titan.loop],
-            loop: true,
-            autoplay: false,
-            volume: 0.5
+    loadLevelMusic(level) {
+        musicSprites.load(level).then((sprites) => {
+            this.moonLoop = new Howl({
+                src: [sprites.loop],
+                loop: true,
+                autoplay: false,
+                volume: 0.5
+            });
         });
     }
 
@@ -200,7 +175,7 @@ class AudioManager {
 
     playBackgroundMusic() {
         if (!this.musicEnabled) return;
-        
+
         const currentLevel = gameManager.currentLevel || 'earth';
 
         if (this.currentMusicPlanet === currentLevel) {

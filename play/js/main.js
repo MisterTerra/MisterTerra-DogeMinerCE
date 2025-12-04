@@ -2,7 +2,7 @@ import gameManager from './game.js';
 import uiManager from './ui.js';
 import shopManager from './shop.js';
 import saveManager from './save.js';
-import audioManager  from './audio.js';
+import audioManager from './audio.js';
 import notificationManager from './notification.js';
 import cloudSaveManager from './cloud-save.js';
 
@@ -52,13 +52,13 @@ async function initializeGame() {
 
         uiManager.updateLoadingInfo('Setting up cloud save...');
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {cloudSaveManager.init()});
+            document.addEventListener('DOMContentLoaded', () => { cloudSaveManager.init() });
         } else {
             cloudSaveManager.init();
         }
 
         uiManager.updateLoadingInfo('Loading game data...');
-        
+
         /* TODO - does this play nicely with cloud-save?
         I think we should fetch local save (since fetching from localstore is essentially instant), then attempt to load from cloud save
         */
@@ -72,44 +72,37 @@ async function initializeGame() {
             const mainCharacter = document.getElementById('main-character');
             const mainRock = document.getElementById('main-rock');
             const platform = document.getElementById('platform');
-            
+
             if (mainCharacter && mainRock) {
                 // Set correct character sprite
                 if (gameManager.currentLevel === 'earth') {
-                    document.body.classList.remove('moon-theme');
-                    document.body.classList.remove('planet-mars');
-                    document.body.classList.remove('planet-jupiter');
-                    document.body.classList.remove('planet-titan');
+                    document.body.classList.remove('moon-theme', 'planet-mars', 'planet-jupiter', 'planet-titan');
 
                 } else if (gameManager.currentLevel === 'moon') {
-                    document.body.classList.remove('planet-mars');
-                    document.body.classList.remove('planet-jupiter');
-                    document.body.classList.remove('planet-titan');
-                    
+                    document.body.classList.remove('planet-mars', 'planet-jupiter', 'planet-titan');
+
                     // Make sure moon is unlocked in UI
                     uiManager.hideMoonLocked();
 
                 } else if (gameManager.currentLevel === 'mars') {
-                    document.body.classList.remove('moon-theme');
-                    document.body.classList.remove('planet-jupiter');
-                    document.body.classList.remove('planet-titan');
+                    document.body.classList.remove('moon-theme', 'planet-jupiter', 'planet-titan');
                     document.body.classList.add('planet-mars');
 
                 } else if (gameManager.currentLevel === 'jupiter') {
-                    document.body.classList.remove('moon-theme');
-                    document.body.classList.remove('planet-mars');
-                    document.body.classList.remove('planet-titan');
+                    document.body.classList.remove('moon-theme', 'planet-mars', 'planet-titan');
                     document.body.classList.add('planet-jupiter');
 
                 } else if (gameManager.currentLevel === 'titan') {
-                    document.body.classList.remove('moon-theme');
-                    document.body.classList.remove('planet-mars');
-                    document.body.classList.remove('planet-jupiter');
+                    document.body.classList.remove('moon-theme', 'planet-mars', 'planet-jupiter');
                     document.body.classList.add('planet-titan');
-
                 }
 
-                if(platform) {
+                console.log('Does platform exist?: ', platform);
+                if (platform) {
+                    platformSprites.load(gameManager.currentLevel).then((sprite) => {
+                        console.log('Platform sprite: ', sprite),
+                            platform.src = sprite;
+                    });
                     platform.src = platformSprites[gameManager.currentLevel];
                 }
 
@@ -129,7 +122,7 @@ async function initializeGame() {
 
                 // Make sure the background DOM nodes reflect the resolved pool for this load-in planet.
                 gameManager.syncBackgroundImages?.(true);
-                
+
                 // Force update shop content and planet tabs if on Moon, Mars, Jupiter, or Titan
                 if ((gameManager.currentLevel === 'moon' || gameManager.currentLevel === 'mars' || gameManager.currentLevel === 'jupiter' || gameManager.currentLevel === 'titan') && uiManager) {
                     uiManager.initializePlanetTabs?.();
@@ -139,32 +132,32 @@ async function initializeGame() {
                 }
             }
         }
-        
+
         // CloudSaveManager will be initialized by cloud-save.js
         uiManager.updateLoadingInfo('Finalizing...');
-        
+
         uiManager.updateLoadingInfo('Ready!');
-        
+
         // Hide loading screen after a short delay
         setTimeout(() => {
             uiManager.hideLoadingScreen();
             gameManager.isPlaying = true;
-            
+
             // Play doge intro animation
             if (gameManager.currentLevel === 'earth') {
                 gameManager.playDogeIntro();
             } else {
                 gameManager.playDogeIntro(true);
             }
-            
+
             // Start background music only if enabled
             if (audioManager && gameManager && gameManager.musicEnabled) {
                 audioManager.playBackgroundMusic();
             }
-            
+
             notificationManager.showSuccess('Game loaded successfully!');
         }, 500);
-        
+
     } catch (error) {
         console.error('Error initializing game:', error);
         console.error('Error message:', error.message);
@@ -182,34 +175,34 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault();
         uiManager.toggleDebugMode();
     }
-    
+
     // Quick save with Ctrl+S
     if (e.ctrlKey && e.key === 's') {
         e.preventDefault();
         saveManager.saveGame();
     }
-    
+
     // Quick load with Ctrl+L
     if (e.ctrlKey && e.key === 'l') {
         e.preventDefault();
         saveManager.loadGame();
     }
-    
+
     // Toggle shop with S
     if (e.key === 's' && !e.ctrlKey) {
         uiManager.switchMainTab('shop');
     }
-    
+
     // Toggle upgrades with U
     if (e.key === 'u') {
         uiManager.switchMainTab('upgrades');
     }
-    
+
     // Toggle achievements with A
     if (e.key === 'a') {
         uiManager.switchMainTab('achievements');
     }
-    
+
     // Rotate background with B
     if (e.key === 'b') {
         gameManager.rotateBackground();
@@ -223,7 +216,7 @@ window.addEventListener('error', (e) => {
     console.error('Error filename:', e.filename);
     console.error('Error line:', e.lineno, 'col:', e.colno);
     console.error('Full event:', e);
-    
+
     if (notificationManager) {
         notificationManager.showError('An error occurred: ' + (e.message || 'Unknown error'));
     }
@@ -232,7 +225,7 @@ window.addEventListener('error', (e) => {
 window.addEventListener('unhandledrejection', (e) => {
     console.error('Unhandled promise rejection:', e.reason);
     console.error('Promise:', e.promise);
-    
+
     if (notificationManager) {
         notificationManager.showError('Promise error: ' + (e.reason?.message || e.reason));
     }

@@ -5,4 +5,4 @@ import titanMedium1 from './titan_dmg_medium1.png';
 import titanMedium2 from './titan_dmg_medium2.png';
 import titanLarge1 from './titan_dmg_large1.png';
 
-export const sprites = [titan, titanSmall1, titanSmall2, titanMedium1, titanMedium2, titanLarge1];
+export default [titan, titanSmall1, titanSmall2, titanMedium1, titanMedium2, titanLarge1];

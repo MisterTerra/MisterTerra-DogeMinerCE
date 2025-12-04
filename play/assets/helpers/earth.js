@@ -16,7 +16,7 @@ import timeMachineRigMine from './rigs/rigs-mine-0.png';
 import infiniteDogebilityIdle from './dogebility/dogebility-idle-0.png';
 import infiniteDogebilityMine from './dogebility/dogebility-mine-0.png';
 
-export const sprites = {
+export default {
     miningShibe: { idle: miningShibeIdle, mine: miningShibeMine },
     dogeKennels: { idle: dogeKennelsIdle, mine: dogeKennelsMine },
     streamerKittens: { idle: streamerKittensIdle, mine: streamerKittensMine },

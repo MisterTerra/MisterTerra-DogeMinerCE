@@ -16,7 +16,7 @@ import timeTravelDRexMine from './trex/trex-mine-0.png';
 import altarOfTheSunDogeIdle from './altarofthesundoge/altarofthesundoge-idle-0.png';
 import altarOfTheSunDogeMine from './altarofthesundoge/altarofthesundoge-mine-0.png';
 
-export const sprites = {
+export default {
     titanBase: { idle: titanBaseIdle, mine: titanBaseMine },
     roboShibe: { idle: roboShibeIdle, mine: roboShibeMine },
     heavyDogeWalker: { idle: heavyDogeWalkerIdle, mine: heavyDogeWalkerMine },

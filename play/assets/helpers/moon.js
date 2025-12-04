@@ -16,7 +16,7 @@ import marsRocketMine from './marsrocket/marsrocket-mine-0.png';
 import dogeGateIdle from './dogegate/dogegate-idle-0.png';
 import dogeGateMine from './dogegate/dogegate-mine-0.png';
 
-export const sprites = {
+export default {
     moonBase: { idle: moonBaseIdle, mine: moonBaseMine },
     moonShibe: { idle: moonShibeIdle, mine: moonShibeMine },
     dogeCar: { idle: dogeCarIdle, mine: dogeCarMine },

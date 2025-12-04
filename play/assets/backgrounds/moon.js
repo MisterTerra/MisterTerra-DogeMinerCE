@@ -7,4 +7,4 @@ import bg7 from './bg7.jpg';
 import bg9 from './bg9.jpg';
 import bgNew from './bg-new.jpg';
 
-export const sprites = [bg1, bg3, bg4, bg5, bg6, bg7, bg9, bgNew] // (same as earth since DOM only has 8 background elements)
+export default [bg1, bg3, bg4, bg5, bg6, bg7, bg9, bgNew] // (same as earth since DOM only has 8 background elements)
