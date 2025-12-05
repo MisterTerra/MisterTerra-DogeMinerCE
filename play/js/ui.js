@@ -364,10 +364,15 @@ class UIManager {
                 audioManager.playBackgroundMusic();
             }
 
-            rockElement.src = rockSprites[planetName][0];
-            if (platform) {
-                platform.src = platformSprites[planetName];
-            }
+            rockSprites.load(planetName).then((sprites) => {
+                rockElement.src = sprites[0];
+            });
+
+            platformSprites.load(planetName).then((sprite) => {
+                if (platform) {
+                    platform.src = sprite;
+                }
+            });
 
             // Update backgrounds with the correct pool
             backgroundSprites.load(planetName).then((sprites) => {

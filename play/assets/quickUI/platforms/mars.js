@@ -1,3 +1,3 @@
-import platform from '../quickUI/marsdogeplatform.png';
+import platform from './marsdogeplatform.png';
 
 export default platform;

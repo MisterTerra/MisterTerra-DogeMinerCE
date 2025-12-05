@@ -7,7 +7,7 @@ import { backgroundSprites, helperSprites } from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Main Game Logic
 class GameManager {
-    constructor() {}
+    constructor() { }
 
     init() {
         this.dogecoins = 0;
@@ -26,7 +26,7 @@ class GameManager {
         this.marsPlacedHelpers = [];
         this.jupiterPlacedHelpers = [];
         this.titanPlacedHelpers = [];
-        
+
         // Name lists for helpers
         this.miningShibeNames = [
             'Jerry', 'Terry', 'Larry', 'Barry', 'Carrie', 'Perry', 'Gary', 'Harry', 'Marie', 'Sporklin',
@@ -36,7 +36,7 @@ class GameManager {
             'Cottage', 'Cheese', 'Bikini', 'Silver', 'Sorrel', 'Kyle', 'DwellingStars', 'Done', 'Peanut', 'Fry',
             'Bruno', 'Charlie', 'Emmet', 'Lucy', 'Vincent', 'tothestars693', 'Cherie', 'Crush', 'RockMelon', 'HoneyMelon', 'Karvão',
         ];
-        
+
         this.helperNames = {
             'miningShibe': 'Mining Shibe',
             'dogeKennels': 'Doge Kennels',
@@ -63,7 +63,7 @@ class GameManager {
             'tardogeis': 'TARDogeIS',
             'dogeStar': 'DogeStar'
         };
-        
+
         // Game state
         this.isPlaying = false;
         this.isPlacingHelpers = false;
@@ -71,13 +71,13 @@ class GameManager {
         this.autoSaveInterval = 30000; // 30 seconds
         this.startTime = Date.now();
         this.totalPlayTime = 0;
-        
+
         // Settings
         this.soundEnabled = true;
         this.musicEnabled = true;
         this.notificationsEnabled = true;
         this.autoSaveEnabled = true;
-        
+
         // Cutscenes
         this.hasPlayedMoonLaunch = false;
         this.isCutscenePlaying = false;
@@ -91,43 +91,43 @@ class GameManager {
         this.isMouseDown = false;
         this.isSpaceDown = false;
         this.swingTimeout = null;
-        
+
         // Mouse position tracking
         this.mouseX = window.innerWidth / 2;
         this.mouseY = window.innerHeight / 2;
-        
-        
+
+
         // Click rate limiting (max 15 CPS like original DogeMiner 2)
         this.maxCPS = 15;
         this.clickTimes = [];
         this.lastClickTime = 0;
-        
+
         // Animation and effects with limits
         this.clickEffects = [];
         this.particles = [];
         this.maxEffects = 20; // Limit concurrent effects
         this.maxParticles = 50; // Limit concurrent particles
-        
+
         // Helper placement system
         this.helperBeingPlaced = null;
         this.helperSpriteBeingPlaced = null;
         this.placedHelpers = [];
         this.helpersOnCursor = []; // Array to hold multiple helpers being placed // Array of placed helper objects with positions
-        
+
         backgroundSprites.load('earth').then((sprites) => {
             // Background rotation
             this.backgrounds = sprites;
             this.currentBackgroundIndex = 0;
             this.backgroundRotationInterval = null;
             this.startBackgroundRotation();
-            
+
             // Ensure the DOM background images match the initial planet selection.
             this.syncBackgroundImages(true);
         });
-        
+
         // Blinking animation
         this.blinkInterval = null;
-        
+
         // Level definitions for UI updates
         this.levels = {
             earth: {
@@ -161,17 +161,17 @@ class GameManager {
                 character: 'assets/general/character/spacehelmet.png'
             }
         };
-        
+
         // Unlock system
         this.unlockedLevels = new Set(['earth']);
         this.unlockedAchievements = new Set();
-        
+
         // UI state flags
-        
+
         // Rick Doge system
         this.rickInterval = null;
         this.rickVisible = false;
-        
+
         // DPS interval for performance
         this.dpsInterval = null;
         this.rickSprites = [
@@ -183,7 +183,7 @@ class GameManager {
         this.currentRickSprite = 0;
         this.rickAnimationDirection = 1; // 1 for forward, -1 for backward
         this.rickAnimationComplete = false;
-        
+
         // Initialize game data
         this.initializeGameData();
         this.setupEventListeners();
@@ -191,73 +191,73 @@ class GameManager {
         this.startBlinking();
         this.startRickSpawn();
         this.startSearchdogAnimation();
-        
+
         // Track global mouse position
         this.addGlobalMouseTracking();
 
         // Intro animation state
         this.isIntroPlaying = false;
-        
+
         // Cutscene DOM bindings
         this.setupCutsceneSystem();
     }
-    
+
     setupCutsceneSystem() {
         this.cutsceneOverlay = document.getElementById('cutscene-overlay');
         this.cutsceneVideo = document.getElementById('cutscene-video');
         this.cutsceneSkipButton = document.getElementById('cutscene-skip');
-        
+
         if (!this.cutsceneOverlay || !this.cutsceneVideo || !this.cutsceneSkipButton) {
             console.warn('Cutscene elements not found in DOM. Creating fallback overlay.');
             this.cutsceneOverlay = document.createElement('div');
             this.cutsceneOverlay.id = 'cutscene-overlay';
             this.cutsceneOverlay.className = 'cutscene-overlay';
-            
+
             this.cutsceneVideo = document.createElement('video');
             this.cutsceneVideo.id = 'cutscene-video';
             this.cutsceneVideo.className = 'cutscene-video';
             this.cutsceneVideo.setAttribute('playsinline', '');
-            
+
             this.cutsceneSkipButton = document.createElement('button');
             this.cutsceneSkipButton.id = 'cutscene-skip';
             this.cutsceneSkipButton.className = 'cutscene-skip hidden';
             this.cutsceneSkipButton.textContent = 'SKIP';
-            
+
             this.cutsceneOverlay.appendChild(this.cutsceneVideo);
             this.cutsceneOverlay.appendChild(this.cutsceneSkipButton);
             document.body.appendChild(this.cutsceneOverlay);
         }
-        
+
         this.cutsceneSkipButton.addEventListener('click', () => {
             this.closeCutscene();
         });
-        
+
         this.cutsceneVideo.addEventListener('ended', () => {
             this.closeCutscene();
         });
     }
-    
+
     playMoonLaunchCutscene() {
         if (this.hasPlayedMoonLaunch || this.isCutscenePlaying) return;
         if (!this.cutsceneOverlay || !this.cutsceneVideo) return;
-        
+
         this.isCutscenePlaying = true;
         this.hasPlayedMoonLaunch = true;
         this.isMouseDown = false;
         this.isSpaceDown = false;
-        
+
         console.log('[Cutscene] Starting Moon Launch cutscene');
         console.log('[Cutscene] Audio manager available:', !!audioManager);
 
         audioManager.suspendAllAudio();
-        
+
         this.cutsceneVideo.src = '../assets/The Moon Launch.mp4';
         this.cutsceneVideo.currentTime = 0;
         this.cutsceneVideo.pause();
         console.log('[Cutscene] Overlay active');
         this.cutsceneOverlay.classList.add('active');
         document.body.classList.add('cutscene-active');
-        
+
         if (this.cutsceneSkipTimeout) {
             clearTimeout(this.cutsceneSkipTimeout);
             this.cutsceneSkipTimeout = null;
@@ -267,7 +267,7 @@ class GameManager {
             this.cutsceneSkipButton.classList.remove('hidden');
             console.log('[Cutscene] Skip button shown');
         }, 5000);
-        
+
         const playPromise = this.cutsceneVideo.play();
         if (playPromise && typeof playPromise.catch === 'function') {
             playPromise.catch(() => {
@@ -276,12 +276,12 @@ class GameManager {
             });
         }
     }
-    
+
     closeCutscene() {
         if (!this.isCutscenePlaying) return;
         this.isCutscenePlaying = false;
         console.log('[Cutscene] Closing Moon Launch cutscene');
-        
+
         if (this.cutsceneVideo) {
             this.cutsceneVideo.pause();
             this.cutsceneVideo.currentTime = 0;
@@ -290,15 +290,15 @@ class GameManager {
             this.cutsceneOverlay.classList.remove('active');
         }
         document.body.classList.remove('cutscene-active');
-        
+
         if (this.cutsceneSkipTimeout) {
             clearTimeout(this.cutsceneSkipTimeout);
             this.cutsceneSkipTimeout = null;
         }
         this.cutsceneSkipButton?.classList.add('hidden');
-        
+
         audioManager.resumeAudio();
-        
+
         // After moon launch cutscene, switch to moon
         if (this.hasPlayedMoonLaunch && this.currentLevel !== 'moon') {
             console.log('[Cutscene] Switching to moon after cutscene');
@@ -314,17 +314,17 @@ class GameManager {
                 }
             }, 500);
         }
-        
+
         this.updateUI();
     }
-    
+
     addGlobalMouseTracking() {
         // Track mouse position globally for cursor sprite positioning
         document.addEventListener('mousemove', (e) => {
             this.mouseX = e.clientX;
             this.mouseY = e.clientY;
         });
-        
+
         // Track touch position for mobile devices
         document.addEventListener('touchmove', (e) => {
             if (e.touches.length > 0) {
@@ -334,12 +334,12 @@ class GameManager {
             }
         }, { passive: true });
     }
-    
+
     initializeGameData() {
         // Helper definitions will be loaded from shop.js
         // Pickaxe and level systems will be implemented later
     }
-    
+
     setupEventListeners() {
         // Rock clicking
         const rockContainer = document.getElementById('rock-container');
@@ -384,12 +384,12 @@ class GameManager {
         if (dogeContainer) {
             dogeContainer.addEventListener('mousedown', handleDogeMouseDown);
         }
-        
+
         document.addEventListener('mouseup', () => {
             this.isMouseDown = false;
             this.endSwing();
         });
-        
+
         // Keyboard events with click rate limiting
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && !e.repeat) {
@@ -398,7 +398,7 @@ class GameManager {
                 this.processClick();
             }
         });
-        
+
         document.addEventListener('keyup', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
@@ -406,10 +406,10 @@ class GameManager {
                 this.endSwing();
             }
         });
-        
+
         // Auto-save is now handled by SaveManager
     }
-    
+
     handleRockClick(event = null) {
         if (!this.isPlaying || this.isIntroPlaying || this.isCutscenePlaying || this.isTransitioning) return;
 
@@ -588,25 +588,25 @@ class GameManager {
             }, 150); // Allow swing animation to complete before resetting
         }
     }
-    
+
     // Rock health system removed - simplified mining
-    
+
     createParticleEffect(event) {
         const container = document.getElementById('particle-container');
         if (!container) return;
-        
+
         // Get rock position for particle origin
         const rock = document.getElementById('main-rock');
         const rockRect = rock.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
-        
+
         // Calculate position relative to particle container
         const x = rockRect.left + rockRect.width / 2 - containerRect.left;
         const y = rockRect.top + rockRect.height / 2 - containerRect.top;
-        
+
         // Create 5-8 particles (random amount)
         const particleCount = 5 + Math.floor(Math.random() * 4); // 5-8 particles
-        
+
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('img');
             particle.src = 'assets/general/rocks/earth_particle.png';
@@ -616,18 +616,18 @@ class GameManager {
             }
             particle.style.left = x + 'px';
             particle.style.top = y + 'px';
-            
+
             // Random direction and distance for more realistic effect
             const angle = Math.random() * Math.PI * 2; // Random angle
             const distance = 40 + Math.random() * 30; // 40-70px distance
             const dx = Math.cos(angle) * distance;
             const dy = Math.sin(angle) * distance;
-            
+
             particle.style.setProperty('--dx', dx + 'px');
             particle.style.setProperty('--dy', dy + 'px');
-            
+
             container.appendChild(particle);
-            
+
             // Remove particle after animation
             setTimeout(() => {
                 if (particle.parentNode) {
@@ -636,26 +636,26 @@ class GameManager {
             }, 600); // Slightly faster animation
         }
     }
-    
+
     // Coin explosion removed - simplified mining
-    
+
     createClickEffect(event) {
         const rock = document.getElementById('main-rock');
         rock.classList.add('shake');
         setTimeout(() => {
             rock.classList.remove('shake');
         }, 300);
-        
+
     }
-    
-    
+
+
     createFloatingCoin(amount, event = null) {
         // Get the floating coins container
         const container = document.getElementById('floating-coins');
         if (!container) return;
-        
+
         let startX, startY;
-        
+
         if (event && event.clientX !== undefined) {
             // Use mouse position for mouse clicks
             const containerRect = container.getBoundingClientRect();
@@ -666,11 +666,11 @@ class GameManager {
             const rock = document.getElementById('main-rock');
             const rockRect = rock.getBoundingClientRect();
             const containerRect = container.getBoundingClientRect();
-            
+
             startX = rockRect.left + rockRect.width / 2 - containerRect.left;
             startY = rockRect.top + rockRect.height / 2 - containerRect.top;
         }
-        
+
         // Create DogeCoin image
         const coin = document.createElement('img');
         coin.src = 'assets/general/dogecoin_70x70.png';
@@ -682,7 +682,7 @@ class GameManager {
         coin.style.height = '35px';
         coin.style.transform = 'translate(-50%, -50%)';
         coin.style.zIndex = '20';
-        
+
         // Create +amount text
         const text = document.createElement('div');
         text.className = 'dogecoin-text';
@@ -697,11 +697,11 @@ class GameManager {
         text.style.textShadow = '2px 2px 0px #ffffff, -2px -2px 0px #ffffff, 2px -2px 0px #ffffff, -2px 2px 0px #ffffff';
         text.style.transform = 'translate(-50%, -50%)';
         text.style.zIndex = '21';
-        
+
         // Add to container
         container.appendChild(coin);
         container.appendChild(text);
-        
+
         // Animate coin
         coin.animate([
             { transform: 'translate(-50%, -50%) scale(1.2)', opacity: 1 },
@@ -711,7 +711,7 @@ class GameManager {
             easing: 'ease-out',
             fill: 'forwards'
         });
-        
+
         // Animate text
         text.animate([
             { transform: 'translate(-50%, -50%)', opacity: 1 },
@@ -721,7 +721,7 @@ class GameManager {
             easing: 'ease-out',
             fill: 'forwards'
         });
-        
+
         // Remove after animation
         setTimeout(() => {
             if (coin.parentNode) coin.parentNode.removeChild(coin);
@@ -775,7 +775,7 @@ class GameManager {
                 this.showNotification?.('LOCKED: Requires Mars Base');
                 return false;
             }
-            
+
             // Jupiter Rocket requires Space Bass
             if (helperType === 'jupiterRocket') {
                 const hasSpaceBass = (this.marsHelpers || []).some(h => h.type === 'spaceBass');
@@ -843,19 +843,19 @@ class GameManager {
 
         return true;
     }
-    
+
     addHelperToCursor(helperType, helper, shouldStartPlacement = true) {
         // Calculate random offsets for this helper's position in the stack
         const index = this.helpersOnCursor.length;
         let randomOffsetX = 0;
         let randomOffsetY = 0;
-        
+
         // Only add random offsets for helpers beyond the first one
         if (index > 0) {
             randomOffsetX = (Math.random() - 0.5) * 8;
             randomOffsetY = (Math.random() - 0.5) * 6;
         }
-        
+
         // Add helper to the cursor stack with pre-calculated random offsets
         this.helpersOnCursor.push({
             type: helperType,
@@ -864,7 +864,7 @@ class GameManager {
             randomOffsetX: randomOffsetX,
             randomOffsetY: randomOffsetY
         });
-        
+
         // If this is the first helper, start the placement system
         // But only if shouldStartPlacement is true (not for drag-and-drop)
         console.log('helpersOnCursor.length:', this.helpersOnCursor.length, 'isPlacingHelpers:', this.isPlacingHelpers, 'shouldStartPlacement:', shouldStartPlacement);
@@ -875,7 +875,7 @@ class GameManager {
             this.updateCursorSprites();
         }
     }
-    
+
     startHelperPlacement() {
         // Set flag to prevent drag-and-drop during placement
         console.log('=== Starting helper placement ===');
@@ -883,30 +883,32 @@ class GameManager {
         console.log('helpersOnCursor length:', this.helpersOnCursor?.length || 0);
         console.log('Setting isPlacingHelpers to true');
         this.isPlacingHelpers = true;
-        
+
         // Create sprites for all helpers on cursor
         this.createCursorSprites();
-        
+
         // Add mouse move and click listeners for placement
         this.addHelperPlacementListeners();
     }
-    
+
     createCursorSprites() {
         // Clear any existing cursor sprites
         this.clearCursorSprites();
-        
+
         // Get current mouse position for initial positioning
         const leftPanel = document.getElementById('left-panel');
         const rect = leftPanel.getBoundingClientRect();
-        
+
         // Create sprites for each helper on cursor with stacking offset
         this.helpersOnCursor.forEach((helperData, index) => {
             const helperSprite = document.createElement('img');
-            helperSprite.src = helperData.helper.icon;
+            helperSprites.load(this.currentLevel).then((sprites) => {
+                helperSprite.src = sprites[helperData.type].idle;
+            });
             helperSprite.className = 'helper-sprite attached-to-mouse';
             helperSprite.style.opacity = '0.7';
             helperSprite.dataset.stackIndex = index;
-            
+
             // Add special classes for different helper types
             if (helperData.type === 'spaceRocket') {
                 helperSprite.classList.add('rocket');
@@ -942,7 +944,7 @@ class GameManager {
             } else if (helperData.type === 'timeTravelDRex') {
                 helperSprite.classList.add('time-travel-drex');
             }
-            
+
             // Position the sprite immediately at current cursor position
             let helperSize = 60;
             if (helperSprite.classList.contains('shibe')) {
@@ -955,10 +957,10 @@ class GameManager {
                 helperSize = 72; // 1.2x helper
             }
             const offset = helperSize / 2;
-            
+
             let stackOffsetX = 0;
             let stackOffsetY = 0;
-            
+
             // Only add stacking offset for helpers beyond the first one
             if (index > 0) {
                 // Create loose horizontal formation with max 2 rows
@@ -967,43 +969,43 @@ class GameManager {
                 const col = index % helpersPerRow;
                 const spacing = 15; // Closer horizontal spacing
                 const rowSpacing = 20; // Closer vertical spacing
-                
+
                 // Use pre-calculated random offsets to prevent jiggling
                 const randomOffsetX = helperData.randomOffsetX;
                 const randomOffsetY = helperData.randomOffsetY;
-                
+
                 stackOffsetX = (col - (helpersPerRow - 1) / 2) * spacing + randomOffsetX;
                 stackOffsetY = row * rowSpacing + randomOffsetY;
             }
-            
+
             // Position relative to left panel, centered on current cursor position
             const x = this.mouseX - rect.left - offset + stackOffsetX;
             const y = this.mouseY - rect.top - offset + stackOffsetY;
-            
+
             helperSprite.style.left = x + 'px';
             helperSprite.style.top = y + 'px';
-            
+
             document.getElementById('helper-container').appendChild(helperSprite);
         });
     }
-    
+
     updateCursorSprites() {
         // Recreate all cursor sprites to show the updated stack
         this.createCursorSprites();
     }
-    
+
     clearCursorSprites() {
         // Remove all existing cursor sprites
         const existingSprites = document.querySelectorAll('.helper-sprite.attached-to-mouse');
         existingSprites.forEach(sprite => sprite.remove());
     }
-    
+
     addHelperPlacementListeners() {
         const handleMouseMove = (e) => {
             if (this.helpersOnCursor.length > 0) {
                 const leftPanel = document.getElementById('left-panel');
                 const rect = leftPanel.getBoundingClientRect();
-                
+
                 // Update position of all cursor sprites with stacking offset
                 const cursorSprites = document.querySelectorAll('.helper-sprite.attached-to-mouse');
                 cursorSprites.forEach((sprite, index) => {
@@ -1018,10 +1020,10 @@ class GameManager {
                         helperSize = 72; // 1.2x helper
                     }
                     const offset = helperSize / 2; // Center the sprite
-                    
+
                     let stackOffsetX = 0;
                     let stackOffsetY = 0;
-                    
+
                     // Only add stacking offset for helpers beyond the first one
                     if (index > 0 && this.helpersOnCursor[index]) {
                         // Create loose horizontal formation to match cursor stacking
@@ -1030,30 +1032,30 @@ class GameManager {
                         const col = index % helpersPerRow;
                         const spacing = 15; // Closer horizontal spacing
                         const rowSpacing = 20; // Closer vertical spacing
-                        
+
                         // Use pre-calculated random offsets to prevent jiggling
                         const randomOffsetX = this.helpersOnCursor[index].randomOffsetX;
                         const randomOffsetY = this.helpersOnCursor[index].randomOffsetY;
-                        
+
                         stackOffsetX = (col - (helpersPerRow - 1) / 2) * spacing + randomOffsetX;
                         stackOffsetY = row * rowSpacing + randomOffsetY;
                     }
-                    
+
                     // Position relative to left panel, centered on cursor with bunch offset
                     const x = e.clientX - rect.left - offset + stackOffsetX;
                     const y = e.clientY - rect.top - offset + stackOffsetY;
-                    
+
                     sprite.style.left = x + 'px';
                     sprite.style.top = y + 'px';
                 });
             }
         };
-        
+
         const handleClick = (e) => {
             if (this.helpersOnCursor.length > 0) {
                 const leftPanel = document.getElementById('left-panel');
                 const rect = leftPanel.getBoundingClientRect();
-                
+
                 // Use the first helper's size for collision detection
                 const firstHelper = this.helpersOnCursor[0];
                 let helperSize = 60;
@@ -1067,23 +1069,23 @@ class GameManager {
                     helperSize = 72; // 1.2x helper
                 }
                 const offset = helperSize / 2;
-                
+
                 // Use the same positioning logic as mouse move
                 const x = e.clientX - rect.left - offset;
                 const y = e.clientY - rect.top - offset;
-                
+
                 // Check if position is valid (not overlapping with existing helpers or mining area)
                 if (this.isValidHelperPosition(x, y, helperSize)) {
                     this.placeAllHelpersOnCursor(x, y);
                 }
             }
         };
-        
+
         const handleRightClick = (e) => {
             e.preventDefault();
             this.cancelHelperPlacement();
         };
-        
+
         // Touch event handlers for mobile support
         const handleTouchMove = (e) => {
             if (e.touches.length > 0) {
@@ -1091,21 +1093,21 @@ class GameManager {
                 handleMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
             }
         };
-        
+
         const handleTouchEnd = (e) => {
             if (e.changedTouches.length > 0) {
                 const touch = e.changedTouches[0];
                 handleClick({ clientX: touch.clientX, clientY: touch.clientY });
             }
         };
-        
+
         // Add listeners (both mouse and touch)
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('click', handleClick);
         document.addEventListener('contextmenu', handleRightClick);
         document.addEventListener('touchmove', handleTouchMove, { passive: false });
         document.addEventListener('touchend', handleTouchEnd);
-        
+
         // Store references for cleanup
         this.placementListeners = {
             mousemove: handleMouseMove,
@@ -1115,7 +1117,7 @@ class GameManager {
             touchend: handleTouchEnd
         };
     }
-    
+
     placeAllHelpersOnCursor(x, y) {
         // First, calculate all helper positions in the stack
         const helperPositions = [];
@@ -1123,7 +1125,7 @@ class GameManager {
         this.helpersOnCursor.forEach((helperData, index) => {
             let placeX = x;
             let placeY = y;
-            
+
             // Only add stacking offset for helpers beyond the first one
             if (index > 0) {
                 // Create loose horizontal formation to match cursor stacking
@@ -1132,15 +1134,15 @@ class GameManager {
                 const col = index % helpersPerRow;
                 const spacing = 15; // Closer horizontal spacing
                 const rowSpacing = 20; // Closer vertical spacing
-                
+
                 // Use pre-calculated random offsets to match cursor positioning
                 const randomOffsetX = helperData.randomOffsetX || 0;
                 const randomOffsetY = helperData.randomOffsetY || 0;
-                
+
                 placeX = x + (col - (helpersPerRow - 1) / 2) * spacing + randomOffsetX;
                 placeY = y + row * rowSpacing + randomOffsetY;
             }
-            
+
             helperPositions.push({
                 x: placeX,
                 y: placeY,
@@ -1150,10 +1152,10 @@ class GameManager {
                 shouldPlayMoonLaunch = true;
             }
         });
-        
+
         // Check if the entire stack collides with Doge and find the best direction to move
         const stackAdjustment = this.adjustStackForDogeCollision(helperPositions);
-        
+
         // Apply stack adjustment to all helper positions
         helperPositions.forEach((pos, index) => {
             pos.x += stackAdjustment.x;
@@ -1162,12 +1164,12 @@ class GameManager {
 
         // Check boundaries and adjust positions to keep helpers within the panel
         this.adjustStackForBoundaries(helperPositions);
-        
+
         // Place all helpers with adjustments applied
         this.helpersOnCursor.forEach((helperData, index) => {
             let placeX = helperPositions[index].x;
             let placeY = helperPositions[index].y;
-            
+
             // Create the placed helper object
             const placedHelper = {
                 ...helperData,
@@ -1177,31 +1179,31 @@ class GameManager {
                 isMining: false,
                 name: helperData.helper?.name || helperData.name || this.getHelperName(helperData.type) // Use helper data name
             };
-            
+
             // Add to placed helpers array
             this.placedHelpers.push(placedHelper);
-            
+
             // Create the actual helper sprite
             this.createHelperSprite(placedHelper);
         });
-        
+
         // Clear the cursor stack
         console.log('Clearing helpersOnCursor after successful placement, length was:', this.helpersOnCursor.length);
         this.helpersOnCursor = [];
         this.clearCursorSprites();
-        
+
         // Clean up placement listeners
         this.finishHelperPlacement();
-        
+
         // Clear placement flag
         console.log('Clearing isPlacingHelpers flag after successful placement (first)');
         // Don't clear here - let finishHelperPlacement handle it
-        
+
         // Update UI and DPS
         this.updateDPS();
-            this.updateUI();
+        this.updateUI();
         this.updateShopPrices();
-        
+
         if (shouldPlayMoonLaunch) {
             // Allow placement animations/UI updates to settle before playing the cutscene
             setTimeout(() => {
@@ -1209,55 +1211,55 @@ class GameManager {
             }, 200);
         }
     }
-    
+
     adjustStackForDogeCollision(helperPositions) {
         // Get Doge's position and size
         const leftPanel = document.getElementById('left-panel');
         const panelRect = leftPanel.getBoundingClientRect();
-        
+
         // Doge is centered in the mining area
         // Mining area is positioned at calc(50% + 50px) from top and calc(50% - 20px) from left
         const dogeX = (panelRect.width / 2) - 20; // Center minus 20px offset
         const dogeY = (panelRect.height / 2) + 50; // Center plus 50px offset
         const dogeWidth = 120; // Doge width from CSS
         const dogeHeight = 120; // Approximate height (assuming square-ish)
-        
+
         // Expand Doge's collision area to prevent helpers from being placed too close
         // Use different buffer sizes for different directions
         const leftRightBuffer = 40; // Larger buffer for left/right to prevent placement behind Doge
         const upDownBuffer = 20; // Smaller buffer for up/down to prevent excessive movement
-        
+
         const dogeLeft = dogeX - dogeWidth / 2 - leftRightBuffer;
         const dogeRight = dogeX + dogeWidth / 2 + leftRightBuffer;
         const dogeTop = dogeY - dogeHeight / 2 - upDownBuffer;
         const dogeBottom = dogeY + dogeHeight / 2 + upDownBuffer;
-        
+
         // Check if any individual helper collides with Doge's expanded area (including buffer zone)
         let hasCollision = false;
         let minMoveLeft = 0;
         let minMoveRight = 0;
         let minMoveUp = 0;
         let minMoveDown = 0;
-        
+
         helperPositions.forEach((pos, index) => {
             const helperSize = pos.type === 'miningShibe' ? 30 : 60;
             const helperLeft = pos.x;
             const helperRight = pos.x + helperSize;
             const helperTop = pos.y;
             const helperBottom = pos.y + helperSize;
-            
+
             // Check if this helper collides with Doge's expanded area (including buffer zone)
-            if (helperRight > dogeLeft && helperLeft < dogeRight && 
+            if (helperRight > dogeLeft && helperLeft < dogeRight &&
                 helperBottom > dogeTop && helperTop < dogeBottom) {
-                
+
                 hasCollision = true;
-                
+
                 // Calculate how much this helper needs to move in each direction
                 const moveLeft = Math.abs(helperRight - dogeLeft) + 30; // 30px buffer for more distance
                 const moveRight = Math.abs(helperLeft - dogeRight) + 30; // 30px buffer for more distance
                 const moveUp = Math.abs(helperBottom - dogeTop) + 10; // 10px buffer (reverted to original)
                 const moveDown = Math.abs(helperTop - dogeBottom) + 10; // 10px buffer (reverted to original)
-                
+
                 // Track the maximum movement needed in each direction
                 minMoveLeft = Math.max(minMoveLeft, moveLeft);
                 minMoveRight = Math.max(minMoveRight, moveRight);
@@ -1265,11 +1267,11 @@ class GameManager {
                 minMoveDown = Math.max(minMoveDown, moveDown);
             }
         });
-        
+
         if (hasCollision) {
             // Find the direction that requires the least movement for the entire stack
             const minMovement = Math.min(minMoveLeft, minMoveRight, minMoveUp, minMoveDown);
-            
+
             // Apply the adjustment to the entire stack
             if (minMovement === minMoveLeft) {
                 // Move entire stack left
@@ -1293,51 +1295,51 @@ class GameManager {
         // Get the left panel dimensions
         const leftPanel = document.getElementById('left-panel');
         const panelRect = leftPanel.getBoundingClientRect();
-        
+
         // Panel boundaries with some padding
         const panelLeft = 10; // 10px padding from left edge
         const panelRight = panelRect.width - 10; // 10px padding from right edge
         const panelTop = 10; // 10px padding from top edge
         const panelBottom = panelRect.height - 10; // 10px padding from bottom edge
-        
+
         // Find the minimum adjustment needed to keep all helpers within bounds
         let minAdjustX = 0;
         let minAdjustY = 0;
         let maxNegativeAdjustX = 0; // Track the most negative adjustment needed
-        
+
         helperPositions.forEach((pos, index) => {
             const helperSize = pos.type === 'miningShibe' ? 30 : 60;
             const helperLeft = pos.x;
             const helperRight = pos.x + helperSize;
             const helperTop = pos.y;
             const helperBottom = pos.y + helperSize;
-            
+
             // Check if helper is outside panel boundaries
             if (helperLeft < panelLeft) {
                 // Helper is too far left, need to move right
                 const adjustRight = panelLeft - helperLeft;
                 minAdjustX = Math.max(minAdjustX, adjustRight);
             }
-            
+
             if (helperRight > panelRight) {
                 // Helper is too far right, need to move left
                 const adjustLeft = helperRight - panelRight;
                 maxNegativeAdjustX = Math.min(maxNegativeAdjustX, -adjustLeft);
             }
-            
+
             if (helperTop < panelTop) {
                 // Helper is too far up, need to move down
                 const adjustDown = panelTop - helperTop;
                 minAdjustY = Math.max(minAdjustY, adjustDown);
             }
-            
+
             if (helperBottom > panelBottom) {
                 // Helper is too far down, need to move up
                 const adjustUp = helperBottom - panelBottom;
                 minAdjustY = Math.min(minAdjustY, -adjustUp); // Negative adjustment to move up
             }
         });
-        
+
         // Apply the boundary adjustment to all helpers
         const finalAdjustX = minAdjustX + maxNegativeAdjustX;
         helperPositions.forEach((pos, index) => {
@@ -1345,45 +1347,45 @@ class GameManager {
             pos.y += minAdjustY;
         });
     }
-    
+
     adjustPositionForDogeCollision(x, y, helperType) {
         // Get Doge's position and size
         const leftPanel = document.getElementById('left-panel');
         const panelRect = leftPanel.getBoundingClientRect();
-        
+
         // Doge is centered in the mining area
         // Mining area is positioned at calc(50% + 50px) from top and calc(50% - 20px) from left
         const dogeX = (panelRect.width / 2) - 20; // Center minus 20px offset
         const dogeY = (panelRect.height / 2) + 50; // Center plus 50px offset
         const dogeWidth = 120; // Doge width from CSS
         const dogeHeight = 120; // Approximate height (assuming square-ish)
-        
+
         // Get helper size
         const helperSize = helperType === 'miningShibe' ? 30 : 60;
-        
+
         // Check if helper overlaps with Doge
         const helperLeft = x;
         const helperRight = x + helperSize;
         const helperTop = y;
         const helperBottom = y + helperSize;
-        
+
         const dogeLeft = dogeX - dogeWidth / 2;
         const dogeRight = dogeX + dogeWidth / 2;
         const dogeTop = dogeY - dogeHeight / 2;
         const dogeBottom = dogeY + dogeHeight / 2;
-        
+
         // Check for collision
-        if (helperRight > dogeLeft && helperLeft < dogeRight && 
+        if (helperRight > dogeLeft && helperLeft < dogeRight &&
             helperBottom > dogeTop && helperTop < dogeBottom) {
-            
+
             // Calculate distances to edges to find the best direction to move
             const distanceLeft = Math.abs(helperRight - dogeLeft);
             const distanceRight = Math.abs(helperLeft - dogeRight);
             const distanceTop = Math.abs(helperBottom - dogeTop);
             const distanceBottom = Math.abs(helperTop - dogeBottom);
-            
+
             const minDistance = Math.min(distanceLeft, distanceRight, distanceTop, distanceBottom);
-            
+
             // Move helper to the closest non-colliding position
             if (minDistance === distanceLeft) {
                 // Move left
@@ -1399,34 +1401,34 @@ class GameManager {
                 y = dogeBottom + 5; // 5px buffer
             }
         }
-        
+
         return { x, y };
     }
-    
+
     isValidHelperPosition(x, y, helperSize = 60) {
         const margin = 10;
-        
+
         // Check bounds of left panel
         const leftPanel = document.getElementById('left-panel');
-        if (x < margin || y < margin || 
-            x + helperSize > leftPanel.offsetWidth - margin || 
+        if (x < margin || y < margin ||
+            x + helperSize > leftPanel.offsetWidth - margin ||
             y + helperSize > leftPanel.offsetHeight - margin) {
-        return false;
-    }
-        
+            return false;
+        }
+
         // Check if overlapping with mining area (character and rock)
         const miningArea = document.getElementById('mining-area');
         const miningRect = miningArea.getBoundingClientRect();
         const leftPanelRect = leftPanel.getBoundingClientRect();
-        
+
         const miningX = miningRect.left - leftPanelRect.left;
         const miningY = miningRect.top - leftPanelRect.top;
-        
+
         if (x + helperSize > miningX && x < miningX + miningRect.width &&
             y + helperSize > miningY && y < miningY + miningRect.height) {
-        return false;
-    }
-        
+            return false;
+        }
+
         // Check if overlapping with existing helpers
         for (const placedHelper of this.placedHelpers) {
             const distance = Math.sqrt(
@@ -1436,10 +1438,10 @@ class GameManager {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     placeHelper(x, y) {
         // Create the placed helper object
         const placedHelper = {
@@ -1449,33 +1451,33 @@ class GameManager {
             id: Date.now() + Math.random(), // Unique ID
             isMining: false
         };
-        
+
         // Add to placed helpers array
         this.placedHelpers.push(placedHelper);
-        
+
         // Helper is already added to this.helpers array in buyHelper(), no need to add again
-        
+
         // Create the actual helper sprite
         this.createHelperSprite(placedHelper);
-        
+
         // Clean up placement
         this.finishHelperPlacement();
-        
+
         // Clear placement flag
         console.log('Clearing isPlacingHelpers flag after successful placement (second)');
         // Don't clear here - let finishHelperPlacement handle it
-        
+
         // Update DPS and UI
         this.updateDPS();
         this.updateUI();
-        
+
         // Add mouse tracking for fly effect
         document.addEventListener('mousemove', (e) => {
             this.mouseX = e.clientX;
             this.mouseY = e.clientY;
         });
     }
-    
+
     // Chromatic aberration effect for buy helper buttons
     createChromaticAberrationEffect(button) {
         const animationLib = gsap;
@@ -1485,10 +1487,10 @@ class GameManager {
         }
         // Simple and compatible chromatic aberration effect
         const tl = animationLib.timeline();
-        
+
         // Get all elements within the button (including dogecoin logo and price text)
         const buttonElements = [button, ...button.querySelectorAll('*')];
-        
+
         // Create the chromatic aberration effect using CSS filters and transforms
         tl.to(buttonElements, {
             filter: "hue-rotate(20deg) saturate(2) brightness(1.3) contrast(1.2)",
@@ -1496,40 +1498,40 @@ class GameManager {
             duration: 0.08,
             ease: "power2.out"
         })
-        .to(buttonElements, {
-            filter: "hue-rotate(-20deg) saturate(1.5) brightness(1.1)",
-            transform: "scale(0.98) translateX(2px)",
-            duration: 0.06,
-            ease: "power2.inOut"
-        })
-        .to(buttonElements, {
-            filter: "hue-rotate(0deg) saturate(1) brightness(1)",
-            transform: "scale(1) translateX(0px)",
-            duration: 0.1,
-            ease: "power2.out"
-        });
-        
+            .to(buttonElements, {
+                filter: "hue-rotate(-20deg) saturate(1.5) brightness(1.1)",
+                transform: "scale(0.98) translateX(2px)",
+                duration: 0.06,
+                ease: "power2.inOut"
+            })
+            .to(buttonElements, {
+                filter: "hue-rotate(0deg) saturate(1) brightness(1)",
+                transform: "scale(1) translateX(0px)",
+                duration: 0.1,
+                ease: "power2.out"
+            });
+
         return tl;
     }
-    
-    
+
+
     getRandomMiningShibeName() {
         return this.miningShibeNames[Math.floor(Math.random() * this.miningShibeNames.length)];
     }
-    
+
     getHelperName(helperType) {
         if (helperType === 'miningShibe') {
             return this.getRandomMiningShibeName();
         }
         return this.helperNames[helperType] || helperType;
     }
-    
+
     createHelperSprite(placedHelper) {
         if (!placedHelper || !placedHelper.type) {
             console.error('Invalid helper data provided to createHelperSprite:', placedHelper);
             return;
         }
-        
+
         // Make sure we have a valid helper reference
         if (!placedHelper.helper || !placedHelper.helper.icon) {
             // Try to get helper data based on current level and type
@@ -1540,7 +1542,7 @@ class GameManager {
                 placedHelper.helper = this.getHelperData(placedHelper.type);
             }
         }
-        
+
         const helperSprite = document.createElement('img');
         helperSprites.load(this.currentLevel).then((sprites) => {
             helperSprite.src = sprites[placedHelper.type].idle;
@@ -1549,7 +1551,7 @@ class GameManager {
         helperSprite.style.left = placedHelper.x + 'px';
         helperSprite.style.top = placedHelper.y + 'px';
         helperSprite.dataset.helperId = placedHelper.id;
-        
+
         // Add special classes for different helper types
         if (placedHelper.type === 'spaceRocket') {
             helperSprite.classList.add('rocket');
@@ -1589,13 +1591,13 @@ class GameManager {
         } else if (placedHelper.type === 'timeTravelDRex') {
             helperSprite.classList.add('time-travel-drex');
         }
-        
+
         // Add bounce animation class
         helperSprite.classList.add('place-bounce');
-        
+
         // Add placed-helper class to enable hover effects
         helperSprite.classList.add('placed-helper');
-        
+
         // Add name tooltip as a separate element
         const nameTooltip = document.createElement('div');
         nameTooltip.className = 'helper-name-tooltip';
@@ -1604,11 +1606,11 @@ class GameManager {
             || this.getHelperName(placedHelper.type);
         nameTooltip.textContent = helperName;
         nameTooltip.dataset.helperId = placedHelper.id;
-        
+
         // Position tooltip relative to helper with dynamic centering
         let centerOffset = 30; // Default centering offset (half of 60px)
         let verticalOffset = 22; // Default vertical offset
-        
+
         // Adjust centering and vertical positioning for different helper types
         if (placedHelper.type === 'infiniteDogebility') {
             centerOffset = 35; // Dogebility drive (69px): ~half width
@@ -1654,47 +1656,47 @@ class GameManager {
             centerOffset = 36;
             verticalOffset = 26;
         }
-        
+
         nameTooltip.style.left = (placedHelper.x + centerOffset) + 'px'; // Center horizontally
         nameTooltip.style.top = (placedHelper.y - verticalOffset) + 'px'; // Above the helper
         nameTooltip.style.transform = 'translateX(-50%)'; // Center the tooltip text
-        
-        
+
+
         document.getElementById('helper-container').appendChild(nameTooltip);
-        
+
         document.getElementById('helper-container').appendChild(helperSprite);
-        
+
         // Add hover events for tooltip visibility
         helperSprite.addEventListener('mouseenter', () => {
             nameTooltip.style.opacity = '1';
         });
-        
+
         helperSprite.addEventListener('mouseleave', () => {
             nameTooltip.style.opacity = '0';
         });
-        
+
         // Add drag-and-drop functionality
         this.addDragAndDropToHelper(helperSprite, placedHelper, nameTooltip);
-        
+
         // Remove bounce animation class after animation completes
         setTimeout(() => {
             helperSprite.classList.remove('place-bounce');
         }, 600); // Match animation duration
-        
+
         // Start mining animation after a short delay
         setTimeout(() => {
             this.startHelperMining(placedHelper);
         }, 1000);
     }
-    
+
     addDragAndDropToHelper(helperSprite, placedHelper, nameTooltip) {
         let isDragging = false;
         let hasMoved = false;
         let pickedUpHelper = null;
-        
+
         // Make helper draggable
         helperSprite.style.cursor = 'grab';
-        
+
         // Helper function to start drag (used by both mouse and touch)
         const startDrag = (e) => {
             // Prevent drag-and-drop ONLY during helper placement (buy mode)
@@ -1707,17 +1709,17 @@ class GameManager {
                 e.stopImmediatePropagation();
                 return false;
             }
-            
+
             e.preventDefault();
             isDragging = true;
             hasMoved = false;
             pickedUpHelper = null;
             helperSprite.style.cursor = 'grabbing';
-            
+
             // Stop mining animation
             this.stopHelperMining(placedHelper);
         };
-        
+
         // Helper function to handle move (used by both mouse and touch)
         const handleMove = () => {
             if (isDragging && !hasMoved) {
@@ -1726,41 +1728,41 @@ class GameManager {
                 pickedUpHelper = this.pickupHelper(placedHelper, helperSprite, nameTooltip);
             }
         };
-        
+
         // Helper function to end drag (used by both mouse and touch)
         const endDrag = (clientX, clientY) => {
             if (isDragging && pickedUpHelper) {
                 // Drop the helper at current position, centered on cursor/touch
                 const leftPanel = document.getElementById('left-panel');
                 const panelRect = leftPanel.getBoundingClientRect();
-                
+
                 // Calculate centered position
                 const helperSize = pickedUpHelper.type === 'miningShibe' ? 30 : 60;
                 const offset = helperSize / 2; // Center the helper on cursor/touch
-                
+
                 const x = clientX - panelRect.left - offset;
                 const y = clientY - panelRect.top - offset;
-                
+
                 this.dropPickedUpHelper(pickedUpHelper, x, y);
             }
-            
+
             isDragging = false;
             hasMoved = false;
             pickedUpHelper = null;
             helperSprite.style.cursor = 'grab';
         };
-        
+
         // Mouse events
         helperSprite.addEventListener('mousedown', startDrag);
-        
+
         document.addEventListener('mousemove', (e) => {
             handleMove();
         });
-        
+
         document.addEventListener('mouseup', (e) => {
             endDrag(e.clientX, e.clientY);
         });
-        
+
         // Touch events for mobile support
         helperSprite.addEventListener('touchstart', (e) => {
             if (e.touches.length > 0) {
@@ -1771,7 +1773,7 @@ class GameManager {
                 startDrag(e);
             }
         }, { passive: false });
-        
+
         document.addEventListener('touchmove', (e) => {
             if (isDragging && e.touches.length > 0) {
                 const touch = e.touches[0];
@@ -1781,7 +1783,7 @@ class GameManager {
                 handleMove();
             }
         }, { passive: false });
-        
+
         document.addEventListener('touchend', (e) => {
             if (e.changedTouches.length > 0) {
                 const touch = e.changedTouches[0];
@@ -1789,40 +1791,40 @@ class GameManager {
             }
         });
     }
-    
+
     pickupHelper(placedHelper, helperSprite, nameTooltip) {
         // Store the original name for preservation
         const originalName = placedHelper.name;
-        
+
         // Remove helper from placed helpers array
         const helperIndex = this.placedHelpers.findIndex(helper => helper.id === placedHelper.id);
         if (helperIndex !== -1) {
             this.placedHelpers.splice(helperIndex, 1);
         }
-        
+
         // Remove sprite and tooltip from DOM
         helperSprite.remove();
         nameTooltip.remove();
-        
+
         // Preserve the helper's name and add it back to cursor stack
         const helperWithPreservedName = {
             ...placedHelper.helper,
             name: originalName // Preserve the original name
         };
-        
+
         // Add to cursor but DON'T start placement mode (drag-and-drop handles placement)
         this.addHelperToCursor(placedHelper.type, helperWithPreservedName, false);
-        
+
         // Still need to create cursor sprites for drag-and-drop to work
         this.createCursorSprites();
-        
+
         // Add mousemove listener to make the helper follow the cursor during drag
         const mousemoveHandler = (e) => {
             const leftPanel = document.getElementById('left-panel');
             const rect = leftPanel.getBoundingClientRect();
             this.mouseX = e.clientX;
             this.mouseY = e.clientY;
-            
+
             // Update cursor sprites position
             const cursorSprites = document.querySelectorAll('.helper-sprite.attached-to-mouse');
             cursorSprites.forEach((sprite, index) => {
@@ -1836,10 +1838,10 @@ class GameManager {
                     helperSize = 72;
                 }
                 const offset = helperSize / 2;
-                
+
                 let stackOffsetX = 0;
                 let stackOffsetY = 0;
-                
+
                 if (index > 0) {
                     const randomOffsetX = helperData.randomOffsetX;
                     const randomOffsetY = helperData.randomOffsetY;
@@ -1848,29 +1850,29 @@ class GameManager {
                     const col = index % helpersPerRow;
                     const spacing = 15;
                     const rowSpacing = 20;
-                    
+
                     stackOffsetX = (col - (helpersPerRow - 1) / 2) * spacing + randomOffsetX;
                     stackOffsetY = row * rowSpacing + randomOffsetY;
                 }
-                
+
                 const x = e.clientX - rect.left - offset + stackOffsetX;
                 const y = e.clientY - rect.top - offset + stackOffsetY;
-                
+
                 sprite.style.left = x + 'px';
                 sprite.style.top = y + 'px';
             });
         };
-        
+
         document.addEventListener('mousemove', mousemoveHandler);
-        
+
         // Store the handler so we can remove it later
         this.dragMousemoveHandler = mousemoveHandler;
-        
+
         // Update UI
         this.updateDPS();
         this.updateUI();
         this.updateShopPrices();
-        
+
         // Return helper data for dropping
         return {
             type: placedHelper.type,
@@ -1878,28 +1880,28 @@ class GameManager {
             originalName: originalName
         };
     }
-    
+
     dropPickedUpHelper(pickedUpHelper, x, y) {
         // Remove the mousemove handler if it exists
         if (this.dragMousemoveHandler) {
             document.removeEventListener('mousemove', this.dragMousemoveHandler);
             this.dragMousemoveHandler = null;
         }
-        
+
         // Clear the cursor stack since we're placing the picked up helper
         this.helpersOnCursor = [];
         this.clearCursorSprites();
-        
+
         // Create helper positions array for collision detection
         const helperPositions = [{
             x: x,
             y: y,
             type: pickedUpHelper.type
         }];
-        
+
         // Check for Doge collision and adjust position
         const stackAdjustment = this.adjustStackForDogeCollision(helperPositions);
-        
+
         // Apply stack adjustment
         helperPositions.forEach((pos, index) => {
             pos.x += stackAdjustment.x;
@@ -1908,7 +1910,7 @@ class GameManager {
 
         // Check boundaries and adjust positions
         this.adjustStackForBoundaries(helperPositions);
-        
+
         // Create the placed helper object
         const placedHelper = {
             type: pickedUpHelper.type,
@@ -1932,7 +1934,7 @@ class GameManager {
         this.updateUI();
         this.updateShopPrices();
     }
-    
+
     startHelperMining(placedHelper) {
         const helperSprite = document.querySelector(`img[data-helper-id="${placedHelper.id}"]`);
         if (helperSprite) {
@@ -1941,7 +1943,7 @@ class GameManager {
             placedHelper.isMining = true;
         }
     }
-    
+
     stopHelperMining(placedHelper) {
         const helperSprite = document.querySelector(`img[data-helper-id="${placedHelper.id}"]`);
         if (helperSprite) {
@@ -1951,32 +1953,32 @@ class GameManager {
             placedHelper.isMining = false;
         }
     }
-    
+
     startHelperAnimation(placedHelper, helperSprite) {
         let isIdle = true;
-        
+
         // Use 1fps for time machine rig and dogebility drive (less eye strain)
         // Use 3fps for all other helpers
         const isSlowAnimation = placedHelper.type === 'timeMachineRig' || placedHelper.type === 'infiniteDogebility';
         const animationInterval = isSlowAnimation ? 1000 : 333; // 1fps = 1000ms, 3fps = 333ms
-        
-        
-        const intervalId = setInterval(() => {
-            helperSprites.load(this.currentLevel).then((sprites) => {
+
+
+        helperSprites.load(this.currentLevel).then((sprites) => {
+            const intervalId = setInterval(() => {
                 if (isIdle) {
                     helperSprite.src = sprites[placedHelper.type].idle;
                 } else {
                     helperSprite.src = sprites[placedHelper.type].mine;
                 }
-            });
+            }, animationInterval);
+
+            // Store interval ID for cleanup
+            helperSprite.dataset.animationInterval = intervalId;
 
             isIdle = !isIdle;
-        }, animationInterval);
-        
-        // Store interval ID for cleanup
-        helperSprite.dataset.animationInterval = intervalId;
+        });
     }
-    
+
     stopHelperAnimation(helperSprite) {
         const intervalId = helperSprite.dataset.animationInterval;
         if (intervalId) {
@@ -1984,19 +1986,19 @@ class GameManager {
             helperSprite.dataset.animationInterval = '';
         }
     }
-    
+
     finishHelperPlacement() {
         console.log('=== Finishing helper placement ===');
         console.log('Remaining queue length:', this.placementQueue?.length || 0);
         console.log('helpersOnCursor length:', this.helpersOnCursor?.length || 0);
         console.log('isPlacingHelpers before clear:', this.isPlacingHelpers);
-        
+
         // Remove placement sprite
         if (this.helperSpriteBeingPlaced) {
             this.helperSpriteBeingPlaced.remove();
             this.helperSpriteBeingPlaced = null;
         }
-        
+
         // Remove event listeners (both mouse and touch)
         if (this.placementListeners) {
             document.removeEventListener('mousemove', this.placementListeners.mousemove);
@@ -2006,23 +2008,23 @@ class GameManager {
             document.removeEventListener('touchend', this.placementListeners.touchend);
             this.placementListeners = null;
         }
-        
+
         // Clear placement state
         this.helperBeingPlaced = null;
-        
+
         // SOLUTION 2: Clear all state after placement
         console.log('Clearing all placement state');
         this.isPlacingHelpers = false;
         this.placementQueue = [];
         this.currentPlacementType = null;
         this.currentPlacementIndex = 0;
-        
+
         // Remove any lingering click handlers
         document.body.style.cursor = 'default';
-        
+
         console.log('Placement state cleared - isPlacingHelpers:', this.isPlacingHelpers);
     }
-    
+
     cancelHelperPlacement() {
         // Refund the cost for all helpers on cursor
         this.helpersOnCursor.forEach(helperData => {
@@ -2030,53 +2032,53 @@ class GameManager {
             const owned = this.helpers.filter(h => h.type === helperData.type).length;
             const cost = Math.floor(helper.baseCost * Math.pow(1.15, owned - 1));
             this.dogecoins += cost;
-            
+
             // Remove the helper from the helpers array
             const helperIndex = this.helpers.findIndex(h => h.type === helperData.type);
             if (helperIndex !== -1) {
                 this.helpers.splice(helperIndex, 1);
             }
         });
-        
+
         // Clear the cursor stack
         this.helpersOnCursor = [];
         this.clearCursorSprites();
-        
+
         // Clear the placement flag
         console.log('Clearing isPlacingHelpers flag after cancellation');
         this.isPlacingHelpers = false;
-        
+
         this.finishHelperPlacement();
         this.updateUI();
         this.updateShopPrices();
     }
-    
+
     // Pickaxe system will be implemented later
-    
+
     updateDPS() {
         // Calculate Earth helpers DPS
         const earthDPS = this.helpers.reduce((total, helper) => {
             return total + helper.dps;
         }, 0);
-        
+
         // Calculate Moon helpers DPS
         const moonDPS = this.moonHelpers.reduce((total, helper) => {
             return total + helper.dps;
         }, 0);
-        
+
         // Calculate Mars, Jupiter, and Titan helpers DPS
         const marsDPS = this.marsHelpers.reduce((total, helper) => total + helper.dps, 0);
         const jupiterDPS = this.jupiterHelpers.reduce((total, helper) => total + helper.dps, 0);
         const titanDPS = this.titanHelpers.reduce((total, helper) => total + helper.dps, 0);
 
         this.dps = earthDPS + moonDPS + marsDPS + jupiterDPS + titanDPS;
-        
+
         // Update highest DPS
         if (this.dps > this.highestDps) {
             this.highestDps = this.dps;
         }
     }
-    
+
     updateShopPrices() {
         // Update shop prices and quantities without rebuilding the entire shop
         const shopItems = document.querySelectorAll('.shop-grid-item');
@@ -2084,7 +2086,7 @@ class GameManager {
             const quantityElement = item.querySelector('.shop-item-quantity');
             const priceElement = item.querySelector('.buy-btn-price');
             const buyButton = item.querySelector('.shop-buy-btn[data-helper-type]');
-            
+
             if (quantityElement && priceElement && buyButton) {
                 // Get helper type from the button's data attribute
                 const helperType = buyButton.getAttribute('data-helper-type');
@@ -2097,18 +2099,18 @@ class GameManager {
                         const owned = helperArray.filter(h => h.type === helperType).length;
                         const cost = Math.floor(helper.baseCost * Math.pow(1.15, owned));
                         const canAfford = this.dogecoins >= cost;
-                        
+
                         // Update quantity
                         quantityElement.textContent = `#${owned}`;
-                        
+
                         // Update price
                         const priceText = this.formatNumber(cost);
                         priceElement.textContent = priceText;
-                        
+
                         // Recalculate button width based on new price length
                         const priceLength = priceText.length;
                         let buttonWidth = '45%'; // Default width
-                        
+
                         // Scale button width based on price length
                         if (priceLength >= 12) {
                             buttonWidth = '90%'; // Extremely long prices (trillions+)
@@ -2123,10 +2125,10 @@ class GameManager {
                         } else {
                             buttonWidth = '45%'; // Short prices (hundreds)
                         }
-                        
+
                         // Update button width
                         buyButton.style.width = buttonWidth;
-                        
+
                         // Update button state using the refreshed affordability check
                         if (canAfford) {
                             buyButton.disabled = false;
@@ -2140,10 +2142,10 @@ class GameManager {
             }
         });
     }
-    
+
     startGameLoop() {
         this.isPlaying = true;
-        
+
         // DPS updates every second for better performance
         this.dpsInterval = setInterval(() => {
             if (this.isPlaying && this.dps > 0) {
@@ -2152,41 +2154,41 @@ class GameManager {
                 this.updateUI();
             }
         }, 1000);
-        
+
         const gameLoop = () => {
             if (this.isPlaying) {
                 this.updateHelpers();
             }
-            
+
             requestAnimationFrame(gameLoop);
         };
-        
+
         gameLoop();
     }
-    
+
     startBackgroundRotation() {
         // Start background rotation every 15 seconds
         this.backgroundRotationInterval = setInterval(() => {
             this.rotateBackground();
         }, 15000);
     }
-    
+
     rotateBackground() {
         // Remove active class from current background
         const currentImage = document.getElementById(`background-image-${this.currentBackgroundIndex + 1}`);
         if (currentImage) {
             currentImage.classList.remove('active');
         }
-        
+
         // Move to next background
         this.currentBackgroundIndex = (this.currentBackgroundIndex + 1) % this.backgrounds.length;
-        
+
         // Add active class to new background
         const nextImage = document.getElementById(`background-image-${this.currentBackgroundIndex + 1}`);
         if (nextImage) {
             nextImage.classList.add('active');
         }
-        
+
         console.log(`Background rotated to: ${this.backgrounds[this.currentBackgroundIndex]}`);
     }
 
@@ -2239,14 +2241,14 @@ class GameManager {
             }
         });
     }
-    
+
     startBlinking() {
         // Start blinking every 10 seconds
         this.blinkInterval = setInterval(() => {
             this.blinkDoge();
         }, 10000);
     }
-    
+
     blinkDoge() {
         const doge = document.getElementById('main-character');
         if (!doge) return;
@@ -2256,7 +2258,7 @@ class GameManager {
 
         // Store original src
         const originalSrc = doge.src;
-        
+
         // Choose the correct closed eyes sprite based on current planet
         let closedEyesSprite;
         if (this.currentLevel === 'earth') {
@@ -2276,35 +2278,35 @@ class GameManager {
             // Default fallback
             closedEyesSprite = 'assets/general/character/closed_eyes.png';
         }
-        
+
         // Change to closed eyes
         doge.src = closedEyesSprite;
-        
+
         // Blink for 200ms
         setTimeout(() => {
             doge.src = originalSrc;
         }, 200);
     }
-    
+
     startSearchdogAnimation() {
         const searchdogs = document.querySelectorAll('.searchdog');
         if (searchdogs.length === 0) return;
-        
+
         let isFrame1 = true;
-        
+
         // Alternate between the two frames every 1000ms (1 second) for all searchdogs
         setInterval(() => {
             searchdogs.forEach(searchdog => {
                 if (searchdog) {
-                    searchdog.src = isFrame1 
-                        ? 'assets/general/searchdog_2.png' 
+                    searchdog.src = isFrame1
+                        ? 'assets/general/searchdog_2.png'
                         : 'assets/general/searchdog_1.png';
                 }
             });
             isFrame1 = !isFrame1;
         }, 1000);
     }
-    
+
     startRickSpawn() {
         // Rick spawns every 3-5 minutes (180-300 seconds)
         const spawnTime = 180000 + Math.random() * 120000; // 3-5 minutes
@@ -2312,15 +2314,15 @@ class GameManager {
             this.spawnRick();
         }, spawnTime);
     }
-    
+
     spawnRick() {
         if (this.rickVisible) return; // Don't spawn if already visible
-        
+
         this.rickVisible = true;
         this.currentRickSprite = 0;
         this.rickAnimationDirection = 1;
         this.rickAnimationComplete = false;
-        
+
         // Create portal background
         const portal = document.createElement('img');
         portal.id = 'rick-portal';
@@ -2333,7 +2335,7 @@ class GameManager {
         portal.style.zIndex = '24';
         portal.style.opacity = '0';
         portal.style.transition = 'opacity 0.5s ease';
-        
+
         // Create Rick element
         const rick = document.createElement('img');
         rick.id = 'rick-doge';
@@ -2348,30 +2350,30 @@ class GameManager {
         rick.style.cursor = 'default'; // Remove pointer cursor
         rick.style.transition = 'opacity 0.3s ease';
         rick.style.objectFit = 'contain'; // Fix stretching
-        
+
         document.getElementById('left-panel').appendChild(portal);
         document.getElementById('left-panel').appendChild(rick);
-        
+
         // Fade in portal
         setTimeout(() => {
             portal.style.opacity = '1';
         }, 100);
-        
+
         // Animate through sprites
         this.animateRick();
-        
+
         // Auto-hide after 8 seconds (faster fade out)
         setTimeout(() => {
             this.hideRick();
         }, 8000);
     }
-    
+
     animateRick() {
         if (!this.rickVisible || this.rickAnimationComplete) return;
-        
+
         const rick = document.getElementById('rick-doge');
         if (!rick) return;
-        
+
         // Check if we've completed the full sequence (back to R1)
         if (this.currentRickSprite === 0 && this.rickAnimationDirection === -1) {
             this.rickAnimationComplete = true;
@@ -2381,10 +2383,10 @@ class GameManager {
             }, 500); // Small delay to show final frame
             return; // Stop animation immediately
         }
-        
+
         // Move to next sprite based on direction
         this.currentRickSprite += this.rickAnimationDirection;
-        
+
         // Check if we've reached R4 (index 3)
         if (this.currentRickSprite === 3) {
             // Pause at R4 for 2 seconds
@@ -2395,21 +2397,21 @@ class GameManager {
             }, 2000); // 2 second pause
             return;
         }
-        
+
         rick.src = this.rickSprites[this.currentRickSprite];
-        
+
         // Continue animation every 500ms
         setTimeout(() => {
             this.animateRick();
         }, 500);
     }
-    
+
     // Rick click functionality removed - no longer gives coins
-    
+
     hideRick() {
         const rick = document.getElementById('rick-doge');
         const portal = document.getElementById('rick-portal');
-        
+
         if (rick) {
             rick.style.opacity = '0';
             setTimeout(() => {
@@ -2418,7 +2420,7 @@ class GameManager {
                 }
             }, 300);
         }
-        
+
         // Portal stays visible for 0.4 seconds after Rick fades
         if (portal) {
             setTimeout(() => {
@@ -2430,10 +2432,10 @@ class GameManager {
                 }, 400); // 0.4 seconds
             }, 300); // Wait for Rick to fade first
         }
-        
+
         this.rickVisible = false;
     }
-    
+
     scheduleNextRick() {
         // Schedule next Rick spawn
         const spawnTime = 180000 + Math.random() * 120000; // 3-5 minutes
@@ -2441,23 +2443,23 @@ class GameManager {
             this.spawnRick();
         }, spawnTime);
     }
-    
+
     // Debug method to force Rick spawn
     forceRickSpawn() {
         this.hideRick(); // Hide current Rick if visible
         this.spawnRick();
     }
-    
+
     stopBackgroundRotation() {
         if (this.backgroundRotationInterval) {
             clearInterval(this.backgroundRotationInterval);
             this.backgroundRotationInterval = null;
         }
     }
-    
+
     stopGame() {
         this.isPlaying = false;
-        
+
         // Clear all intervals
         if (this.dpsInterval) {
             clearInterval(this.dpsInterval);
@@ -2476,19 +2478,19 @@ class GameManager {
             this.rickInterval = null;
         }
     }
-    
+
     updateHelpers() {
         // Animate helpers
         this.helpers.forEach(helper => {
             // Helper animation logic would go here
         });
     }
-    
+
     updateUI(skipShopPrices = false) {
         // Update dogecoin display
         document.getElementById('dogecoin-amount').textContent = this.formatNumber(Math.floor(this.dogecoins));
         document.getElementById('dps-amount').textContent = this.formatNumber(this.dps);
-        
+
         // Dynamic DPS logo positioning based on text length
         const dpsIcon = document.querySelector('.stat-item:nth-child(2) .stat-icon');
         const dpsText = document.getElementById('dps-amount');
@@ -2503,12 +2505,12 @@ class GameManager {
                 dpsIcon.style.transform = 'translateX(0px)'; // Default position for short text
             }
         }
-        
+
         // Update shop prices and quantities without rebuilding the entire shop (unless skipped)
         if (!skipShopPrices) {
             this.updateShopPrices();
         }
-        
+
         document.getElementById('total-mined').textContent = this.formatNumber(Math.floor(this.totalMined));
         document.getElementById('total-clicks').textContent = this.formatNumber(this.totalClicks);
         const totalHelpersOwned =
@@ -2519,20 +2521,20 @@ class GameManager {
         document.getElementById('helpers-owned').textContent = totalHelpersOwned;
         const activeLevelName = this.levels?.[this.currentLevel]?.name || this.currentLevel; // Match stats banner to current planet
         document.getElementById('current-level').textContent = activeLevelName;
-        
+
         // Calculate current play time from session start plus total accumulated time.
         const currentPlayTime = Math.floor((Date.now() - this.startTime) / 1000) + this.totalPlayTime;
         document.getElementById('play-time').textContent = this.formatTime(currentPlayTime);
         document.getElementById('highest-dps').textContent = this.formatNumber(this.highestDps);
-        
+
         // Rock health system removed - simplified mining
     }
-    
+
     formatTime(seconds) {
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
         const secs = seconds % 60;
-        
+
         if (hours > 0) {
             return `${hours}h ${minutes}m ${secs}s`;
         } else if (minutes > 0) {
@@ -2541,7 +2543,7 @@ class GameManager {
             return `${secs}s`;
         }
     }
-    
+
     formatNumber(num) {
         if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
         if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
@@ -2549,33 +2551,33 @@ class GameManager {
         if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
         return Math.floor(num).toString();
     }
-    
+
     showNotification(message) {
         // Check if notifications are enabled
         if (this.notificationsEnabled === false) {
             return;
         }
-        
+
         const notification = document.createElement('div');
         notification.className = 'notification';
         notification.textContent = message;
-        
+
         document.getElementById('notifications').appendChild(notification);
-        
+
         setTimeout(() => {
             notification.remove();
         }, 3000);
     }
-    
+
     playSound(soundFile) {
         audioManager.playSound(soundFile);
     }
-    
+
     checkAchievements() {
         // Achievement system - empty for now, ready for custom achievements
     }
-    
-    
+
+
     saveGame() {
         // Save current helpers to the appropriate array before saving game state
         if (this.currentLevel === 'earth') {
@@ -2601,11 +2603,11 @@ class GameManager {
             hasPlayedMoonLaunch: this.hasPlayedMoonLaunch,
             timestamp: Date.now()
         };
-        
+
         localStorage.setItem('dogeminer_save', JSON.stringify(saveData));
         this.lastSave = Date.now();
     }
-    
+
     loadGame() {
         const saveData = localStorage.getItem('dogeminer_save');
         if (saveData) {
@@ -2621,7 +2623,7 @@ class GameManager {
                 this.earthPlacedHelpers = data.earthPlacedHelpers || [];
                 this.moonPlacedHelpers = data.moonPlacedHelpers || [];
                 this.hasPlayedMoonLaunch = data.hasPlayedMoonLaunch || false;
-                
+
                 // Set placed helpers based on current level
                 if (this.currentLevel === 'earth') {
                     this.placedHelpers = [...this.earthPlacedHelpers];
@@ -2632,7 +2634,7 @@ class GameManager {
                 } else if (this.currentLevel === 'jupiter') {
                     this.placedHelpers = [...this.jupiterPlacedHelpers];
                 }
-                
+
                 // Update character and rock based on current level
                 this.updateUI();
                 // Notification handled by main.js
@@ -2645,14 +2647,14 @@ class GameManager {
         }
         return false;
     }
-    
+
     resetGame() {
         if (confirm('Are you sure you want to reset your game? This cannot be undone!')) {
             localStorage.removeItem('dogeminer_save');
             location.reload();
         }
     }
-    
+
     getHelperData(helperType) {
         for (let i = 0; i < shopManager.shopData.helpers.length; i++) {
             const helper = shopManager.shopData.helpers[i][helperType];
@@ -2664,24 +2666,24 @@ class GameManager {
 
         return undefined;
     }
-    
+
     recreateHelperSprites() {
         // Clear existing helper sprites
         const existingSprites = document.querySelectorAll('.helper-sprite');
         existingSprites.forEach(sprite => sprite.remove());
-        
+
         const existingTooltips = document.querySelectorAll('.helper-tooltip');
         existingTooltips.forEach(tooltip => tooltip.remove());
-        
+
         // Recreate all helper sprites
         this.placedHelpers.forEach(placedHelper => {
             this.createHelperSprite(placedHelper);
         });
-        
+
         // Restart animations for all helpers
         this.startAllHelperAnimations();
     }
-    
+
     startAllHelperAnimations() {
         // Start animations for all placed helpers
         this.placedHelpers.forEach(placedHelper => {
@@ -2693,15 +2695,15 @@ class GameManager {
             }
         });
     }
-    
+
     clearAllHelperSprites() {
         // Clear all helper sprites from the DOM
         const existingSprites = document.querySelectorAll('.helper-sprite');
         existingSprites.forEach(sprite => sprite.remove());
-        
+
         const existingTooltips = document.querySelectorAll('.helper-tooltip');
         existingTooltips.forEach(tooltip => tooltip.remove());
-        
+
         const existingNameTooltips = document.querySelectorAll('.helper-name-tooltip');
         existingNameTooltips.forEach(tooltip => tooltip.remove());
     }

@@ -1,7 +1,17 @@
+function getBundlePath(str) {
+    return `./${str}.js`;
+}
+
 export function createLevelBundleLoader(modules) {
     const cache = new Map();
 
-    // TODO: Enforce that modules should contain ./earth.js, ./moon.js, ./mars.js etc...
+    const expectedModules = ['earth', 'moon', 'mars', 'jupiter', 'titan'];
+    expectedModules.forEach((level) => {
+        if (!modules[getBundlePath(level)]) {
+            // TODO: print exact file path of modules to allow for easier debugging
+            throw new Error(`Expected to find "${getBundlePath(level)}" in modules. Available: ${Object.keys(modules).join(', ')}`);
+        }
+    });
 
     return {
         async load(level) {
@@ -9,11 +19,11 @@ export function createLevelBundleLoader(modules) {
                 return cache.get(level);
             }
 
-            const key = `./${level}.js`;
+            const key = getBundlePath(level);
             const loader = modules[key];
 
             if (!loader) {
-                throw new Error(`Sprite bundle "${level}" not found. Available: ${Object.keys(modules).join(", ")}`);
+                throw new Error(`Sprite bundle "${getBundlePath(level)}" not found. Available: ${Object.keys(modules).join(", ")}`);
             }
 
             const module = await loader();
@@ -33,12 +43,10 @@ export function createBundleLoader(modules) {
 
     if (Object.keys(modules).length !== 1) {
         throw new Error(`Expected one module, recieved ${Object.keys(modules).length} module(s).`
-            + ` Modules recieved ${Object.keys(modules).join(", ")}`);
+            + ` Modules recieved: ${Object.keys(modules).join(", ")}`);
     }
 
-    console.log(modules);
     const module = modules[Object.keys(modules)[0]];
-    console.log(module);
 
     return {
         async load() {
