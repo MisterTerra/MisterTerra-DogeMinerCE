@@ -2232,6 +2232,9 @@ class GameManager {
     }
 
     startBlinking() {
+        // BUG: Sometimes, the "closed" sprite belongs to the wrong level. Might happen more frequently if the user has a poor connection
+        // We should have decided the level before this is called, instead of reading this.currentLevel
+
         // Start blinking every 10 seconds
         this.blinkInterval = setInterval(async () => {
             const sprites = await characterLoader.preload(this.currentLevel);
