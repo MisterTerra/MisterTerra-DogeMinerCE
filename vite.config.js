@@ -15,6 +15,7 @@ export default defineConfig({
       },
     },
 
+    outDir: 'dist-online/dist',
     emptyOutDir: true,
   },
 })

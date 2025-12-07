@@ -1,20 +1,33 @@
-import { createBundleLoader, createLevelBundleLoader } from './asset-loader-factory.js';
+import { createAssetLoader, createBundleLoader, createLevelGroupLoader } from './asset-loader-factory.js';
 
-export const characterSprites = createLevelBundleLoader(import.meta.glob('./*.js', { base: '../../assets/general/character/' }));
-export const rockSprites = createLevelBundleLoader(import.meta.glob('./*.js', { base: '../../assets/general/rocks/' }));
-export const backgroundSprites = createLevelBundleLoader(import.meta.glob('./*.js', { base: '../../assets/backgrounds/' }));
-export const platformSprites = createLevelBundleLoader(import.meta.glob('./*.js', { base: '../../assets/quickUI/platforms/' }));
-export const helperSprites = createLevelBundleLoader(import.meta.glob('./*.js', { base: '../../assets/helpers/' }));
-export const musicSprites = createLevelBundleLoader(import.meta.glob('./*.js', { base: '../../assets/audio/music/' }));
+// All import.meta.glob calls use the { eager: true } option
+// This means that all modules will be evaluated at build time
+// Since each module only contains URLs, no actual image data is made available at build time
+// By using eager, we avoid additional network requests, and all network requests fetch image data
 
-export const pickAudioSprites = createBundleLoader(import.meta.glob('./*.js', { base: '../../assets/audio/main/pick/' }))
+export const characterLoader =  createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/character/' }),   'character');
+export const rockLoader =       createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/rocks/' }),       'rock');
+export const backgroundLoader = createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/backgrounds/' }),         'background');
+export const platformLoader =   createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/quickUI/platforms/' }),   'platform');
+export const helperLoader =     createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/helpers/' }),             'helper');
+export const musicLoader =      createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/audio/music/' }),         'music');
 
-export async function loadLevelAssets(level) {
-  return Promise.all([
-    characterSprites.load(level),
-    rockSprites.load(level),
-    backgroundSprites.load(level),
-    platformSprites.load(level),
-    helperSprites.load(level),
-  ]);
-}
+export const generalLoader =    createBundleLoader(import.meta.glob('./general.js', { eager: true, base: '../../assets/general/' }))
+
+export const pickAudioLoader =  createBundleLoader(import.meta.glob('./pick.js', { eager: true, base: '../../assets/audio/main/pick/' }))
+export const searchdogLoader =  createBundleLoader(import.meta.glob('./searchdog.js', { eager: true, base: '../../assets/general/searchdog/' }))
+
+export const planetIconLoader = createBundleLoader(import.meta.glob('./planets.js', { eager: true, base: '../../assets/general/icons/planets/' }))
+
+import pickSprite from '../../assets/items/pickaxes/standard.png';
+export const pickaxeLoader = createAssetLoader(pickSprite);
+
+import particleSprite from '../../assets/general/rocks/earth_particle.png';
+export const particleLoader = createAssetLoader(particleSprite);
+
+import portalSprite from '../../assets/general/rm/portal.png';
+export const portalLoader = createAssetLoader(portalSprite);
+export const rickLoader = createBundleLoader(import.meta.glob('./rick.js', { eager: true, base: '../../assets/general/rm/' }));
+
+import launchSprite from '../../assets/The Moon Launch.mp4';
+export const moonLaunchLoader = createAssetLoader(launchSprite);

@@ -18,7 +18,7 @@ export default defineConfig({
       input: resolve(__dirname, 'play/index.html'),
     },
 
-    outDir: 'dist-offline',
+    outDir: 'dist-offline/dist',
     emptyOutDir: true,
   },
 })

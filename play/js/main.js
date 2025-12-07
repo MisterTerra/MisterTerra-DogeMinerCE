@@ -11,7 +11,7 @@ import cloudSaveManager from './cloud-save.js';
 // import { rockSprites } from '../assets/bundles/rocks.js';
 // import { platformSprites } from '../assets/bundles/platforms.js';
 
-import { backgroundSprites, characterSprites, rockSprites, platformSprites } from './assets/asset-loaders.js';
+import { backgroundLoader, characterLoader, rockLoader, platformLoader } from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Main Initialization
 const startGameWhenReady = () => initializeGame();
@@ -97,28 +97,15 @@ async function initializeGame() {
                     document.body.classList.add('planet-titan');
                 }
 
-                console.log('Does platform exist?: ', platform);
                 if (platform) {
-                    platformSprites.load(gameManager.currentLevel).then((sprite) => {
-                        console.log('Platform sprite: ', sprite),
-                            platform.src = sprite;
-                    });
-                    platform.src = platformSprites[gameManager.currentLevel];
+                    platform.src = platformLoader.get(gameManager.currentLevel);
                 }
 
-                backgroundSprites.load(gameManager.currentLevel).then((sprites) => {
-                    console.log('Background sprites: ', sprites);
-                    gameManager.backgrounds = sprites;
-                });
+                gameManager.backgrounds = backgroundLoader.get(gameManager.currentLevel);
 
-                rockSprites.load(gameManager.currentLevel).then((sprites) => {
-                    mainRock.src = sprites[0];
-                });
+                mainRock.src = rockLoader.get(gameManager.currentLevel)[0];
 
-                characterSprites.load(gameManager.currentLevel).then((sprites) => {
-                    mainCharacter.src = sprites.open;
-                });
-
+                mainCharacter.src = characterLoader.get(gameManager.currentLevel).open;
 
                 // Make sure the background DOM nodes reflect the resolved pool for this load-in planet.
                 gameManager.syncBackgroundImages?.(true);

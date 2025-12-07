@@ -3,7 +3,7 @@ import shopManager from './shop.js';
 import uiManager from './ui.js';
 import gsap from "https://cdn.skypack.dev/gsap";
 
-import { backgroundSprites, helperSprites } from './assets/asset-loaders.js';
+import { backgroundLoader, characterLoader, generalLoader, helperLoader, moonLaunchLoader, particleLoader, portalLoader, rickLoader, rockLoader, searchdogLoader } from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Main Game Logic
 class GameManager {
@@ -114,51 +114,52 @@ class GameManager {
         this.placedHelpers = [];
         this.helpersOnCursor = []; // Array to hold multiple helpers being placed // Array of placed helper objects with positions
 
-        backgroundSprites.load('earth').then((sprites) => {
-            // Background rotation
-            this.backgrounds = sprites;
-            this.currentBackgroundIndex = 0;
-            this.backgroundRotationInterval = null;
-            this.startBackgroundRotation();
+        const backgroundSprites = backgroundLoader.getAll();
 
-            // Ensure the DOM background images match the initial planet selection.
-            this.syncBackgroundImages(true);
-        });
+        // Background rotation
+        this.backgrounds = backgroundSprites.earth;
+        this.currentBackgroundIndex = 0;
+        this.backgroundRotationInterval = null;
+        this.startBackgroundRotation();
+
+        // Ensure the DOM background images match the initial planet selection.
+        this.syncBackgroundImages(true);
 
         // Blinking animation
         this.blinkInterval = null;
 
+        const rockSprites = rockLoader.getAll();
         // Level definitions for UI updates
         this.levels = {
             earth: {
                 name: 'Earth',
-                background: 'assets/backgrounds/bg/bg1.jpg',
-                rock: 'assets/general/rocks/earth.png',
-                character: 'assets/general/character/standard.png'
+                background: backgroundSprites.earth[0],
+                rock: rockSprites.earth[0],
+                character: characterLoader.get('earth').open
             },
             moon: {
                 name: 'Moon',
-                background: 'assets/backgrounds/bg/bgmoon01.jpg',
-                rock: 'assets/general/rocks/moon.png',
-                character: 'assets/general/character/spacehelmet.png'
+                background: backgroundSprites.moon[0],
+                rock: rockSprites.moon[0],
+                character: characterLoader.get('moon').open
             },
             mars: {
                 name: 'Mars',
-                background: 'assets/backgrounds/bg/bgmars01.jpg',
-                rock: 'assets/general/rocks/mars.png',
-                character: 'assets/general/character/party.png'
+                background: backgroundSprites.mars[0],
+                rock: rockSprites.mars[0],
+                character: characterLoader.get('mars').open
             },
             jupiter: {
                 name: 'Jupiter',
-                background: 'assets/backgrounds/bg/bgmars01.jpg',
-                rock: 'assets/general/rocks/jupiter.png',
-                character: 'assets/general/character/spacehelmet.png'
+                background: backgroundSprites.jupiter[0],
+                rock: rockSprites.jupiter[0],
+                character: characterLoader.get('jupiter').open
             },
             titan: {
                 name: 'Titan',
-                background: 'assets/backgrounds/titan02.jpg',
-                rock: 'assets/general/rocks/titan.png',
-                character: 'assets/general/character/spacehelmet.png'
+                background: backgroundSprites.titan[0],
+                rock: rockSprites.titan[0],
+                character: characterLoader.get('titan').open
             }
         };
 
@@ -174,12 +175,9 @@ class GameManager {
 
         // DPS interval for performance
         this.dpsInterval = null;
-        this.rickSprites = [
-            'assets/general/rm/r1.png',
-            'assets/general/rm/r2.png',
-            'assets/general/rm/r3.png',
-            'assets/general/rm/r4.png'
-        ];
+
+        rickLoader.preload();
+        this.rickSprites = rickLoader.get();
         this.currentRickSprite = 0;
         this.rickAnimationDirection = 1; // 1 for forward, -1 for backward
         this.rickAnimationComplete = false;
@@ -251,7 +249,7 @@ class GameManager {
 
         audioManager.suspendAllAudio();
 
-        this.cutsceneVideo.src = '../assets/The Moon Launch.mp4';
+        this.cutsceneVideo.src = moonLaunchLoader.get();
         this.cutsceneVideo.currentTime = 0;
         this.cutsceneVideo.pause();
         console.log('[Cutscene] Overlay active');
@@ -502,15 +500,7 @@ class GameManager {
 
         const doge = document.getElementById('main-character');
         if (doge) {
-            if (this.currentLevel === 'earth') {
-                doge.src = 'assets/general/character/standard.png';
-            } else if (this.currentLevel === 'moon') {
-                doge.src = 'assets/general/character/spacehelmet.png';
-            } else if (this.currentLevel === 'mars') {
-                doge.src = 'assets/general/character/party.png';
-            } else if (this.currentLevel === 'jupiter') {
-                doge.src = 'assets/general/character/spacehelmet.png';
-            }
+            doge.src = characterLoader.get(this.currentLevel).open;
             doge.classList.remove('float');
         }
 
@@ -609,7 +599,7 @@ class GameManager {
 
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('img');
-            particle.src = 'assets/general/rocks/earth_particle.png';
+            particle.src = particleLoader.get();
             particle.className = 'earth-particle';
             if (this.currentLevel === 'moon') {
                 particle.classList.add('moon-particle');
@@ -673,7 +663,7 @@ class GameManager {
 
         // Create DogeCoin image
         const coin = document.createElement('img');
-        coin.src = 'assets/general/dogecoin_70x70.png';
+        coin.src = generalLoader.get().coin;
         coin.className = 'dogecoin-effect';
         coin.style.position = 'absolute';
         coin.style.left = startX + 'px';
@@ -891,7 +881,9 @@ class GameManager {
         this.addHelperPlacementListeners();
     }
 
-    createCursorSprites() {
+    async createCursorSprites() {
+        const loadedHelperSprites = await helperLoader.preload(this.currentLevel);
+
         // Clear any existing cursor sprites
         this.clearCursorSprites();
 
@@ -902,9 +894,7 @@ class GameManager {
         // Create sprites for each helper on cursor with stacking offset
         this.helpersOnCursor.forEach((helperData, index) => {
             const helperSprite = document.createElement('img');
-            helperSprites.load(this.currentLevel).then((sprites) => {
-                helperSprite.src = sprites[helperData.type].idle;
-            });
+            helperSprite.src = loadedHelperSprites[helperData.type].idle;
             helperSprite.className = 'helper-sprite attached-to-mouse';
             helperSprite.style.opacity = '0.7';
             helperSprite.dataset.stackIndex = index;
@@ -1544,7 +1534,7 @@ class GameManager {
         }
 
         const helperSprite = document.createElement('img');
-        helperSprites.load(this.currentLevel).then((sprites) => {
+        helperLoader.preload(this.currentLevel).then((sprites) => {
             helperSprite.src = sprites[placedHelper.type].idle;
         });
         helperSprite.className = 'helper-sprite';
@@ -1944,12 +1934,13 @@ class GameManager {
         }
     }
 
-    stopHelperMining(placedHelper) {
+    async stopHelperMining(placedHelper) {
+        const sprites = await helperLoader.preload(this.currentLevel);
         const helperSprite = document.querySelector(`img[data-helper-id="${placedHelper.id}"]`);
         if (helperSprite) {
             // Stop animation and reset to idle sprite
             this.stopHelperAnimation(helperSprite);
-            helperSprite.src = placedHelper.helper.icon;
+            helperSprite.src = sprites[placedHelper.type].idle;
             placedHelper.isMining = false;
         }
     }
@@ -1962,20 +1953,18 @@ class GameManager {
         const isSlowAnimation = placedHelper.type === 'timeMachineRig' || placedHelper.type === 'infiniteDogebility';
         const animationInterval = isSlowAnimation ? 1000 : 333; // 1fps = 1000ms, 3fps = 333ms
 
-
-        helperSprites.load(this.currentLevel).then((sprites) => {
+        helperLoader.preload(this.currentLevel).then((sprites) => {
             const intervalId = setInterval(() => {
                 if (isIdle) {
                     helperSprite.src = sprites[placedHelper.type].idle;
                 } else {
                     helperSprite.src = sprites[placedHelper.type].mine;
                 }
+                isIdle = !isIdle;
             }, animationInterval);
 
             // Store interval ID for cleanup
             helperSprite.dataset.animationInterval = intervalId;
-
-            isIdle = !isIdle;
         });
     }
 
@@ -2244,43 +2233,21 @@ class GameManager {
 
     startBlinking() {
         // Start blinking every 10 seconds
-        this.blinkInterval = setInterval(() => {
-            this.blinkDoge();
+        this.blinkInterval = setInterval(async () => {
+            const sprites = await characterLoader.preload(this.currentLevel);
+            this.blinkDoge(sprites.closed);
         }, 10000);
     }
 
-    blinkDoge() {
+    blinkDoge(sprite) {
         const doge = document.getElementById('main-character');
         if (!doge) return;
-        if (this.currentLevel === 'mars') {
-            return;
-        }
 
         // Store original src
         const originalSrc = doge.src;
 
-        // Choose the correct closed eyes sprite based on current planet
-        let closedEyesSprite;
-        if (this.currentLevel === 'earth') {
-            closedEyesSprite = 'assets/general/character/closed_eyes.png';
-        } else if (this.currentLevel === 'moon') {
-            closedEyesSprite = 'assets/general/character/closed_space.png';
-        } else if (this.currentLevel === 'mars') {
-            // Mars uses party sprite with happy variant for blinking
-            closedEyesSprite = 'assets/general/character/happy_party.png';
-        } else if (this.currentLevel === 'jupiter') {
-            // Jupiter uses space helmet sprite like the Moon
-            closedEyesSprite = 'assets/general/character/closed_space.png';
-        } else if (this.currentLevel === 'titan') {
-            // Titan uses space helmet (eyes open), blink with closed_space (eyes closed)
-            closedEyesSprite = 'assets/general/character/closed_space.png';
-        } else {
-            // Default fallback
-            closedEyesSprite = 'assets/general/character/closed_eyes.png';
-        }
-
         // Change to closed eyes
-        doge.src = closedEyesSprite;
+        doge.src = sprite;
 
         // Blink for 200ms
         setTimeout(() => {
@@ -2288,7 +2255,9 @@ class GameManager {
         }, 200);
     }
 
-    startSearchdogAnimation() {
+    async startSearchdogAnimation() {
+        const sprites = await searchdogLoader.preload();
+
         const searchdogs = document.querySelectorAll('.searchdog');
         if (searchdogs.length === 0) return;
 
@@ -2298,9 +2267,7 @@ class GameManager {
         setInterval(() => {
             searchdogs.forEach(searchdog => {
                 if (searchdog) {
-                    searchdog.src = isFrame1
-                        ? 'assets/general/searchdog_2.png'
-                        : 'assets/general/searchdog_1.png';
+                    searchdog.src = sprites[isFrame1 ? 0 : 1];
                 }
             });
             isFrame1 = !isFrame1;
@@ -2326,7 +2293,7 @@ class GameManager {
         // Create portal background
         const portal = document.createElement('img');
         portal.id = 'rick-portal';
-        portal.src = 'assets/general/rm/portal.png';
+        portal.src = portalLoader.get();
         portal.style.position = 'absolute';
         portal.style.bottom = '170px'; // Moved up 150px
         portal.style.right = '10px'; // Moved to the right
@@ -2339,7 +2306,7 @@ class GameManager {
         // Create Rick element
         const rick = document.createElement('img');
         rick.id = 'rick-doge';
-        rick.src = this.rickSprites[0];
+        rick.src = rickLoader.get()[0];
         rick.className = 'rick-doge';
         rick.style.position = 'absolute';
         rick.style.bottom = '170px'; // Moved up 150px

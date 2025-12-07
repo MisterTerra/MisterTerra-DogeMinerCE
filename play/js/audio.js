@@ -8,8 +8,8 @@ import srcChing from '../../assets/SoundsSrc/main/ching.wav';
 import srcUhoh from '../../assets/SoundsSrc/main/uhoh.wav';
 import srcCheck from '../../assets/SoundsSrc/main/check.wav';
 
-import { pickAudioSprites } from './assets/asset-loaders.js';
-import { musicSprites } from './assets/asset-loaders.js';
+import { pickAudioLoader } from './assets/asset-loaders.js';
+import { musicLoader } from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Audio Manager using Howler.js
 class AudioManager {
@@ -40,8 +40,10 @@ class AudioManager {
             try {
                 // Load background music
                 this.loadLevel1Music();
-
-                ['moon', 'mars', 'jupiter', 'titan'].forEach((level) => this.loadLevelMusic(level));
+                this.loadMoonMusic();
+                this.loadMarsMusic();
+                this.loadJupiterMusic();
+                this.loadTitanMusic();
 
                 // Load sound effects
                 this.loadSoundEffects();
@@ -87,7 +89,7 @@ class AudioManager {
 
         // Load pick sounds for rock hitting
         this.soundEffects.pick = [];
-        pickAudioSprites.load().then((sprites) => {
+        pickAudioLoader.preload().then((sprites) => {
             sprites.forEach((src) => {
                 this.soundEffects.pick.push(new Howl({
                     src: [src],
@@ -134,38 +136,66 @@ class AudioManager {
 
     loadLevel1Music() {
         // Create intro sound - path adjusted for play/ directory serving
-        musicSprites.load('earth').then((sprites) => {
-            this.introSound = new Howl({
-                src: [sprites.intro],
-                loop: false,
-                autoplay: false,
-                volume: 0.5,
-                onend: () => {
-                    // When intro ends, play the loop
-                    if (this.musicEnabled) {
-                        this.loopSound.play();
-                    }
+        const sprites = musicLoader.get('earth');
+        this.introSound = new Howl({
+            src: [sprites.intro],
+            loop: false,
+            autoplay: false,
+            volume: 0.5,
+            onend: () => {
+                // When intro ends, play the loop
+                if (this.musicEnabled) {
+                    this.loopSound.play();
                 }
-            });
+            }
+        });
 
-            // Create loop sound - path adjusted for play/ directory serving
-            this.loopSound = new Howl({
-                src: [sprites.loop],
-                loop: true,
-                autoplay: false,
-                volume: 0.5
-            });
+        // Create loop sound - path adjusted for play/ directory serving
+        this.loopSound = new Howl({
+            src: [sprites.loop],
+            loop: true,
+            autoplay: false,
+            volume: 0.5
         });
     }
 
-    loadLevelMusic(level) {
-        musicSprites.load(level).then((sprites) => {
-            this.moonLoop = new Howl({
-                src: [sprites.loop],
-                loop: true,
-                autoplay: false,
-                volume: 0.5
-            });
+    loadMoonMusic() {
+        const sprites = musicLoader.get('moon');
+        this.moonLoop = new Howl({
+            src: [sprites.loop],
+            loop: true,
+            autoplay: false,
+            volume: 0.5
+        });
+    }
+
+    loadMarsMusic() {
+        const sprites = musicLoader.get('mars');
+        this.marsLoop = new Howl({
+            src: [sprites.loop],
+            loop: true,
+            autoplay: false,
+            volume: 0.5
+        });
+    }
+
+    loadJupiterMusic() {
+        const sprites = musicLoader.get('jupiter');
+        this.jupiterLoop = new Howl({
+            src: [sprites.loop],
+            loop: true,
+            autoplay: false,
+            volume: 0.5
+        });
+    }
+
+    loadTitanMusic() {
+        const sprites = musicLoader.get('titan');
+        this.titanLoop = new Howl({
+            src: [sprites.loop],
+            loop: true,
+            autoplay: false,
+            volume: 0.5
         });
     }
 

@@ -2,8 +2,6 @@ import uiManager from './ui.js';
 import gameManager from './game.js';
 import { Utils } from './utils.js';
 
-import { helperSprites } from './assets/asset-loaders.js';
-
 // DogeMiner: Community Edition - Shop Management
 class ShopManager {
     shopData = Utils.deepFreeze({
