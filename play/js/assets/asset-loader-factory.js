@@ -4,7 +4,12 @@ function getBundlePath(str) {
     return `./${str}.js`;
 }
 
-function unwrapLevelBundle(bundle) {
+/**
+ * Remove the surrounding ./*.js arround the keys
+ * @param {*} bundle 
+ * @returns 
+ */
+function unwrapLevelGroup(bundle) {
     let unwrapped = {};
     Object.entries(bundle).forEach(([key, value]) => {
         let strippedKey = key.substring(0, key.length - 3).substring(2);
@@ -15,7 +20,7 @@ function unwrapLevelBundle(bundle) {
 
 /**
  * 
- * @param modules A list of modules imported through import.meta.glob() 
+ * @param modules A list of modules imported through import.meta.glob()
  * @param moduleName The name of the group. Used for debugging purposes (optional)
  * @returns 
  */
@@ -27,7 +32,7 @@ export function createLevelGroupLoader(modules, moduleName = null) {
         }
     });
 
-    const unwrapped = unwrapLevelBundle(modules);
+    const unwrapped = unwrapLevelGroup(modules);
 
     return {
         /**
@@ -84,6 +89,7 @@ export function createLevelGroupLoader(modules, moduleName = null) {
 
         /**
          * Returns the contents of all bundles in a single object
+         * Useful in the case the level of origin is not known
          */
         getCombined() {
             let combined = {};
