@@ -1,7 +1,93 @@
 import { preloadAssets } from "./asset-preload";
 
+export const LOADER_TYPE = Object.freeze({
+    SINGLE: "single",
+    GROUP: "group",
+    BUNDLE: "bundle"
+});
+
+const levels = ['earth', 'moon', 'mars', ' jupiter', 'titan'];
+
+function throwAssetTypeError(recieved, expected) {
+    throw new Error(`Unexpected asset type. Got ${recieved}, but expected ${expected}`);
+}
+
 function getBundlePath(str) {
     return `./${str}.js`;
+}
+
+function createAgnosticAssetLoader(assets, options) {
+    switch (options.type) {
+        case LOADER_TYPE.SINGLE: {
+            if (typeof assets !== "string") {
+                throwAssetTypeError(typeof assets, "string");
+            }
+
+            return {
+                async preload() {
+                    await preloadAssets(assets);
+                    return assets;
+                },
+
+                get() {
+                    return assets;
+                }
+            }
+        }
+
+        case LOADER_TYPE.BUNDLE: {
+            if (typeof assets !== "object") {
+                throwAssetTypeError(typeof assets, "object")
+            }
+
+            if (Object.keys(assets).length !== 1) {
+                throw new Error(`Unexpected module count.`
+                    + ` Expected one, recieved ${Object.keys(assets).length} module(s).`
+                    + ` Modules recieved: ${Object.keys(assets).join(", ")}`);
+            }
+
+            const bundle = assets[Object.keys(assets)[0]].default;
+
+            return {
+                async preload() {
+                    await preloadAssets(bundle);
+                    return bundle;
+                },
+
+                get() {
+                    return bundle;
+                }
+            }
+        }
+
+        case LOADER_TYPE.GROUP: {
+            if (typeof assets !== "object") {
+                throwAssetTypeError(typeof assets, "object")
+            }
+
+            if (Object.keys(assets) !== levels.length) {
+                throw new Error(`Unexpected module count. Got ${Object.keys(assets).length}, expected ${levels.length}`)
+            }
+
+            const missing = [];
+            levels.forEach((level) => {
+                if (!assets[getBundlePath(level)]) {
+                    throw new Error(`Expected module(s) not found in modules. Missing: "${missing.join(', ')}"`);
+                }
+            });
+
+            break;
+        }
+
+        default: {
+            throw new Error(`Unrecognized loader type.`
+                + ` Got "${options.level}", expected one of the following: ${Object.keys(LOADER_TYPE).join(', ')}`)
+        }
+    }
+
+    if (Object.keys(assets).length !== 0) {
+        throw new Error(`Unexpected module count. Expected 1, got ${Object.keys(assets).length}`);
+    }
 }
 
 /**
