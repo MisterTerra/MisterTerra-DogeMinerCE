@@ -1,4 +1,4 @@
-import { createAssetLoader, createBundleLoader, createLevelGroupLoader } from './asset-loader-factory.js';
+import { createAssetLoader, createBundleLoader, createLevelGroupLoader, LOADER_TYPE } from './asset-loader-factory.js';
 
 // All import.meta.glob calls use the { eager: true } option
 // This means that all modules will be evaluated at build time
@@ -18,33 +18,33 @@ import { createAssetLoader, createBundleLoader, createLevelGroupLoader } from '.
  * In any case, we should make a function which automatically builds the import.meta.glob call (IF POSSIBLE, doesn't accept dynamic file paths)
  */
 
-export const characterLoader = createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/character/' }), 'character');
-export const rockLoader = createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/rocks/' }), 'rock');
-export const backgroundLoader = createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/backgrounds/' }), 'background');
-export const platformLoader = createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/quickUI/platforms/' }), 'platform');
-export const helperLoader = createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/helpers/' }), 'helper');
-export const musicLoader = createLevelGroupLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/audio/music/' }), 'music');
+export const impLoaderCharacter = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/character/' }), { type: LOADER_TYPE.GROUP, name: 'character sprite' });
+export const imgLoaderRock = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/rocks/' }), { type: LOADER_TYPE.GROUP, name: 'rock sprite' });
+export const imgLoaderBackground = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/backgrounds/' }), { type: LOADER_TYPE.GROUP, name: 'background sprite' });
+export const imgLoaderPlatform = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/quickUI/platforms/' }), { type: LOADER_TYPE.GROUP, name: 'platform sprite' });
+export const imgLoaderHelper = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/helpers/' }), { type: LOADER_TYPE.GROUP, name: 'helper sprite' });
+export const audioLoaderMusic = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/audio/music/' }), { type: LOADER_TYPE.GROUP, name: 'music sfx' });
 
-export const generalLoader = createBundleLoader(import.meta.glob('./general.js', { eager: true, base: '../../assets/general/' }))
-
-export const pickAudioLoader = createBundleLoader(import.meta.glob('./pick.js', { eager: true, base: '../../assets/audio/main/pick/' }))
-export const searchdogLoader = createBundleLoader(import.meta.glob('./searchdog.js', { eager: true, base: '../../assets/general/searchdog/' }))
-
-export const planetIconLoader = createBundleLoader(import.meta.glob('./planets.js', { eager: true, base: '../../assets/general/icons/planets/' }))
+export const imgLoaderGeneral = createAssetLoader(import.meta.glob('./general.js', { eager: true, base: '../../assets/general/' }), { type: LOADER_TYPE.BUNDLE, name: 'general sprite' });
+export const audioLoaderPickaxe = createAssetLoader(import.meta.glob('./pick.js', { eager: true, base: '../../assets/audio/main/pick/' }), { type: LOADER_TYPE.BUNDLE, name: 'pickaxe sfx' });
+export const imgLoaderSearchdog = createAssetLoader(import.meta.glob('./searchdog.js', { eager: true, base: '../../assets/general/searchdog/' }), { type: LOADER_TYPE.BUNDLE, name: 'searchdog sprite' });
+export const imgLoaderPlanetIcon = createAssetLoader(import.meta.glob('./planets.js', { eager: true, base: '../../assets/general/icons/planets/' }), { type: LOADER_TYPE.BUNDLE, name: 'planetIcon sprite' });
 
 /**
  * TODO: Is there a better way of doing this?
  * If its possible to inline pickSprite, that would be much cleaner
  */
+
 import pickSprite from '../../assets/items/pickaxes/standard.png';
-export const pickaxeLoader = createAssetLoader(pickSprite);
+export const imgLoaderPickaxe = createAssetLoader(pickSprite, { type: LOADER_TYPE.SINGLE, name: 'pickaxe' });
 
 import particleSprite from '../../assets/general/rocks/earth_particle.png';
-export const particleLoader = createAssetLoader(particleSprite);
+export const imgLoaderParticle = createAssetLoader(particleSprite, { type: LOADER_TYPE.SINGLE, name: 'particle' });
 
 import portalSprite from '../../assets/general/rm/portal.png';
-export const portalLoader = createAssetLoader(portalSprite);
-export const rickLoader = createBundleLoader(import.meta.glob('./rick.js', { eager: true, base: '../../assets/general/rm/' }));
+export const imgLoaderPortal = createAssetLoader(portalSprite, { type: LOADER_TYPE.SINGLE, name: 'portal' });
+
+export const imgLoaderRick = createAssetLoader(import.meta.glob('./rick.js', { eager: true, base: '../../assets/general/rm/' }), { type: LOADER_TYPE.BUNDLE, name: 'rick' });
 
 import launchSprite from '../../assets/The Moon Launch.mp4';
-export const moonLaunchLoader = createAssetLoader(launchSprite);
+export const videoLoaderMoonLaunch = createAssetLoader(launchSprite, { type: LOADER_TYPE.SINGLE, name: 'moon launch' });

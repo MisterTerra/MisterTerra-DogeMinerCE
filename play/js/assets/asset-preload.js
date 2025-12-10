@@ -1,6 +1,8 @@
 import uiManager from "../ui.js";
-import { characterLoader, rockLoader, backgroundLoader, platformLoader,
-  helperLoader, pickAudioLoader, searchdogLoader, pickaxeLoader } from "./asset-loaders";
+import {
+  characterLoader, rockLoader, backgroundLoader, platformLoader,
+  helperLoader, pickSfxLoader, searchdogLoader, pickaxeLoader
+} from "./asset-loaders";
 
 // File type detection
 const IMAGE_EXT = /\.(png|jpg|jpeg|gif|webp|avif|svg)$/i;
@@ -50,7 +52,7 @@ export function preloadAssets(input, promiseAll = true) {
   const urls = [...extractUrls(input)];
 
   let promises = [];
-  
+
   // TODO: Only set cache if promise resolves
   urls.forEach((url) => {
 
@@ -91,10 +93,10 @@ export function preloadAssets(input, promiseAll = true) {
       return;
     }
 
-      throw new Error(`Unsupported asset type: "${url}". Please make sure the file extension is valid and is defined in this module.`);
+    throw new Error(`Unsupported asset type: "${url}". Please make sure the file extension is valid and is defined in this module.`);
   });
 
-  if(promiseAll) {
+  if (promiseAll) {
     return Promise.all(promises);
   } else {
     return promises;
@@ -111,13 +113,13 @@ function createLevelPreloader(level) {
     helperSprites: helperLoader,
 
     // Bundled assets
-    pickAudioSprites: pickAudioLoader,
+    pickAudioSprites: pickSfxLoader,
     searchdogSprites: searchdogLoader,
 
     // Single assets
     pickaxeSprite: pickaxeLoader
   }
-  
+
   return {
     assetCount: Object.keys(assets).length,
 
@@ -143,11 +145,11 @@ export async function preloadLevelAssets(level, silent = false) {
   let preloadedSprites = {};
 
   await preloader.load((key, sprites) => {
-      preloadProgress++;
-      if(!silent) {
-        uiManager.updateLoadingInfoSecondary(`Loading level assets: ${preloadProgress} / ${preloader.assetCount}`);
-      }
-      preloadedSprites[key] = sprites;
+    preloadProgress++;
+    if (!silent) {
+      uiManager.updateLoadingInfoSecondary(`Loading level assets: ${preloadProgress} / ${preloader.assetCount}`);
+    }
+    preloadedSprites[key] = sprites;
   });
 
   return preloadedSprites;

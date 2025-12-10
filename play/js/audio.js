@@ -8,7 +8,7 @@ import srcChing from '../../assets/SoundsSrc/main/ching.wav';
 import srcUhoh from '../../assets/SoundsSrc/main/uhoh.wav';
 import srcCheck from '../../assets/SoundsSrc/main/check.wav';
 
-import { pickAudioLoader } from './assets/asset-loaders.js';
+import { pickSfxLoader } from './assets/asset-loaders.js';
 import { musicLoader } from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Audio Manager using Howler.js
@@ -89,7 +89,7 @@ class AudioManager {
 
         // Load pick sounds for rock hitting
         this.soundEffects.pick = [];
-        pickAudioLoader.preload().then((sprites) => {
+        pickSfxLoader.preload().then((sprites) => {
             sprites.forEach((src) => {
                 this.soundEffects.pick.push(new Howl({
                     src: [src],
