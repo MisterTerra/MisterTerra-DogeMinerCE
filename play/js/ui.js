@@ -6,7 +6,15 @@ import saveManager from "./save.js";
 import performanceMonitor from "./performance-monitor.js";
 import cloudSaveManager from "./cloud-save.js";
 
-import { backgroundLoader, rockLoader, platformLoader, helperLoader, characterLoader, generalLoader, planetIconLoader } from "./assets/asset-loaders.js";
+import {
+    imgLoaderBackground,
+    imgLoaderRock,
+    imgLoaderPlatform,
+    imgLoaderHelper,
+    imgLoaderCharacter,
+    imgLoaderGeneral,
+    imgLoaderPlanetIcon
+} from "./assets/asset-loaders.js";
 
 import { preloadLevelAssets } from "./assets/asset-preload.js";
 
@@ -130,7 +138,7 @@ class UIManager {
             loadingInfo.textContent = info;
         }
     }
-    
+
     updateLoadingInfoSecondary(info) {
         const loadingInfo = document.getElementById('loading-info-secondary');
         if (loadingInfo) {
@@ -665,7 +673,7 @@ class UIManager {
                     </div>
                 ` : '';
 
-                const helperSprites = helperLoader.get(gameManager.currentLevel);
+                const helperSprites = imgLoaderHelper.get(gameManager.currentLevel);
 
                 item.innerHTML = `
                     <div class="shop-item-quantity">#${owned}</div>
@@ -677,11 +685,11 @@ class UIManager {
                     <div class="shop-item-description">${helper.description}</div>
                     <button class="shop-buy-btn${isLocked ? ' locked' : ''}" data-helper-type="${type}" 
                             ${buttonDisabled} style="width: ${buttonWidth};">
-                        <img src="${generalLoader.get().coin}" alt="DogeCoin" class="buy-btn-icon">
+                        <img src="${imgLoaderGeneral.get().coin}" alt="DogeCoin" class="buy-btn-icon">
                         <span class="buy-btn-price">${priceText}</span>
                     </button>
                     ${lockOverlayHtml}
-                `; 
+                `;
 
                 if (isLocked) {
                     item.classList.add('helper-locked');
@@ -936,7 +944,7 @@ class UIManager {
     }
 
     async updateBackground(levelName) {
-        const sprites = await rockLoader.preload(levelName);
+        const sprites = await imgLoaderRock.preload(levelName);
 
         const rockImage = document.getElementById('main-rock');
         if (!rockImage) return;
@@ -958,7 +966,7 @@ class UIManager {
     }
 
     async updateCharacter(level) {
-        const sprites = await characterLoader.preload(level);
+        const sprites = await imgLoaderCharacter.preload(level);
 
         const characterImage = document.getElementById('main-character');
         if (!characterImage) return;
@@ -1320,7 +1328,7 @@ class UIManager {
 
             // Setup mobile planet tabs
             mobilePlanetTabs.forEach(tab => {
-                tab.getElementsByTagName("img")[0].src = planetIconLoader.get()[tab.dataset.planet];
+                tab.getElementsByTagName("img")[0].src = imgLoaderPlanetIcon.get()[tab.dataset.planet];
 
                 tab.addEventListener('click', (e) => {
                     const planet = e.currentTarget.dataset.planet;
@@ -1333,8 +1341,8 @@ class UIManager {
                         const toggleIcon = document.getElementById('mobile-current-planet-icon');
                         const toggleText = document.getElementById('mobile-planet-name');
                         if (toggleIcon) {
-                            console.log("mobile toggle icon", planetIconLoader.get()[planet]);
-                            toggleIcon.src = planetIconLoader.get()[planet];
+                            console.log("mobile toggle icon", imgLoaderPlanetIcon.get()[planet]);
+                            toggleIcon.src = imgLoaderPlanetIcon.get()[planet];
                         }
                         if (toggleText) {
                             toggleText.textContent = planet.charAt(0).toUpperCase() + planet.slice(1);
@@ -1421,7 +1429,7 @@ class UIManager {
         const mobilePlanetTabs = document.querySelectorAll('.mobile-planet-tab');
 
         if (toggleIcon) {
-            toggleIcon.src = planetIconLoader.get()[gameManager.currentLevel];
+            toggleIcon.src = imgLoaderPlanetIcon.get()[gameManager.currentLevel];
         }
         if (toggleText) {
             toggleText.textContent = gameManager.currentLevel.charAt(0).toUpperCase() + gameManager.currentLevel.slice(1);
@@ -1464,7 +1472,7 @@ class UIManager {
             // Open menu
             mobileMenu.classList.add('open');
             toggleBtn.classList.add('menu-open');
-            toggleIcon.src = generalLoader.get().btnDown;
+            toggleIcon.src = imgLoaderGeneral.get().btnDown;
 
             // Update mobile content when opening
             this.updateMobileShopContent();
@@ -1472,7 +1480,7 @@ class UIManager {
             // Close menu
             mobileMenu.classList.remove('open');
             toggleBtn.classList.remove('menu-open');
-            toggleIcon.src =  generalLoader.get().btnUp;
+            toggleIcon.src = imgLoaderGeneral.get().btnUp;
         }
     }
 
@@ -1624,12 +1632,12 @@ class UIManager {
                     <div class="shop-item-dps">${helper.baseDps} ĐPS</div>
                     <div class="shop-sprite-description-container">
                         <div class="shop-item-sprite">
-                            <img src="${helperLoader.get(gameManager.currentLevel)[type].idle}" alt="${helper.name}">
+                            <img src="${imgLoaderHelper.get(gameManager.currentLevel)[type].idle}" alt="${helper.name}">
                         </div>
                         <div class="shop-item-info">
                             <div class="shop-item-description">${helper.description}</div>
                             <button class="shop-buy-btn" data-helper-type="${type}" ${buttonDisabled}>
-                                <img src="${generalLoader.get().coin}" alt="DogeCoin" class="buy-btn-icon">
+                                <img src="${imgLoaderGeneral.get().coin}" alt="DogeCoin" class="buy-btn-icon">
                                 <span class="buy-btn-price">${priceText}</span>
                             </button>
                         </div>

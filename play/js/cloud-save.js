@@ -2,7 +2,7 @@ import notificationManager from './notification.js';
 import gameManager from './game.js';
 import uiManager from './ui.js';
 
-import { characterLoader, rockLoader, platformLoader } from './assets/asset-loaders.js';
+import { imgLoaderCharacter, imgLoaderRock, imgLoaderPlatform } from './assets/asset-loaders.js';
 // Cloud Save Manager for DogeMiner CE
 class CloudSaveManager {
     constructor() {
@@ -77,7 +77,7 @@ class CloudSaveManager {
             }
 
             notificationManager.showInfo('Signing in with Google...');
-            
+
             const result = await window.firebase.signInWithPopup(
                 window.firebase.auth,
                 window.firebase.provider
@@ -85,7 +85,7 @@ class CloudSaveManager {
 
             this.currentUser = result.user;
             notificationManager.showSuccess(`Welcome, ${this.currentUser.displayName}!`);
-            
+
             // Refresh the page to ensure correct planet UI state
             window.location.reload();
 
@@ -114,7 +114,7 @@ class CloudSaveManager {
 
         try {
             notificationManager.showInfo('Saving to cloud...');
-            
+
             // Get current game state
             const gameData = this.getGameState();
             console.log('Manual save - gameData:', gameData);
@@ -133,7 +133,7 @@ class CloudSaveManager {
             }, { merge: true });
 
             notificationManager.showSuccess('Game saved to cloud successfully!');
-            
+
         } catch (error) {
             console.error('Cloud save error:', error);
             notificationManager.showError('Failed to save to cloud. Please try again.');
@@ -195,7 +195,7 @@ class CloudSaveManager {
 
         try {
             notificationManager.showInfo('Loading from cloud...');
-            
+
             // Get data from Firestore
             const userDocRef = window.firebase.doc(window.firebase.db, 'users', this.currentUser.uid);
             const docSnap = await window.firebase.getDoc(userDocRef);
@@ -247,7 +247,7 @@ class CloudSaveManager {
     getGameState() {
         // Get the current game instance
         console.log('Getting game state...');
-        
+
         const gameData = {
             dogecoins: gameManager.dogecoins || 0,
             dps: gameManager.dps || 0,
@@ -285,7 +285,7 @@ class CloudSaveManager {
             gameManager.playTime = gameData.playTime || 0;
             gameManager.highestDps = gameData.highestDps || 0;
             gameManager.achievements = gameData.achievements || {};
-            
+
             // Load settings
             if (gameData.settings) {
                 gameManager.soundEnabled = gameData.settings.soundEnabled !== undefined ? gameData.settings.soundEnabled : true;
@@ -310,16 +310,16 @@ class CloudSaveManager {
 
             if (mainCharacter && mainRock) {
                 if (gameManager.currentLevel === 'moon') {
-                    mainCharacter.src = characterLoader.moon.open;
-                    mainRock.src = rockLoader.moon[0];
+                    mainCharacter.src = imgLoaderCharacter.moon.open;
+                    mainRock.src = imgLoaderRock.moon[0];
                     if (platform) {
-                        platform.src = platformLoader.moon;
+                        platform.src = imgLoaderPlatform.moon;
                     }
                 } else {
-                    mainCharacter.src = characterLoader.earth.open;
-                    mainRock.src = rockLoader.earth[0];
+                    mainCharacter.src = imgLoaderCharacter.earth.open;
+                    mainRock.src = imgLoaderRock.earth[0];
                     if (platform) {
-                        platform.src = platformLoader.earth;
+                        platform.src = imgLoaderPlatform.earth;
                     }
                 }
             }

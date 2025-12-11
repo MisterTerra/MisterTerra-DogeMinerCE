@@ -3,7 +3,18 @@ import shopManager from './shop.js';
 import uiManager from './ui.js';
 import gsap from "https://cdn.skypack.dev/gsap";
 
-import { backgroundLoader, characterLoader, generalLoader, helperLoader, moonLaunchLoader, particleLoader, portalLoader, rickLoader, rockLoader, searchdogLoader } from './assets/asset-loaders.js';
+import {
+    imgLoaderBackground,
+    imgLoaderCharacter,
+    imgLoaderGeneral,
+    imgLoaderHelper,
+    imgLoaderParticle,
+    imgLoaderPortal,
+    imgLoaderRick,
+    imgLoaderRock,
+    imgLoaderSearchdog,
+    videoLoaderMoonLaunch
+} from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Main Game Logic
 class GameManager {
@@ -114,7 +125,7 @@ class GameManager {
         this.placedHelpers = [];
         this.helpersOnCursor = []; // Array to hold multiple helpers being placed // Array of placed helper objects with positions
 
-        const backgroundSprites = backgroundLoader.getAll();
+        const backgroundSprites = imgLoaderBackground.getAll();
 
         // Background rotation
         this.backgrounds = backgroundSprites.earth;
@@ -128,38 +139,38 @@ class GameManager {
         // Blinking animation
         this.blinkInterval = null;
 
-        const rockSprites = rockLoader.getAll();
+        const rockSprites = imgLoaderRock.getAll();
         // Level definitions for UI updates
         this.levels = {
             earth: {
                 name: 'Earth',
                 background: backgroundSprites.earth[0],
                 rock: rockSprites.earth[0],
-                character: characterLoader.get('earth').open
+                character: imgLoaderCharacter.get('earth').open
             },
             moon: {
                 name: 'Moon',
                 background: backgroundSprites.moon[0],
                 rock: rockSprites.moon[0],
-                character: characterLoader.get('moon').open
+                character: imgLoaderCharacter.get('moon').open
             },
             mars: {
                 name: 'Mars',
                 background: backgroundSprites.mars[0],
                 rock: rockSprites.mars[0],
-                character: characterLoader.get('mars').open
+                character: imgLoaderCharacter.get('mars').open
             },
             jupiter: {
                 name: 'Jupiter',
                 background: backgroundSprites.jupiter[0],
                 rock: rockSprites.jupiter[0],
-                character: characterLoader.get('jupiter').open
+                character: imgLoaderCharacter.get('jupiter').open
             },
             titan: {
                 name: 'Titan',
                 background: backgroundSprites.titan[0],
                 rock: rockSprites.titan[0],
-                character: characterLoader.get('titan').open
+                character: imgLoaderCharacter.get('titan').open
             }
         };
 
@@ -176,8 +187,8 @@ class GameManager {
         // DPS interval for performance
         this.dpsInterval = null;
 
-        rickLoader.preload();
-        this.rickSprites = rickLoader.get();
+        imgLoaderRick.preload();
+        this.rickSprites = imgLoaderRick.get();
         this.currentRickSprite = 0;
         this.rickAnimationDirection = 1; // 1 for forward, -1 for backward
         this.rickAnimationComplete = false;
@@ -249,7 +260,7 @@ class GameManager {
 
         audioManager.suspendAllAudio();
 
-        this.cutsceneVideo.src = moonLaunchLoader.get();
+        this.cutsceneVideo.src = videoLoaderMoonLaunch.get();
         this.cutsceneVideo.currentTime = 0;
         this.cutsceneVideo.pause();
         console.log('[Cutscene] Overlay active');
@@ -500,7 +511,7 @@ class GameManager {
 
         const doge = document.getElementById('main-character');
         if (doge) {
-            doge.src = characterLoader.get(this.currentLevel).open;
+            doge.src = imgLoaderCharacter.get(this.currentLevel).open;
             doge.classList.remove('float');
         }
 
@@ -599,7 +610,7 @@ class GameManager {
 
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('img');
-            particle.src = particleLoader.get();
+            particle.src = imgLoaderParticle.get();
             particle.className = 'earth-particle';
             if (this.currentLevel === 'moon') {
                 particle.classList.add('moon-particle');
@@ -663,7 +674,7 @@ class GameManager {
 
         // Create DogeCoin image
         const coin = document.createElement('img');
-        coin.src = generalLoader.get().coin;
+        coin.src = imgLoaderGeneral.get().coin;
         coin.className = 'dogecoin-effect';
         coin.style.position = 'absolute';
         coin.style.left = startX + 'px';
@@ -882,7 +893,7 @@ class GameManager {
     }
 
     async createCursorSprites() {
-        const loadedHelperSprites = await helperLoader.preload(this.currentLevel);
+        const loadedHelperSprites = await imgLoaderHelper.preload(this.currentLevel);
 
         // Clear any existing cursor sprites
         this.clearCursorSprites();
@@ -1534,9 +1545,7 @@ class GameManager {
         }
 
         const helperSprite = document.createElement('img');
-        helperLoader.preload(this.currentLevel).then((sprites) => {
-            helperSprite.src = sprites[placedHelper.type].idle;
-        });
+        helperSprite.src = imgLoaderHelper.get(this.currentLevel)[placedHelper.type].idle;
         helperSprite.className = 'helper-sprite';
         helperSprite.style.left = placedHelper.x + 'px';
         helperSprite.style.top = placedHelper.y + 'px';
@@ -1935,7 +1944,7 @@ class GameManager {
     }
 
     async stopHelperMining(placedHelper) {
-        const sprites = await helperLoader.preload(this.currentLevel);
+        const sprites = await imgLoaderHelper.preload(this.currentLevel);
         const helperSprite = document.querySelector(`img[data-helper-id="${placedHelper.id}"]`);
         if (helperSprite) {
             // Stop animation and reset to idle sprite
@@ -1953,7 +1962,7 @@ class GameManager {
         const isSlowAnimation = placedHelper.type === 'timeMachineRig' || placedHelper.type === 'infiniteDogebility';
         const animationInterval = isSlowAnimation ? 1000 : 333; // 1fps = 1000ms, 3fps = 333ms
 
-        helperLoader.preload(this.currentLevel).then((sprites) => {
+        imgLoaderHelper.preload(this.currentLevel).then((sprites) => {
             const intervalId = setInterval(() => {
                 if (isIdle) {
                     helperSprite.src = sprites[placedHelper.type].idle;
@@ -2237,7 +2246,7 @@ class GameManager {
 
         // Start blinking every 10 seconds
         this.blinkInterval = setInterval(async () => {
-            const sprites = await characterLoader.preload(this.currentLevel);
+            const sprites = await imgLoaderCharacter.preload(this.currentLevel);
             this.blinkDoge(sprites.closed);
         }, 10000);
     }
@@ -2259,7 +2268,7 @@ class GameManager {
     }
 
     async startSearchdogAnimation() {
-        const sprites = await searchdogLoader.preload();
+        const sprites = await imgLoaderSearchdog.preload();
 
         const searchdogs = document.querySelectorAll('.searchdog');
         if (searchdogs.length === 0) return;
@@ -2296,7 +2305,7 @@ class GameManager {
         // Create portal background
         const portal = document.createElement('img');
         portal.id = 'rick-portal';
-        portal.src = portalLoader.get();
+        portal.src = imgLoaderPortal.get();
         portal.style.position = 'absolute';
         portal.style.bottom = '170px'; // Moved up 150px
         portal.style.right = '10px'; // Moved to the right
@@ -2309,7 +2318,7 @@ class GameManager {
         // Create Rick element
         const rick = document.createElement('img');
         rick.id = 'rick-doge';
-        rick.src = rickLoader.get()[0];
+        rick.src = imgLoaderRick.get()[0];
         rick.className = 'rick-doge';
         rick.style.position = 'absolute';
         rick.style.bottom = '170px'; // Moved up 150px

@@ -1,4 +1,4 @@
-import { createAssetLoader, createBundleLoader, createLevelGroupLoader, LOADER_TYPE } from './asset-loader-factory.js';
+import { createAssetLoader, LOADER_TYPE } from './asset-loader-factory.js';
 
 // All import.meta.glob calls use the { eager: true } option
 // This means that all modules will be evaluated at build time
@@ -18,17 +18,17 @@ import { createAssetLoader, createBundleLoader, createLevelGroupLoader, LOADER_T
  * In any case, we should make a function which automatically builds the import.meta.glob call (IF POSSIBLE, doesn't accept dynamic file paths)
  */
 
-export const impLoaderCharacter = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/character/' }), { type: LOADER_TYPE.GROUP, name: 'character sprite' });
-export const imgLoaderRock = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/rocks/' }), { type: LOADER_TYPE.GROUP, name: 'rock sprite' });
-export const imgLoaderBackground = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/backgrounds/' }), { type: LOADER_TYPE.GROUP, name: 'background sprite' });
-export const imgLoaderPlatform = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/quickUI/platforms/' }), { type: LOADER_TYPE.GROUP, name: 'platform sprite' });
-export const imgLoaderHelper = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/helpers/' }), { type: LOADER_TYPE.GROUP, name: 'helper sprite' });
-export const audioLoaderMusic = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/audio/music/' }), { type: LOADER_TYPE.GROUP, name: 'music sfx' });
+export const imgLoaderCharacter = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/character/' }), { type: LOADER_TYPE.GROUP, name: 'character' });
+export const imgLoaderRock = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/rocks/' }), { type: LOADER_TYPE.GROUP, name: 'rock' });
+export const imgLoaderBackground = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/backgrounds/' }), { type: LOADER_TYPE.GROUP, name: 'background' });
+export const imgLoaderPlatform = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/quickUI/platforms/' }), { type: LOADER_TYPE.GROUP, name: 'platform' });
+export const imgLoaderHelper = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/helpers/' }), { type: LOADER_TYPE.GROUP, name: 'helper' });
+export const audioLoaderMusic = createAssetLoader(import.meta.glob('./*.js', { eager: true, base: '../../assets/audio/music/' }), { type: LOADER_TYPE.GROUP, name: 'music' });
 
-export const imgLoaderGeneral = createAssetLoader(import.meta.glob('./general.js', { eager: true, base: '../../assets/general/' }), { type: LOADER_TYPE.BUNDLE, name: 'general sprite' });
-export const audioLoaderPickaxe = createAssetLoader(import.meta.glob('./pick.js', { eager: true, base: '../../assets/audio/main/pick/' }), { type: LOADER_TYPE.BUNDLE, name: 'pickaxe sfx' });
-export const imgLoaderSearchdog = createAssetLoader(import.meta.glob('./searchdog.js', { eager: true, base: '../../assets/general/searchdog/' }), { type: LOADER_TYPE.BUNDLE, name: 'searchdog sprite' });
-export const imgLoaderPlanetIcon = createAssetLoader(import.meta.glob('./planets.js', { eager: true, base: '../../assets/general/icons/planets/' }), { type: LOADER_TYPE.BUNDLE, name: 'planetIcon sprite' });
+export const imgLoaderGeneral = createAssetLoader(import.meta.glob('./general.js', { eager: true, base: '../../assets/general/' }), { type: LOADER_TYPE.BUNDLE, name: 'general' });
+export const audioLoaderPickaxe = createAssetLoader(import.meta.glob('./pick.js', { eager: true, base: '../../assets/audio/main/pick/' }), { type: LOADER_TYPE.BUNDLE, name: 'pickaxe' });
+export const imgLoaderSearchdog = createAssetLoader(import.meta.glob('./searchdog.js', { eager: true, base: '../../assets/general/searchdog/' }), { type: LOADER_TYPE.BUNDLE, name: 'searchdog' });
+export const imgLoaderPlanetIcon = createAssetLoader(import.meta.glob('./planets.js', { eager: true, base: '../../assets/general/icons/planets/' }), { type: LOADER_TYPE.BUNDLE, name: 'planetIcon' });
 
 /**
  * TODO: Is there a better way of doing this?

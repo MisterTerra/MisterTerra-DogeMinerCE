@@ -1,7 +1,13 @@
 import uiManager from "../ui.js";
 import {
-  characterLoader, rockLoader, backgroundLoader, platformLoader,
-  helperLoader, pickSfxLoader, searchdogLoader, pickaxeLoader
+  imgLoaderCharacter,
+  imgLoaderRock,
+  imgLoaderBackground,
+  imgLoaderPlatform,
+  imgLoaderHelper,
+  imgLoaderSearchdog,
+  imgLoaderPickaxe,
+  audioLoaderPickaxe
 } from "./asset-loaders";
 
 // File type detection
@@ -105,19 +111,20 @@ export function preloadAssets(input, promiseAll = true) {
 
 function createLevelPreloader(level) {
   const assets = {
+    // TODO: Rename keys to be more readable -- imgCharacter, imgRock, imgBackground, audioPickaxe etc...
     // Groups of bundled assets
-    characterSprites: characterLoader,
-    rockSprites: rockLoader,
-    backgroundSprites: backgroundLoader,
-    platformSprites: platformLoader,
-    helperSprites: helperLoader,
+    characterSprites: imgLoaderCharacter,
+    rockSprites: imgLoaderRock,
+    backgroundSprites: imgLoaderBackground,
+    platformSprites: imgLoaderPlatform,
+    helperSprites: imgLoaderHelper,
 
     // Bundled assets
-    pickAudioSprites: pickSfxLoader,
-    searchdogSprites: searchdogLoader,
+    pickAudioSprites: audioLoaderPickaxe,
+    searchdogSprites: imgLoaderSearchdog,
 
     // Single assets
-    pickaxeSprite: pickaxeLoader
+    pickaxeSprite: imgLoaderPickaxe
   }
 
   return {

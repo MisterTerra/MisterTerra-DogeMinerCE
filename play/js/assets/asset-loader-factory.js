@@ -6,14 +6,25 @@ export const LOADER_TYPE = Object.freeze({
     BUNDLE: "bundle"
 });
 
-const levels = ['earth', 'moon', 'mars', ' jupiter', 'titan'];
-
-function throwAssetTypeError(recieved, expected) {
-    throw new Error(`Unexpected asset type. Got ${recieved}, but expected ${expected}`);
-}
+const levels = ['earth', 'moon', 'mars', 'jupiter', 'titan'];
 
 function getBundlePath(str) {
     return `./${str}.js`;
+}
+
+// TODO: rewrite to typescript?
+const LOADER_ERRORS = Object.freeze({
+    TYPE: "Unexpected type.",
+    COUNT: 'Unexpected count.'
+});
+function throwErr(name, reason, recieved, expected) {
+    throw new Error(`(${name}) ${reason} Recieved: "${recieved}". Expected: "${expected}"`);
+    // const err = {
+    //     loaderName: name,
+    //     error: reason,
+    //     received: received,
+    //     expected: expected
+    // };
 }
 
 /**
@@ -30,11 +41,11 @@ function unwrapLevelGroup(bundle) {
     return unwrapped;
 }
 
-function createAssetLoader(assets, options) {
+export function createAssetLoader(assets, options) {
     switch (options.type) {
         case LOADER_TYPE.SINGLE: {
             if (typeof assets !== "string") {
-                throwAssetTypeError(typeof assets, "string");
+                throw new Error(`(${options.name}) Unexpected asset type. Got ${typeof assets}, but expected "string"`);
             }
 
             return {
@@ -51,11 +62,11 @@ function createAssetLoader(assets, options) {
 
         case LOADER_TYPE.BUNDLE: {
             if (typeof assets !== "object") {
-                throwAssetTypeError(typeof assets, "object")
+                throw new Error(`(${options.name}) Unexpected asset type. Got ${typeof assets}, but expected "object"`);
             }
 
             if (Object.keys(assets).length !== 1) {
-                throw new Error(`Unexpected module count.`
+                throw new Error(`(${options.name}) Unexpected module count.`
                     + ` Expected one, recieved ${Object.keys(assets).length} module(s).`
                     + ` Modules recieved: ${Object.keys(assets).join(", ")}`);
             }
@@ -76,19 +87,22 @@ function createAssetLoader(assets, options) {
 
         case LOADER_TYPE.GROUP: {
             if (typeof assets !== "object") {
-                throwAssetTypeError(typeof assets, "object")
+                throw new Error(`(${options.name}) Unexpected asset type. Got ${typeof assets}, but expected "object"`);
             }
 
-            if (Object.keys(assets) !== levels.length) {
-                throw new Error(`Unexpected module count. Got ${Object.keys(assets).length}, expected ${levels.length}`)
+            if (Object.keys(assets).length !== levels.length) {
+                throw new Error(`(${options.name}) Unexpected module count. Got ${Object.keys(assets).length}, expected ${levels.length}`)
             }
 
             const missing = [];
             levels.forEach((level) => {
                 if (!assets[getBundlePath(level)]) {
-                    throw new Error(`Expected module(s) not found in modules. Missing: "${missing.join(', ')}"`);
+                    missing.push(getBundlePath(level));
                 }
             });
+            if (missing.length > 0) {
+                throw new Error(`(${options.name})Expected module(s) not found in modules. Missing: "${missing.join(', ')}". Recieved: "${Object.keys(assets).join(', ')}"`);
+            }
 
             const unwrapped = unwrapLevelGroup(assets);
 
@@ -101,7 +115,7 @@ function createAssetLoader(assets, options) {
                  */
                 async preload(level) {
                     if (!levels.includes(level)) {
-                        throw new Error(`(${options.name}) Unexpected level name: ${level}`);
+                        throw new Error(`(${options.name}) Unexpected level name: "${level}". Expected one of the following; "${levels.join(', ')}"`);
                     }
 
                     const levelAssets = unwrapped[level];
@@ -130,7 +144,7 @@ function createAssetLoader(assets, options) {
                  */
                 get(level) {
                     if (!levels.includes(level)) {
-                        throw new Error(`(${options.name}) Unexpected level name: ${level}`);
+                        throw new Error(`(${options.name}) Unexpected level name: "${level}"; "${levels.join(', ')}"`);
                     }
 
                     return unwrapped[level];
@@ -160,7 +174,7 @@ function createAssetLoader(assets, options) {
 
         default: {
             throw new Error(`Unrecognized loader type.`
-                + ` Got "${options.level}", expected one of the following: ${Object.keys(LOADER_TYPE).join(', ')}`)
+                + ` Got "${options.type}". Expected: ${Object.keys(LOADER_TYPE).join(', ')}`)
         }
     }
 }

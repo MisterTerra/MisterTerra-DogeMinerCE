@@ -8,8 +8,8 @@ import srcChing from '../../assets/SoundsSrc/main/ching.wav';
 import srcUhoh from '../../assets/SoundsSrc/main/uhoh.wav';
 import srcCheck from '../../assets/SoundsSrc/main/check.wav';
 
-import { pickSfxLoader } from './assets/asset-loaders.js';
-import { musicLoader } from './assets/asset-loaders.js';
+import { audioLoaderPickaxe } from './assets/asset-loaders.js';
+import { audioLoaderMusic } from './assets/asset-loaders.js';
 
 // DogeMiner: Community Edition - Audio Manager using Howler.js
 class AudioManager {
@@ -89,7 +89,7 @@ class AudioManager {
 
         // Load pick sounds for rock hitting
         this.soundEffects.pick = [];
-        pickSfxLoader.preload().then((sprites) => {
+        audioLoaderPickaxe.preload().then((sprites) => {
             sprites.forEach((src) => {
                 this.soundEffects.pick.push(new Howl({
                     src: [src],
@@ -136,7 +136,7 @@ class AudioManager {
 
     loadLevel1Music() {
         // Create intro sound - path adjusted for play/ directory serving
-        const sprites = musicLoader.get('earth');
+        const sprites = audioLoaderMusic.get('earth');
         this.introSound = new Howl({
             src: [sprites.intro],
             loop: false,
@@ -160,7 +160,7 @@ class AudioManager {
     }
 
     loadMoonMusic() {
-        const sprites = musicLoader.get('moon');
+        const sprites = audioLoaderMusic.get('moon');
         this.moonLoop = new Howl({
             src: [sprites.loop],
             loop: true,
@@ -170,7 +170,7 @@ class AudioManager {
     }
 
     loadMarsMusic() {
-        const sprites = musicLoader.get('mars');
+        const sprites = audioLoaderMusic.get('mars');
         this.marsLoop = new Howl({
             src: [sprites.loop],
             loop: true,
@@ -180,7 +180,7 @@ class AudioManager {
     }
 
     loadJupiterMusic() {
-        const sprites = musicLoader.get('jupiter');
+        const sprites = audioLoaderMusic.get('jupiter');
         this.jupiterLoop = new Howl({
             src: [sprites.loop],
             loop: true,
@@ -190,7 +190,7 @@ class AudioManager {
     }
 
     loadTitanMusic() {
-        const sprites = musicLoader.get('titan');
+        const sprites = audioLoaderMusic.get('titan');
         this.titanLoop = new Howl({
             src: [sprites.loop],
             loop: true,
