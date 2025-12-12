@@ -6,36 +6,56 @@ export const LOADER_TYPE = Object.freeze({
     BUNDLE: "bundle"
 });
 
-const levels = ['earth', 'moon', 'mars', 'jupiter', 'titan'];
+const LEVEL = Object.freeze({
+    EARTH: 'earth',
+    MOON: 'moon',
+    MARS: 'mars',
+    JUPITER: 'jupiter',
+    TITAN: 'titan'
+});
+
+const LOADER_ERROR = Object.freeze({
+    TYPE: 'Unexpected input type',
+    COUNT: 'Count mismatch',
+    MISSING_LEVEL: 'Expected '
+});
 
 function getBundlePath(str) {
     return `./${str}.js`;
 }
 
-// TODO: rewrite to typescript?
-const LOADER_ERRORS = Object.freeze({
-    TYPE: "Unexpected type.",
-    COUNT: 'Unexpected count.'
-});
-function throwErr(name, reason, recieved, expected) {
-    throw new Error(`(${name}) ${reason} Recieved: "${recieved}". Expected: "${expected}"`);
-    // const err = {
-    //     loaderName: name,
-    //     error: reason,
-    //     received: received,
-    //     expected: expected
-    // };
+// TODO: Should we avoid side-effects with these validators? Preferebly, I don't want to write a new "throw new Error" every time we validate
+// TODO: Maybe it returns a string "errMessage", so if message is empty, then we're good (then we have to do !validate() which doesn't look nice)
+function validateType(expected, name, assets) {
+    if (typeof assets !== expected) {
+        throw new Error(`(${name}) Unexpected type. Expected: "${expected}". Recieved: "${typeof assets}".`);
+    }
+}
+
+function validateCount(expected, name, assets) {
+    const modCount = Object.keys(assets).length;
+    if (modCount !== expected) {
+        throw new Error(`(${name}) Unexpected module count. Expected: "${expected} module(s)". Recieved: "${modCount}" module(s).`);
+    }
+}
+
+function validateLevels(expected, name, assets) {
+    expected.forEach((key) => {
+        if (!assets[getBundlePath(key)]) {
+            throw new Error(`(${name}) Missing module. Expected: ${getBundlePath(key)}. Recieved: "${Object.keys(assets).join(', ')}".`);
+        }
+    });
 }
 
 /**
- * Remove the surrounding ./*.js arround the keys
- * @param {*} bundle 
+ * Remove the surrounding ./*.js around the keys
+ * @param {*} input
  * @returns 
  */
-function unwrapLevelGroup(bundle) {
-    let unwrapped = {};
-    Object.entries(bundle).forEach(([key, value]) => {
-        let strippedKey = key.substring(0, key.length - 3).substring(2);
+function unwrapModuleKeys(name, input) {
+    const unwrapped = {};
+    Object.entries(input).forEach(([key, value]) => {
+        const strippedKey = key.substring(0, key.length - 3).substring(2);
         unwrapped[strippedKey] = value.default;
     });
     return unwrapped;
@@ -45,7 +65,7 @@ export function createAssetLoader(assets, options) {
     switch (options.type) {
         case LOADER_TYPE.SINGLE: {
             if (typeof assets !== "string") {
-                throw new Error(`(${options.name}) Unexpected asset type. Got ${typeof assets}, but expected "string"`);
+                throwErr(options.name, LOADER_ERROR.TYPE, typeof assets, "string");
             }
 
             return {
@@ -61,15 +81,8 @@ export function createAssetLoader(assets, options) {
         }
 
         case LOADER_TYPE.BUNDLE: {
-            if (typeof assets !== "object") {
-                throw new Error(`(${options.name}) Unexpected asset type. Got ${typeof assets}, but expected "object"`);
-            }
-
-            if (Object.keys(assets).length !== 1) {
-                throw new Error(`(${options.name}) Unexpected module count.`
-                    + ` Expected one, recieved ${Object.keys(assets).length} module(s).`
-                    + ` Modules recieved: ${Object.keys(assets).join(", ")}`);
-            }
+            validateType('object', options.name, assets);
+            validateCount(1, options.name, assets);
 
             const bundle = assets[Object.keys(assets)[0]].default;
 
@@ -87,15 +100,16 @@ export function createAssetLoader(assets, options) {
 
         case LOADER_TYPE.GROUP: {
             if (typeof assets !== "object") {
-                throw new Error(`(${options.name}) Unexpected asset type. Got ${typeof assets}, but expected "object"`);
+                throwErr(options.name, LOADER_ERROR.TYPE, typeof assets, "object");
             }
 
-            if (Object.keys(assets).length !== levels.length) {
-                throw new Error(`(${options.name}) Unexpected module count. Got ${Object.keys(assets).length}, expected ${levels.length}`)
+            if (Object.values(assets).length !== Object.keys(LEVEL).length) {
+                throwErr(options.name, LOADER_ERROR.COUNT, Object.keys(assets).length,)
+                throw new Error(`(${options.name}) Unexpected module count. Got ${Object.keys(assets).length}, expected ${Object.values(LEVEL).length}`)
             }
 
             const missing = [];
-            levels.forEach((level) => {
+            Object.values(LEVEL).forEach((level) => {
                 if (!assets[getBundlePath(level)]) {
                     missing.push(getBundlePath(level));
                 }
@@ -114,7 +128,7 @@ export function createAssetLoader(assets, options) {
                  * @returns {object | array | string}
                  */
                 async preload(level) {
-                    if (!levels.includes(level)) {
+                    if (!Object.keys(LEVEL).includes(level)) {
                         throw new Error(`(${options.name}) Unexpected level name: "${level}". Expected one of the following; "${levels.join(', ')}"`);
                     }
 
