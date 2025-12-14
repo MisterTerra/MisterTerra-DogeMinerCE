@@ -14,7 +14,7 @@ import {
     imgLoaderRock,
     imgLoaderSearchdog,
     videoLoaderMoonLaunch
-} from './assets/asset-loaders.js';
+} from './assets/image-loader.js';
 
 // DogeMiner: Community Edition - Main Game Logic
 class GameManager {

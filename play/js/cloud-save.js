@@ -2,7 +2,7 @@ import notificationManager from './notification.js';
 import gameManager from './game.js';
 import uiManager from './ui.js';
 
-import { imgLoaderCharacter, imgLoaderRock, imgLoaderPlatform } from './assets/asset-loaders.js';
+import { imgLoaderCharacter, imgLoaderRock, imgLoaderPlatform } from './assets/image-loader.js';
 // Cloud Save Manager for DogeMiner CE
 class CloudSaveManager {
     constructor() {

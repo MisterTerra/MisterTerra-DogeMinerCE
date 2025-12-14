@@ -1,15 +1,7 @@
 import { Howl, Howler } from 'https://cdn.jsdelivr.net/npm/howler@2.2.4/+esm'
 import gameManager from './game.js';
 import saveManager from './save.js';
-
-// TODO: make more bundles for audio
-import srcSwipe from '../../assets/SoundsSrc/main/swipe3.wav';
-import srcChing from '../../assets/SoundsSrc/main/ching.wav';
-import srcUhoh from '../../assets/SoundsSrc/main/uhoh.wav';
-import srcCheck from '../../assets/SoundsSrc/main/check.wav';
-
-import { audioLoaderPickaxe } from './assets/asset-loaders.js';
-import { audioLoaderMusic } from './assets/asset-loaders.js';
+import { audioLoader } from './assets/audio-loader.js';
 
 // DogeMiner: Community Edition - Audio Manager using Howler.js
 class AudioManager {
@@ -65,25 +57,25 @@ class AudioManager {
     loadSoundEffects() {
         // Load swipe sound for tab switching - paths adjusted for play/ directory serving
         this.soundEffects.swipe = new Howl({
-            src: [srcSwipe],
+            src: [audioLoader.bundles.main.get().swipe],
             volume: 0.5
         });
 
         // Load ching sound for purchasing
         this.soundEffects.ching = new Howl({
-            src: [srcChing],
+            src: [audioLoader.singles.ching.get()],
             volume: 0.5
         });
 
         // Load uhoh sound for locked content
         this.soundEffects.uhoh = new Howl({
-            src: [srcUhoh],
+            src: [audioLoader.singles.uhoh.get()],
             volume: 0.5
         });
 
         // Load check sound for settings toggles
         this.soundEffects.check = new Howl({
-            src: [srcCheck],
+            src: [audioLoader.singles.check.get()],
             volume: 0.5
         });
 

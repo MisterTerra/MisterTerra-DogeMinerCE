@@ -1,14 +1,6 @@
-import uiManager from "../ui.js";
-import {
-  imgLoaderCharacter,
-  imgLoaderRock,
-  imgLoaderBackground,
-  imgLoaderPlatform,
-  imgLoaderHelper,
-  imgLoaderSearchdog,
-  imgLoaderPickaxe,
-  audioLoaderPickaxe
-} from "./asset-loaders";
+// TODO: This file is useless when building for an offline build.
+// If were building for an offline build, disable this module (and replace all usages)
+// Look into using import.meta.env
 
 // File type detection
 const IMAGE_EXT = /\.(png|jpg|jpeg|gif|webp|avif|svg)$/i;
@@ -19,13 +11,13 @@ const AUDIO_INLINED = /^data:audio/i;
 
 const VIDEO_EXT = /\.(mp4|webm|ogv|mov)$/i;
 
-// Will contain *all* URLs loaded through the preload functions
+// Will contain all preloaded URLs
 const cache = new Map();
 
 /**
- * Recursively extracts image URLs from arrays or objects
+ * Recursively extracts image URLs from an array or object
  */
-function extractUrls(input, urls = new Set()) {
+export function extractUrls(input, urls = new Set()) {
   if (!input) return urls;
 
   if (typeof input === 'string') {
@@ -50,114 +42,53 @@ function extractUrls(input, urls = new Set()) {
   return urls;
 }
 
-// TODO: This function should be called "preloadAssets" and accept images, audio and video
 /**
- * Preloads all images found in a string, array or object
+ * Preloads the given url. Supports video, audio and image files
+ * @param {string} url
  */
-export function preloadAssets(input, promiseAll = true) {
-  const urls = [...extractUrls(input)];
-
-  let promises = [];
-
-  // TODO: Only set cache if promise resolves
-  urls.forEach((url) => {
-
+export function preloadAsset(url) {
+    // Image files
     if (IMAGE_EXT.test(url) || IMAGE_INLINED.test(url)) {
-      promises.push(new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(url);
-        img.onerror = reject;
-        img.src = url;
-      }));
-      cache.set(url);
-      return;
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                cache.set(url);
+                resolve(url);
+            };
+            img.onerror = reject;
+            img.src = url;
+        });
     }
 
+    // Audio files
     if (AUDIO_EXT.test(url) || AUDIO_INLINED.test(url)) {
-      promises.push(new Promise((resolve, reject) => {
-        const audio = new Audio();
-        audio.preload = 'auto';
-        audio.oncanplaythrough = () => resolve(url);
-        audio.onerror = reject;
-        audio.src = url;
-        audio.load();
-      }));
-      cache.set(url);
-      return;
+        return new Promise((resolve, reject) => {
+            const audio = new Audio();
+            audio.preload = 'auto';
+            audio.oncanplaythrough = () => {
+                cache.set(url);
+                resolve(url);
+            };
+            audio.onerror = reject;
+            audio.src = url;
+            audio.load();
+        });
     }
 
+    // Video files
     if (VIDEO_EXT.test(url)) {
-      promises.push(new Promise((resolve, reject) => {
-        const video = document.createElement('video');
-        video.preload = 'auto';
-        video.oncanplaythrough = () => resolve(url);
-        video.onerror = reject;
-        video.src = url;
-        video.load();
-      }));
-      cache.set(url);
-      return;
+        return new Promise((resolve, reject) => {
+            const video = document.createElement("video");
+            video.preload = "auto";
+            video.oncanplaythrough = () => {
+                cache.set(url);
+                resolve(url);
+            };
+            video.onerror = reject;
+            video.src = url;
+            video.load();
+        });
     }
 
-    throw new Error(`Unsupported asset type: "${url}". Please make sure the file extension is valid and is defined in this module.`);
-  });
-
-  if (promiseAll) {
-    return Promise.all(promises);
-  } else {
-    return promises;
-  }
-}
-
-function createLevelPreloader(level) {
-  const assets = {
-    // TODO: Rename keys to be more readable -- imgCharacter, imgRock, imgBackground, audioPickaxe etc...
-    // Groups of bundled assets
-    characterSprites: imgLoaderCharacter,
-    rockSprites: imgLoaderRock,
-    backgroundSprites: imgLoaderBackground,
-    platformSprites: imgLoaderPlatform,
-    helperSprites: imgLoaderHelper,
-
-    // Bundled assets
-    pickAudioSprites: audioLoaderPickaxe,
-    searchdogSprites: imgLoaderSearchdog,
-
-    // Single assets
-    pickaxeSprite: imgLoaderPickaxe
-  }
-
-  return {
-    assetCount: Object.keys(assets).length,
-
-    load: async (onBundleLoad) => {
-      await Promise.all(
-        Object.entries(assets).map(async ([key, bundle]) => {
-          const sprites = await bundle.preload(level);
-          onBundleLoad(key, sprites);
-        }).concat(
-          preloadAssets(assets, false)
-        )
-      );
-    }
-  }
-}
-
-// TODO: Remove the "silent" option from this function. Whether or not the loading screen updates should be up to the caller
-// Add another callback instead, which is called whenever a promise is resolved (whenever preloadProgress is incremented)
-// The callback should be called with preloadProgress, assetCount, and sprites
-export async function preloadLevelAssets(level, silent = false) {
-  const preloader = createLevelPreloader(level);
-  let preloadProgress = 0;
-  let preloadedSprites = {};
-
-  await preloader.load((key, sprites) => {
-    preloadProgress++;
-    if (!silent) {
-      uiManager.updateLoadingInfoSecondary(`Loading level assets: ${preloadProgress} / ${preloader.assetCount}`);
-    }
-    preloadedSprites[key] = sprites;
-  });
-
-  return preloadedSprites;
+    throw new Error(`Unsupported file extension in url: "${url}". Please make sure the file extension is valid and is defined in this module.`);
 }

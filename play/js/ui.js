@@ -14,7 +14,7 @@ import {
     imgLoaderCharacter,
     imgLoaderGeneral,
     imgLoaderPlanetIcon
-} from "./assets/asset-loaders.js";
+} from "./assets/image-loader.js";
 
 import { preloadLevelAssets } from "./assets/asset-preload.js";
 
