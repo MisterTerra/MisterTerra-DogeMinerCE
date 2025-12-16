@@ -47,48 +47,58 @@ export function extractUrls(input, urls = new Set()) {
  * @param {string} url
  */
 export function preloadAsset(url) {
-    // Image files
-    if (IMAGE_EXT.test(url) || IMAGE_INLINED.test(url)) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => {
-                cache.set(url);
-                resolve(url);
-            };
-            img.onerror = reject;
-            img.src = url;
-        });
-    }
+  // Image files
+  if (IMAGE_EXT.test(url) || IMAGE_INLINED.test(url)) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        cache.set(url);
+        resolve(url);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
 
-    // Audio files
-    if (AUDIO_EXT.test(url) || AUDIO_INLINED.test(url)) {
-        return new Promise((resolve, reject) => {
-            const audio = new Audio();
-            audio.preload = 'auto';
-            audio.oncanplaythrough = () => {
-                cache.set(url);
-                resolve(url);
-            };
-            audio.onerror = reject;
-            audio.src = url;
-            audio.load();
-        });
-    }
+  // Audio files
+  if (AUDIO_EXT.test(url) || AUDIO_INLINED.test(url)) {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio();
+      audio.preload = 'auto';
+      audio.oncanplaythrough = () => {
+        cache.set(url);
+        resolve(url);
+      };
+      audio.onerror = reject;
+      audio.src = url;
+      audio.load();
+    });
+  }
 
-    // Video files
-    if (VIDEO_EXT.test(url)) {
-        return new Promise((resolve, reject) => {
-            const video = document.createElement("video");
-            video.preload = "auto";
-            video.oncanplaythrough = () => {
-                cache.set(url);
-                resolve(url);
-            };
-            video.onerror = reject;
-            video.src = url;
-            video.load();
-        });
-    }
+  // Video files
+  if (VIDEO_EXT.test(url)) {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+      video.preload = "auto";
+      video.oncanplaythrough = () => {
+        cache.set(url);
+        resolve(url);
+      };
+      video.onerror = reject;
+      video.src = url;
+      video.load();
+    });
+  }
 
-    throw new Error(`Unsupported file extension in url: "${url}". Please make sure the file extension is valid and is defined in this module.`);
+  throw new Error(`Unsupported file extension in url: "${url}". Please make sure the file extension is valid and is defined in this module.`);
+}
+
+/**
+ * Extracts all URLs from an object or array before preloading all extracted URLs
+ * @param {object | array} src
+ */
+export function preloadAll(src) {
+  const urls = extractUrls(src);
+
+  urls.forEach(url => preloadAsset(url));
 }
