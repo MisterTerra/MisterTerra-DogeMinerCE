@@ -1,3 +1,5 @@
+import { normalizeModules } from './asset-utils';
+
 const groups = {
     platform: group(import.meta.glob('./*.js', { eager: true, base: '../../assets/quickUI/platforms/' })),
     helper: group(import.meta.glob('./*.js', { eager: true, base: '../../assets/helpers/' }))
@@ -16,17 +18,17 @@ import particle from '../../assets/general/rocks/earth_particle.png';
 import portal from '../../assets/general/rm/portal.png';
 
 
-import standardOpen from './standard.png';
-import standardClosed from './closed_eyes.png';
-import standardHappy from './happydoge.png';
-import standardUnhappy from './nothappydoge.png';
+import standardOpen from '../../assets/general/character/standard.png';
+import standardClosed from '../../assets/general/character/closed_eyes.png';
+import standardHappy from '../../assets/general/character/happydoge.png';
+import standardUnhappy from '../../assets/general/character/nothappydoge.png';
 
-import spaceOpen from './spacehelmet.png';
-import spaceClosed from './closed_space.png';
-import spaceHappy from './happy_space.png';
+import spaceOpen from '../../assets/general/character/spacehelmet.png';
+import spaceClosed from '../../assets/general/character/closed_space.png';
+import spaceHappy from '../../assets/general/character/happy_space.png';
 
-import partyOpen from './party.png';
-import partyHappy from './happy_party.png';
+import partyOpen from '../../assets/general/character/party.png';
+import partyHappy from '../../assets/general/character/happy_party.png';
 
 const characters = {
     earth: {
@@ -55,60 +57,35 @@ const characters = {
         closed: spaceClosed,
         happy: spaceHappy
     }
-}
+};
 
 
-import rockEarth from './earth.png';
-import rockEarthSmall1 from './earth_dmg_small1.png';
-import rockEarthSmall2 from './earth_dmg_small2.png';
-import rockEarthMedium1 from './earth_dmg_medium1.png';
-import rockEarthMedium2 from './earth_dmg_medium2.png';
-import rockEarthLarge1 from './earth_dmg_large1.png';
-
-import rockMoon from './moon.png';
-import rockMoonSmall1 from './moon_dmg_small1.png';
-import rockMoonSmall2 from './moon_dmg_small2.png';
-import rockMoonMedium1 from './moon_dmg_medium1.png';
-import rockMoonMedium2 from './moon_dmg_medium2.png';
-import rockMoonLarge1 from './moon_dmg_large1.png';
-
-import rockMars from './mars.png';
-import rockMarsSmall1 from './mars_dmg_small1.png';
-import rockMarsSmall2 from './mars_dmg_small2.png';
-import rockMarsMedium1 from './mars_dmg_medium1.png';
-import rockMarsMedium2 from './mars_dmg_medium2.png';
-import rockMarsLarge1 from './mars_dmg_large1.png';
-
-import rockJupiter from './jupiter.png';
-import rockJupiterSmall1 from './jupiter_dmg_small1.png';
-import rockJupiterSmall2 from './jupiter_dmg_small2.png';
-import rockJupiterMedium1 from './jupiter_dmg_medium1.png';
-import rockJupiterMedium2 from './jupiter_dmg_medium2.png';
-import rockJupiterLarge1 from './jupiter_dmg_large1.png';
-
-import rockTitan from './titan.png';
-import rockTitanSmall1 from './titan_dmg_small1.png';
-import rockTitanSmall2 from './titan_dmg_small2.png';
-import rockTitanMedium1 from './titan_dmg_medium1.png';
-import rockTitanMedium2 from './titan_dmg_medium2.png';
-import rockTitanLarge1 from './titan_dmg_large1.png';
+// TODO: rename files to make them easy to iterate (e.g. earth_0, earth_1, earth_2, earth_3 etc...)
+// We can save a lot of trouble by choosing meaningful filenames and directory structure
+const earthRocks   = normalizeModules(import.meta.glob('../../assets/general/rocks/earth*.png',   { eager: true, import: 'default' }));
+const moonRocks    = normalizeModules(import.meta.glob('../../assets/general/rocks/moon*.png',    { eager: true, import: 'default' }));
+const marsRocks    = normalizeModules(import.meta.glob('../../assets/general/rocks/mars*.png',    { eager: true, import: 'default' }));
+const jupiterRocks = normalizeModules(import.meta.glob('../../assets/general/rocks/jupiter*.png', { eager: true, import: 'default' }));
+const titanRocks   = normalizeModules(import.meta.glob('../../assets/general/rocks/titan*.png',   { eager: true, import: 'default' }));
 
 const rocks = {
-    earth: [rockEarth, rockEarthSmall1, rockEarthSmall2, rockEarthMedium1, rockEarthMedium2, rockEarthLarge1],
-    moon: [rockMoon, rockMoonSmall1, rockMoonSmall2, rockMoonMedium1, rockMoonMedium2, rockMoonLarge1],
-    mars: [rockMars, rockMarsSmall1, rockMarsSmall2, rockMarsMedium1, rockMarsMedium2, rockMarsLarge1],
-    jupiter: [rockJupiter, rockJupiterSmall1, rockJupiterSmall2, rockJupiterMedium1, rockJupiterMedium2, rockJupiterLarge1],
-    titan: [rockTitan, rockTitanSmall1, rockTitanSmall2, rockTitanMedium1, rockTitanMedium2, rockTitanLarge1]
-}
+    earth: earthRocks,
+    moon: moonRocks,
+    mars: marsRocks,
+    jupiter: jupiterRocks,
+    titan: titanRocks,
+};
 
-import bg1 from './bg1.jpg';
-import bg3 from './bg3.jpg';
-import bg4 from './bg4.jpg';
-import bg5 from './bg5.jpg';
-import bg6 from './bg6.jpg';
-import bg7 from './bg7.jpg';
-import bg9 from './bg9.jpg';
-import bgNew from './bg-new.jpg';
+import bg1 from '../../assets/backgrounds/bg1.jpg';
+import bg3 from '../../assets/backgrounds/bg3.jpg';
+import bg4 from '../../assets/backgrounds/bg4.jpg';
+import bg5 from '../../assets/backgrounds/bg5.jpg';
+import bg6 from '../../assets/backgrounds/bg6.jpg';
+import bg7 from '../../assets/backgrounds/bg7.jpg';
+import bg9 from '../../assets/backgrounds/bg9.jpg';
+import bgNew from '../../assets/backgrounds/bg-new.jpg';
+
+// const backgrounds = normalizeModules(import.meta.glob('./*.jpg', { eager: true, import: 'default'}));
 
 import bg101 from './bg101.jpg';
 import bg102 from './bg102.jpg';
@@ -134,8 +111,18 @@ const backgrounds = {
     titan: [titan02, titan03, titan04, titan05] // Titan uses its own background set for atmospheric effect
 }
 
+import earthPlatform from './dogeplatform.png';
+import moonPlatform from './dogeplatformmoon.png';
+import marsPlatform from './marsdogeplatform.png';
+import jupiterPlatform from './jupiterdogeplatform.png';
+import titanPlatform from './titandogeplatform.png';
+
 const platforms = {
-    earth: 
+    earth: earthPlatform,
+    moon: moonPlatform,
+    mars: marsPlatform,
+    jupiter: jupiterPlatform,
+    titan: titanPlatform
 }
 
 
@@ -143,6 +130,7 @@ export const imgSrc = {
     characters: characters,
     rocks: rocks,
     backgrounds: backgrounds,
+    platforms: platforms,
 
     pick: pick,
     particle: particle,
