@@ -60,69 +60,32 @@ const characters = {
 };
 
 
-// TODO: rename files to make them easy to iterate (e.g. earth_0, earth_1, earth_2, earth_3 etc...)
-// We can save a lot of trouble by choosing meaningful filenames and directory structure
-const earthRocks   = normalizeModules(import.meta.glob('../../assets/general/rocks/earth*.png',   { eager: true, import: 'default' }));
-const moonRocks    = normalizeModules(import.meta.glob('../../assets/general/rocks/moon*.png',    { eager: true, import: 'default' }));
-const marsRocks    = normalizeModules(import.meta.glob('../../assets/general/rocks/mars*.png',    { eager: true, import: 'default' }));
-const jupiterRocks = normalizeModules(import.meta.glob('../../assets/general/rocks/jupiter*.png', { eager: true, import: 'default' }));
-const titanRocks   = normalizeModules(import.meta.glob('../../assets/general/rocks/titan*.png',   { eager: true, import: 'default' }));
-
+const rockSrc = normalizeModules(import.meta.glob('../../assets/general/rocks/earth*.png',   { eager: true, import: 'default' }));
+const rockSrcOrder = ['0', '1', '2', '3', '4', '5'];
 const rocks = {
-    earth: earthRocks,
-    moon: moonRocks,
-    mars: marsRocks,
-    jupiter: jupiterRocks,
-    titan: titanRocks,
+    earth:   [rockSrcOrder.map(k => rockSrc['earth_' + k])],
+    moon:    [rockSrcOrder.map(k => rockSrc['moon_' + k])],
+    mars:    [rockSrcOrder.map(k => rockSrc['mars_' + k])],
+    jupiter: [rockSrcOrder.map(k => rockSrc['jupiter_' + k])],
+    titan:   [rockSrcOrder.map(k => rockSrc['titan_' + k])],
 };
 
-import bg1 from '../../assets/backgrounds/bg1.jpg';
-import bg3 from '../../assets/backgrounds/bg3.jpg';
-import bg4 from '../../assets/backgrounds/bg4.jpg';
-import bg5 from '../../assets/backgrounds/bg5.jpg';
-import bg6 from '../../assets/backgrounds/bg6.jpg';
-import bg7 from '../../assets/backgrounds/bg7.jpg';
-import bg9 from '../../assets/backgrounds/bg9.jpg';
-import bgNew from '../../assets/backgrounds/bg-new.jpg';
-
-// const backgrounds = normalizeModules(import.meta.glob('./*.jpg', { eager: true, import: 'default'}));
-
-import bg101 from './bg101.jpg';
-import bg102 from './bg102.jpg';
-import bg103 from './bg103.jpg';
-import bg104 from './bg104.jpg';
-import bg105 from './bg105.jpg';
-
-import bgjup01 from './bgjup01.jpg';
-import bgjup02 from './bgjup02.jpg';
-import bgjup03 from './bgjup03.jpg';
-import dogewow from './dogewow.jpg';
-
-import titan02 from './titan02.jpg';
-import titan03 from './titan03.jpg';
-import titan04 from './titan04.jpg';
-import titan05 from './titan05.jpg';
-
+const backgroundSrc = normalizeModules(import.meta.glob('../../assets/backgrounds/*.jpg',   { eager: true, import: 'default' }));
 const backgrounds = {
-    earth: [bg1, bg3, bg4, bg5, bg6, bg7, bg9, bgNew],
-    moon: [bg1, bg3, bg4, bg5, bg6, bg7, bg9, bgNew], // (same as earth since DOM only has 8 background elements)
-    mars: [bg6, bg101, bg102, bg103, bg104, bg105, bgNew],
-    jupiter: [bgjup01, bgjup02, bgjup03, dogewow],
-    titan: [titan02, titan03, titan04, titan05] // Titan uses its own background set for atmospheric effect
+    earth:   ['bg1', 'bg3', 'bg4', 'bg5', 'bg6', 'bg7', 'bg9', 'bgNew'].map(k => backgroundSrc[k]),
+    moon:    ['bg1', 'bg3', 'bg4', 'bg5', 'bg6', 'bg7', 'bg9', 'bgNew'].map(k => backgroundSrc[k]), // (same as earth since DOM only has 8 background elements)
+    mars:    ['bg1', 'bg101', 'bg102', 'bg103', 'bg104', 'bg105', 'bgNew'].map(k => backgroundSrc[k]),
+    jupiter: ['bgjup01', 'bgjup02', 'bgjup03', 'dogewow'].map(k => backgroundSrc[k]),
+    titan:   ['titan02', 'titan03', 'titan04', 'titan05'].map(k => backgroundSrc[k]), // Titan uses its own background set for atmospheric effect
 }
 
-import earthPlatform from './dogeplatform.png';
-import moonPlatform from './dogeplatformmoon.png';
-import marsPlatform from './marsdogeplatform.png';
-import jupiterPlatform from './jupiterdogeplatform.png';
-import titanPlatform from './titandogeplatform.png';
-
+const platformSrc = normalizeModules(import.meta.glob('../../assets/quickUI/platforms/*.png',   { eager: true, import: 'default' }));
 const platforms = {
-    earth: earthPlatform,
-    moon: moonPlatform,
-    mars: marsPlatform,
-    jupiter: jupiterPlatform,
-    titan: titanPlatform
+    earth: platformSrc.earth,
+    moon: platformSrc.moon,
+    mars: platformSrc.mars,
+    jupiter: platformSrc.jupiter,
+    titan: platformSrc.titan,
 }
 
 
