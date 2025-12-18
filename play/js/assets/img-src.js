@@ -5,7 +5,6 @@ const groups = {
 };
 
 const bundles = {
-    planetIcon: bundle(import.meta.glob('./*.js', { eager: true, base: '../../assets/general/icons/planets/' })),
     rick: bundle(import.meta.glob('./rick.js', { eager: true, base: '../../assets/general/rm/' })),
 };
 
@@ -25,17 +24,17 @@ export const characterImgs = {
     mars: {
         open:    characterModules.partyOpen,
         closed:  characterModules.partyOpen, // No "closed" version of this sprite exists, so use open instead
-        happy:   characterModules.partyHappy
+        happy:   characterModules.partyHappy,
     },
     jupiter: {
         open:    characterModules.spaceOpen,
         closed:  characterModules.spaceClosed,
-        happy:   characterModules.spaceHappy
+        happy:   characterModules.spaceHappy,
     },
     titan: {
         open:    characterModules.spaceOpen,
         closed:  characterModules.spaceClosed,
-        happy:   characterModules.spaceHappy
+        happy:   characterModules.spaceHappy,
     }
 };
 
@@ -56,7 +55,7 @@ export const backgroundImgs = {
     mars:    ['bg1', 'bg101', 'bg102', 'bg103', 'bg104', 'bg105', 'bgNew'].map(k => backgroundModules[k]),
     jupiter: ['bgjup01', 'bgjup02', 'bgjup03', 'dogewow'].map(k => backgroundModules[k]),
     titan:   ['titan02', 'titan03', 'titan04', 'titan05'].map(k => backgroundModules[k]), // Titan uses its own background set for atmospheric effect
-}
+};
 
 const platformModules = normalizeModules(import.meta.glob('../../assets/quickUI/platforms/*.png',   { eager: true, import: 'default' }));
 export const platformImgs = {
@@ -65,7 +64,7 @@ export const platformImgs = {
     mars:    platformModules.mars,
     jupiter: platformModules.jupiter,
     titan:   platformModules.titan,
-}
+};
 
 import coinSprite from '../../assets/general/dogecoin_70x70.png';
 import btnDown from '../../assets/general/btn_down.png';
@@ -75,7 +74,13 @@ export const generalImgs = {
     coin: coinSprite,
     btnDown: btnDown,
     btnUp: btnUp,
-}
+};
 
 const searchdogModules = normalizeModules(import.meta.glob('../../assets/general/searchdog/*.png',   { eager: true, import: 'default' }));
-export default [['searchdog_1', 'searchdog_2'].map(k => searchdogModules[k])];
+export const searchDogImgs = [['searchdog_1', 'searchdog_2'].map(k => searchdogModules[k])];
+
+const planetIconModules = import.meta.glob('../../assets/general/icons/planets/*.png', { eager: true, import: 'default'});
+const planetIconImgs = {};
+['earth', 'moon', 'mars', 'jupiter', 'titan'].forEach(k => planetIconImgs[k] = planetIconModules[k]);
+export { planetIconImgs };
+

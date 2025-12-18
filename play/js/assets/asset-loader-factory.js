@@ -1,4 +1,4 @@
-throw new Error('This module has been deprecated: ', import.meta.url);
+//throw new Error('This module has been deprecated: ', import.meta.url);
 
 import { preloadAssets } from "./asset-preload";
 
