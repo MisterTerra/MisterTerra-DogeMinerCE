@@ -1,13 +1,5 @@
 import { normalizeModules } from './asset-utils';
 
-const groups = {
-    helper: group(import.meta.glob('./*.js', { eager: true, base: '../../assets/helpers/' }))
-};
-
-const bundles = {
-    rick: bundle(import.meta.glob('./rick.js', { eager: true, base: '../../assets/general/rm/' })),
-};
-
 const characterModules = normalizeModules(import.meta.glob('../../assets/general/character/*.png',   { eager: true, import: 'default' }));
 export const characterImgs = {
     earth: {
@@ -79,8 +71,49 @@ export const generalImgs = {
 const searchdogModules = normalizeModules(import.meta.glob('../../assets/general/searchdog/*.png',   { eager: true, import: 'default' }));
 export const searchDogImgs = [['searchdog_1', 'searchdog_2'].map(k => searchdogModules[k])];
 
-const planetIconModules = import.meta.glob('../../assets/general/icons/planets/*.png', { eager: true, import: 'default'});
+const planetIconModules = normalizeModules(import.meta.glob('../../assets/general/icons/planets/*.png', { eager: true, import: 'default'}));
 const planetIconImgs = {};
 ['earth', 'moon', 'mars', 'jupiter', 'titan'].forEach(k => planetIconImgs[k] = planetIconModules[k]);
 export { planetIconImgs };
 
+const rickModules = normalizeModules(import.meta.glob('../../assets/general/rm/*.png'));
+export const rickImgs = {
+    portal: rickModules.portal,
+    frames: ['r1', 'r2', 'r3', 'r4'].map(k => rickModules[k]),
+};
+
+const helperModules = normalizeModules(import.meta.glob('../../assets/helpers/*/*.png', { eager: true, import: 'default' }));
+
+/**
+ * Utility function to fetch all sprites belonging to a specific helper. We assume (1): that each level
+ * has both an "idle" and "mine" sprite, and (2): each file name follows the naming convention "[prefix]-['idle' | 'mine']-[level]"
+ * @param {number} levelCount 
+ * @param {string} prefix 
+ * @returns {{idle: string[], mine: string[]}}
+ */
+function getHelperSprites(levelCount, prefix) {
+    const sprites = {idle: [], mine: []};
+    for (let i = 0; i < levelCount; i++) {
+        const idle = [prefix + '-idle-' + i];
+        const mine = [prefix + '-mine-' + i];
+
+        if(!idle) {
+            throw new Error('Unable to find "idle" sprite: ' + (prefix + '-idle-' + i));
+        }
+
+        if(!mine) {
+            throw new Error('Unable to find "mine" sprite: ' + (prefix + '-mine-' + i));
+        }
+
+        sprites.idle.push(idle);
+        sprites.idle.push(mine);
+    }
+    return sprites;
+}
+
+export const helperImgs = {
+    earth: {
+        miningShibe: getHelperSprites(6, 'shibes'),
+        dogeKennels: getHelperSprites(10, 'kennels'),
+    },
+}
