@@ -85,35 +85,69 @@ export const rickImgs = {
 const helperModules = normalizeModules(import.meta.glob('../../assets/helpers/*/*.png', { eager: true, import: 'default' }));
 
 /**
- * Utility function to fetch all sprites belonging to a specific helper. We assume (1): that each level
- * has both an "idle" and "mine" sprite, and (2): each file name follows the naming convention "[prefix]-['idle' | 'mine']-[level]"
+ * Utility function to fetch all sprites belonging to a specific helper. We assume (1): for each "idle" sprite,
+ * there is a corresponding "mine" sprite, and (2): each file name follows the naming convention "[prefix]-['idle' | 'mine']-[level]"
  * @param {number} levelCount 
  * @param {string} prefix 
  * @returns {{idle: string[], mine: string[]}}
  */
-function getHelperSprites(levelCount, prefix) {
+function getHelperSprites(prefix) {
     const sprites = {idle: [], mine: []};
-    for (let i = 0; i < levelCount; i++) {
-        const idle = [prefix + '-idle-' + i];
-        const mine = [prefix + '-mine-' + i];
 
-        if(!idle) {
-            throw new Error('Unable to find "idle" sprite: ' + (prefix + '-idle-' + i));
-        }
-
-        if(!mine) {
-            throw new Error('Unable to find "mine" sprite: ' + (prefix + '-mine-' + i));
-        }
-
-        sprites.idle.push(idle);
-        sprites.idle.push(mine);
+    let i = 0;
+    while (helperModules[prefix + '-idle-' + i] && helperModules[prefix + '-mine-' + i]) {
+        sprites.idle.push(helperModules[prefix + '-idle-' + i]);
+        sprites.idle.push(helperModules[prefix + '-mine-' + i]);
+        i++;
+    }
+    if(sprites.idle.length === 0 || sprites.mine.length === 0) {
+        throw new Error('Unable to find any sprites for helper: ' + prefix);
     }
     return sprites;
 }
 
 export const helperImgs = {
     earth: {
-        miningShibe: getHelperSprites(6, 'shibes'),
-        dogeKennels: getHelperSprites(10, 'kennels'),
+        miningShibe: getHelperSprites('shibes'),
+        dogeKennels: getHelperSprites('kennels'),
+        streamerKittens: getHelperSprites('kittens'),
+        spaceRocket: getHelperSprites('rockets'),
+        timeMachineRig: getHelperSprites('rigs'),
+        infiniteDogebility: getHelperSprites('dogebility'),
     },
+
+    moon: {
+        moonBase: getHelperSprites('bases'),
+        moonShibe: getHelperSprites('moonshibe'),
+        dogeCar: getHelperSprites('dogecar'),
+        landerShibe: getHelperSprites('landershibe'),
+        marsRocket: getHelperSprites('marsrocket'),
+        dogeGate: getHelperSprites('dogegate'),
+    },
+    
+    mars: {
+        marsBase: getHelperSprites('marsbase'),
+        partyShibe: getHelperSprites('partyshibe'),
+        curiosiDoge: getHelperSprites('curiosidoge'),
+        djKittenz: getHelperSprites('djkittenz'),
+        spaceBass: getHelperSprites('spacebass'),
+        jupiterRocket: getHelperSprites('juprocket'),
+    },
+
+    jupiter: {
+        cloudBase: getHelperSprites('jupiterbase'),
+        superShibe: getHelperSprites('supershibe'),
+        dogeAirShip: getHelperSprites('flyingdoge'),
+        tardogeis: getHelperSprites('tardogeis'),
+        dogeStar: getHelperSprites('dogestar'),
+    },
+
+    titan: {
+        titanBase: getHelperSprites('titanbase'),
+        roboShibe: getHelperSprites('roboshibe'),
+        heavyDogeWalker: getHelperSprites('walker'),
+        coinSeeker5000: getHelperSprites('seeker'),
+        timeTravelDRex: getHelperSprites('trex'),
+        altarOfTheSunDoge: getHelperSprites('altarofthesundoge'),
+    }
 }

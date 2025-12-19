@@ -96,9 +96,17 @@ export function preloadAsset(url) {
 /**
  * Extracts all URLs from an object or array before preloading all extracted URLs
  * @param {object | array} src
+ * @returns 
  */
-export function preloadAll(src) {
+export function preloadAll(src, callback) {
   const urls = extractUrls(src);
 
-  urls.forEach(url => preloadAsset(url));
+  return Promise.all(urls.map(url => {
+    new Promise((resolve, reject) => {
+      preloadAsset(url).then(() => {
+        callback(url);
+        resolve(url);
+      });
+    });
+  }));
 }
