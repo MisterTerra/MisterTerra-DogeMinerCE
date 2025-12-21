@@ -5,8 +5,7 @@ import saveManager from './save.js';
 import audioManager from './audio.js';
 import notificationManager from './notification.js';
 import cloudSaveManager from './cloud-save.js';
-
-import { imgLoaderBackground, imgLoaderCharacter, imgLoaderRock, imgLoaderPlatform } from './assets/asset-loaders.js';
+import { backgroundImgs, characterImgs, platformImgs, rockImgs } from './assets/img-src.js';
 
 // DogeMiner: Community Edition - Main Initialization
 const startGameWhenReady = () => initializeGame();
@@ -93,15 +92,15 @@ async function initializeGame() {
                 }
 
                 if (platform) {
-                    platform.src = imgLoaderPlatform.get(gameManager.currentLevel);
+                    platform.src = platformImgs[gameManager.currentLevel];
                 }
 
-                gameManager.backgrounds = imgLoaderBackground.get(gameManager.currentLevel);
+                gameManager.backgrounds = backgroundImgs[gameManager.currentLevel];
+                
+                mainRock.src = rockImgs[gameManager.currentLevel][0];
 
-                mainRock.src = imgLoaderRock.get(gameManager.currentLevel)[0];
-
-                mainCharacter.src = imgLoaderCharacter.get(gameManager.currentLevel).open;
-
+                mainCharacter.src = characterImgs[gameManager.currentLevel].open;
+                
                 // Make sure the background DOM nodes reflect the resolved pool for this load-in planet.
                 gameManager.syncBackgroundImages?.(true);
 

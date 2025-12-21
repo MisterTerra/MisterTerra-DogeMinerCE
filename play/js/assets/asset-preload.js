@@ -95,18 +95,22 @@ export function preloadAsset(url) {
 
 /**
  * Extracts all URLs from an object or array before preloading all extracted URLs
- * @param {object | array} src
- * @returns 
+ * @param {object | array | string} src
+ * @returns {object | array | string} The same value that was passed in
  */
-export function preloadAll(src, callback) {
+export async function preloadAll(src, callback) {
   const urls = extractUrls(src);
-
-  return Promise.all(urls.map(url => {
+  
+  await Promise.all(Array.from(urls).map(url => {
     new Promise((resolve, reject) => {
       preloadAsset(url).then(() => {
-        callback(url);
+        if(callback) {
+          callback(url);
+        }
         resolve(url);
       });
     });
   }));
+
+  return src;
 }

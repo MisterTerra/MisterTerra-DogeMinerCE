@@ -1,8 +1,8 @@
 import notificationManager from './notification.js';
 import gameManager from './game.js';
 import uiManager from './ui.js';
+import { characterImgs, platformImgs, rockImgs } from './assets/img-src.js';
 
-import { imgLoaderCharacter, imgLoaderRock, imgLoaderPlatform } from './assets/image-loader.js';
 // Cloud Save Manager for DogeMiner CE
 class CloudSaveManager {
     constructor() {
@@ -310,16 +310,16 @@ class CloudSaveManager {
 
             if (mainCharacter && mainRock) {
                 if (gameManager.currentLevel === 'moon') {
-                    mainCharacter.src = imgLoaderCharacter.moon.open;
-                    mainRock.src = imgLoaderRock.moon[0];
+                    mainCharacter.src = characterImgs.moon.open;
+                    mainRock.src = rockImgs.moon[0];
                     if (platform) {
-                        platform.src = imgLoaderPlatform.moon;
+                        platform.src = platformImgs.moon;
                     }
                 } else {
-                    mainCharacter.src = imgLoaderCharacter.earth.open;
-                    mainRock.src = imgLoaderRock.earth[0];
+                    mainCharacter.src = characterImgs.earth.open;
+                    mainRock.src = rockImgs.earth[0];
                     if (platform) {
-                        platform.src = imgLoaderPlatform.earth;
+                        platform.src = platformImgs.earth;
                     }
                 }
             }

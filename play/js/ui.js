@@ -6,17 +6,8 @@ import saveManager from "./save.js";
 import performanceMonitor from "./performance-monitor.js";
 import cloudSaveManager from "./cloud-save.js";
 
-import {
-    imgLoaderBackground,
-    imgLoaderRock,
-    imgLoaderPlatform,
-    imgLoaderHelper,
-    imgLoaderCharacter,
-    imgLoaderGeneral,
-    imgLoaderPlanetIcon
-} from "./assets/image-loader.js";
-
-import { preloadLevelAssets } from "./assets/asset-preload.js";
+import { preloadAll, extractUrls, preloadAsset } from "./assets/asset-preload.js";
+import { backgroundImgs, characterImgs, generalImgs, helperImgs, planetIconImgs, platformImgs, rockImgs } from "./assets/img-src.js";
 
 // DogeMiner: Community Edition - UI Management
 class UIManager {
@@ -283,8 +274,25 @@ class UIManager {
         // Show loading screen with fade
         this.showLoadingScreen(true);
 
-        // Preload level sprites
-        const preloadedSprites = await preloadLevelAssets(planetName);
+        const preloadTargets = Array.from(extractUrls([
+            characterImgs[planetName],
+            rockImgs[planetName],
+            backgroundImgs[planetName],
+            platformImgs[planetName],
+            helperImgs[planetName],
+        ]));
+
+        const assetCount = preloadTargets.length;
+        let runningTotal = 0;
+        this.updateLoadingInfoSecondary(`Loading assets: ${runningTotal}/${assetCount}`)
+
+        await Promise.all(Array.from(preloadTargets).map(async (url) => {
+            await preloadAsset(url);
+            runningTotal++;
+            this.updateLoadingInfoSecondary(`Loading assets: ${runningTotal}/${assetCount}`);
+        }));
+
+        //const preloadedSprites = await preloadLevelAssets(planetName);
 
         // Use timeout to ensure loading screen is visible before processing
         setTimeout(() => {
@@ -370,14 +378,14 @@ class UIManager {
                 audioManager.playBackgroundMusic();
             }
 
-            rockElement.src = preloadedSprites.rockSprites[0];
+            rockElement.src = rockImgs[planetName][0];
 
             if (platform) {
-                platform.src = preloadedSprites.platformSprites;
+                platform.src = platformImgs[planetName];
             }
 
             // Update backgrounds with the correct pool
-            gameManager.backgrounds = preloadedSprites.backgroundSprites;
+            gameManager.backgrounds = backgroundImgs[planetName];
             gameManager.currentBackgroundIndex = 0;
 
             // Sync background image DOM nodes to match the newly selected planet.
@@ -673,19 +681,19 @@ class UIManager {
                     </div>
                 ` : '';
 
-                const helperSprites = imgLoaderHelper.get(gameManager.currentLevel);
+                const helperSprites = helperImgs[gameManager.currentLevel];
 
                 item.innerHTML = `
                     <div class="shop-item-quantity">#${owned}</div>
                     <div class="shop-item-title">${helper.name}</div>
                     <div class="shop-item-dps">${helper.baseDps} ĐPS</div>
                     <div class="shop-item-sprite">
-                        <img src="${helperSprites[type].idle}" alt="${helper.name}">
+                        <img src="${helperSprites[type].idle[0]}" alt="${helper.name}">
                     </div>
                     <div class="shop-item-description">${helper.description}</div>
                     <button class="shop-buy-btn${isLocked ? ' locked' : ''}" data-helper-type="${type}" 
                             ${buttonDisabled} style="width: ${buttonWidth};">
-                        <img src="${imgLoaderGeneral.get().coin}" alt="DogeCoin" class="buy-btn-icon">
+                        <img src="${generalImgs.coin}" alt="DogeCoin" class="buy-btn-icon">
                         <span class="buy-btn-price">${priceText}</span>
                     </button>
                     ${lockOverlayHtml}
@@ -943,8 +951,8 @@ class UIManager {
         }, 3000);
     }
 
-    async updateBackground(levelName) {
-        const sprites = await imgLoaderRock.preload(levelName);
+    updateBackground(levelName) {
+        preloadAll(rockImgs[levelName]);
 
         const rockImage = document.getElementById('main-rock');
         if (!rockImage) return;
@@ -952,7 +960,7 @@ class UIManager {
         const level = gameManager.levels[levelName];
         if (!level) return;
 
-        const targetSrc = sprites[0];
+        const targetSrc = rockImgs[levelName][0];
         const currentAttr = rockImage.getAttribute('src') || '';
 
         // If the rock is already displaying this image, skip any fade to avoid flicker
@@ -965,15 +973,15 @@ class UIManager {
         rockImage.style.opacity = '1';
     }
 
-    async updateCharacter(level) {
-        const sprites = await imgLoaderCharacter.preload(level);
+    updateCharacter(level) {
+        preloadAll(characterImgs[level]);
 
         const characterImage = document.getElementById('main-character');
         if (!characterImage) return;
 
         // Check if the current character is already correct to avoid unnecessary updates
         const currentSrc = characterImage.src;
-        const targetSrc = sprites.open;
+        const targetSrc = characterImgs[level].open;
 
         // Only update if the source has changed (avoid unnecessary reloading)
         if (!currentSrc.endsWith(targetSrc)) {
@@ -1328,7 +1336,7 @@ class UIManager {
 
             // Setup mobile planet tabs
             mobilePlanetTabs.forEach(tab => {
-                tab.getElementsByTagName("img")[0].src = imgLoaderPlanetIcon.get()[tab.dataset.planet];
+                tab.getElementsByTagName("img")[0].src = planetIconImgs[tab.dataset.planet];
 
                 tab.addEventListener('click', (e) => {
                     const planet = e.currentTarget.dataset.planet;
@@ -1341,8 +1349,8 @@ class UIManager {
                         const toggleIcon = document.getElementById('mobile-current-planet-icon');
                         const toggleText = document.getElementById('mobile-planet-name');
                         if (toggleIcon) {
-                            console.log("mobile toggle icon", imgLoaderPlanetIcon.get()[planet]);
-                            toggleIcon.src = imgLoaderPlanetIcon.get()[planet];
+                            console.log("mobile toggle icon", planetIconImgs[planet]);
+                            toggleIcon.src = planetIconImgs[planet];
                         }
                         if (toggleText) {
                             toggleText.textContent = planet.charAt(0).toUpperCase() + planet.slice(1);
@@ -1429,7 +1437,7 @@ class UIManager {
         const mobilePlanetTabs = document.querySelectorAll('.mobile-planet-tab');
 
         if (toggleIcon) {
-            toggleIcon.src = imgLoaderPlanetIcon.get()[gameManager.currentLevel];
+            toggleIcon.src = planetIconImgs[gameManager.currentLevel];
         }
         if (toggleText) {
             toggleText.textContent = gameManager.currentLevel.charAt(0).toUpperCase() + gameManager.currentLevel.slice(1);
@@ -1472,7 +1480,7 @@ class UIManager {
             // Open menu
             mobileMenu.classList.add('open');
             toggleBtn.classList.add('menu-open');
-            toggleIcon.src = imgLoaderGeneral.get().btnDown;
+            toggleIcon.src = generalImgs.btnDown;
 
             // Update mobile content when opening
             this.updateMobileShopContent();
@@ -1480,7 +1488,7 @@ class UIManager {
             // Close menu
             mobileMenu.classList.remove('open');
             toggleBtn.classList.remove('menu-open');
-            toggleIcon.src = imgLoaderGeneral.get().btnUp;
+            toggleIcon.src = generalImgs.btnUp;
         }
     }
 
@@ -1632,12 +1640,12 @@ class UIManager {
                     <div class="shop-item-dps">${helper.baseDps} ĐPS</div>
                     <div class="shop-sprite-description-container">
                         <div class="shop-item-sprite">
-                            <img src="${imgLoaderHelper.get(gameManager.currentLevel)[type].idle}" alt="${helper.name}">
+                            <img src="${helperImgs[gameManager.currentLevel][type].idle[0]}" alt="${helper.name}">
                         </div>
                         <div class="shop-item-info">
                             <div class="shop-item-description">${helper.description}</div>
                             <button class="shop-buy-btn" data-helper-type="${type}" ${buttonDisabled}>
-                                <img src="${imgLoaderGeneral.get().coin}" alt="DogeCoin" class="buy-btn-icon">
+                                <img src="${generalImgs.coin}" alt="DogeCoin" class="buy-btn-icon">
                                 <span class="buy-btn-price">${priceText}</span>
                             </button>
                         </div>
